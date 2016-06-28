@@ -1,0 +1,21 @@
+person:
+  RTP:
+    color: skyblue
+    faces:
+      アレックス:
+        name: アレックス
+        filename: 主人公1
+        number: 0
+      ブライアン:
+        name: ブライアン
+        color: red
+        filename: 主人公1
+        number: 2
+      キャロル:
+        name: キャロル
+        filename: 主人公1
+        number: 5
+      デイジー:
+        name: デイジー
+        filename: 主人公1
+        number: 7

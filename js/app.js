@@ -1,3 +1,4 @@
-import parser from 'TextParser';
+import m from 'mithril';
+import tmaFrontComponent from 'components/tma-front-component.js';
 
-// TODO
+m.mount(document.getElementById('appContainer'), tmaFrontComponent);

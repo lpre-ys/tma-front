@@ -37,6 +37,26 @@
     "./node_modules/js-yaml/lib/js-yaml/type/js/regexp.js": 34,
     "./node_modules/js-yaml/lib/js-yaml/type/js/function.js": 35,
     "./node_modules/esprima/esprima.js": 36,
-    "./node_modules/js-yaml/lib/js-yaml/dumper.js": 37
+    "./node_modules/js-yaml/lib/js-yaml/dumper.js": 37,
+    "./node_modules/onecolor/index.js": 38,
+    "./node_modules/onecolor/lib/color.js": 39,
+    "./node_modules/onecolor/lib/XYZ.js": 40,
+    "./node_modules/onecolor/lib/LAB.js": 41,
+    "./node_modules/onecolor/lib/HSV.js": 42,
+    "./node_modules/onecolor/lib/HSL.js": 43,
+    "./node_modules/onecolor/lib/CMYK.js": 44,
+    "./node_modules/onecolor/lib/plugins/namedColors.js": 45,
+    "./node_modules/onecolor/lib/plugins/clearer.js": 46,
+    "./node_modules/onecolor/lib/plugins/darken.js": 47,
+    "./node_modules/onecolor/lib/plugins/desaturate.js": 48,
+    "./node_modules/onecolor/lib/plugins/grayscale.js": 49,
+    "./node_modules/onecolor/lib/plugins/lighten.js": 50,
+    "./node_modules/onecolor/lib/plugins/mix.js": 51,
+    "./node_modules/onecolor/lib/plugins/negate.js": 52,
+    "./node_modules/onecolor/lib/plugins/opaquer.js": 53,
+    "./node_modules/onecolor/lib/plugins/rotate.js": 54,
+    "./node_modules/onecolor/lib/plugins/saturate.js": 55,
+    "./node_modules/onecolor/lib/plugins/toAlpha.js": 56,
+    "./node_modules/base64-arraybuffer/lib/base64-arraybuffer.js": 57
   }
 }

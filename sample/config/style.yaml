@@ -1,0 +1,28 @@
+style:
+  display:
+    name:
+      prefix: '【'
+      suffix: '】'
+      colorScope: 'outer'
+    lineLimit: 4
+color:
+  default: 0
+  blue: 1
+  yellow: 2
+  black: 3
+  lemon: 4
+  darkred: 5
+  violet: 6
+  pink: 7
+  orange: 8
+  grass: 9
+  skyblue: 10
+  red: 11
+  lime: 12
+  purple: 13
+  deepyellow: 14
+  green: 15
+  darkviolet: 16
+  darkblue: 17
+  darkgreen: 18
+  brown: 19
