@@ -21,7 +21,7 @@ tma-front
 
 ## Licence
 
-[MIT](https://github.com/lpre-ys/tk2k-message-assist/blob/master/LICENSE)
+[MIT](https://github.com/lpre-ys/tma-front/blob/master/LICENSE)
 
 ## Author
 
