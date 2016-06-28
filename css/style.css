@@ -1,0 +1,79 @@
+* {
+  box-sizing: border-box;
+}
+body {
+  background-color: #EEE;
+}
+#appContainer {
+  display: flex;
+  justify-content: center;
+  align-items: top;
+  height: 100%;
+}
+.frame {
+  background-color: #FFF;
+  min-height: 480px;
+  border-radius: 4px;
+  box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
+  padding: 20px;
+  margin-top: 20px;
+}
+.right {
+  width: 640px;
+  min-height: 480px;
+  background-color: #AFF;
+  height: 100%;
+
+}
+.left {
+  height: 100%;
+  background-color: #FAF;
+}
+
+textarea {
+  width: 400px;
+  height: 500px;
+  margin: 10px;
+}
+
+.messageWindow {
+  width: 640px;
+  height: 160px;
+  background-color: #FFA;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAAeCAIAAACJwFiTAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAYdEVYdFNvZnR3YXJlAHBhaW50Lm5ldCA0LjAuOWwzfk4AAAC2SURBVBhXNclZCwFhHIXx83/XGetYs0wjy3BNiVIuRMkFKUUppRQRRUQKX91bUr96Oh1UPwb9gn/8D2q/VXub7wX/Rag8qfIEyncqPQjFG5WuhMKZFS4E78i8E8HdM/fAkN/x3JYhu+G5DUNmzQ2kV9xAailSS47kXCYWAvGZiM0EnKl0pgLRsYhMJMIjFRlJhIYyOJQI9FVgoGD3pN1TUF2tuyYdbUC2LNHW4E3NmhaoblFDfwF7WxwVB8hfiAAAAABJRU5ErkJggg==');
+  background-size: contain;
+}
+
+.faceBox {
+  width: 160px;
+  height: 160px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.face {
+  width: 96px;
+  height: 96px;
+}
+.text {
+  flex: 1;
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  font-family: 'ＭＳ ゴシック';
+  font-size: 24px;
+}
+
+.line {
+  overflow: hidden;
+  height: 32px;
+  width: 19em;
+  white-space: nowrap;
+  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAAgCAIAAAC3sD5OAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAYdEVYdFNvZnR3YXJlAHBhaW50Lm5ldCA0LjAuOWwzfk4AAACeSURBVBhXRco7C4EBHIXx84UVxWCwGAwWg8FAMVgMBgNFWSjK5XWX+/36+hCPP3pTv3o6deS4DFw+6f9ivnn+18uLd3l981mdJ117th60H6h5o3FH9Rv1K6qeqV1Q5UT5jEoHSkdU3GNU2GGU32KUW5PdoMyK9BqllhglFxgl5hjFZxjFpsQmKDrGKDLCKDzEKOQQHKBAH7+DfF18Pd5tzKHdOuDlPwAAAABJRU5ErkJggg==');
+  background-size: contain;
+  -webkit-background-clip: text;
+  color: rgba(0, 0, 0, 0);
+}
