@@ -7,8 +7,7 @@ body {
 #appContainer {
   display: flex;
   justify-content: center;
-  align-items: top;
-  height: 100%;
+  align-items: flex-start;
 }
 .frame {
   background-color: #FFF;
@@ -16,18 +15,17 @@ body {
   border-radius: 4px;
   box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
   padding: 20px;
-  margin-top: 20px;
+  margin: 20px;
 }
 .right {
-  width: 640px;
   min-height: 480px;
-  background-color: #AFF;
   height: 100%;
+  padding: 0 20px;
 
 }
 .left {
   height: 100%;
-  background-color: #FAF;
+  border-right: 1px solid #AAA;
 }
 
 textarea {
@@ -37,43 +35,67 @@ textarea {
 }
 
 .messageWindow {
-  width: 640px;
-  height: 160px;
-  background-color: #FFA;
+  width: 320px;
+  height: 80px;
   display: flex;
   justify-content: center;
   align-items: center;
-  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAAeCAIAAACJwFiTAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAYdEVYdFNvZnR3YXJlAHBhaW50Lm5ldCA0LjAuOWwzfk4AAAC2SURBVBhXNclZCwFhHIXx83/XGetYs0wjy3BNiVIuRMkFKUUppRQRRUQKX91bUr96Oh1UPwb9gn/8D2q/VXub7wX/Rag8qfIEyncqPQjFG5WuhMKZFS4E78i8E8HdM/fAkN/x3JYhu+G5DUNmzQ2kV9xAailSS47kXCYWAvGZiM0EnKl0pgLRsYhMJMIjFRlJhIYyOJQI9FVgoGD3pN1TUF2tuyYdbUC2LNHW4E3NmhaoblFDfwF7WxwVB8hfiAAAAABJRU5ErkJggg==');
-  background-size: contain;
+  border-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAIAAAD8GO2jAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAYdEVYdFNvZnR3YXJlAHBhaW50Lm5ldCA0LjAuOWwzfk4AAAERSURBVEhLtdbfSsJgHMbxne0sglBB3MT+SJaRf0Z/lOkalokyRjGGIBpECCKBRIddidflWZfQFQiiP3nHMHgOH+Ez9r4nz/f01fyf0eJvtVyuuWTTMEwZ1+L1+S/NbkOL1+XCohpqcxtQp+fvkEXWQODpKyACgdbslQgEHj59IhBoTj0iELAnPSIQqI07RCBw99EmAoGb90ciEKi+uUQgUB46RCBwPWgQgUCxXycCgYvwnggEzoNbIhA4e7GIQODErxCBQM4rEYGA2b0iAoFM55IIBNLtAhEIpFp5IhBIuKdEIHDkHBOBwKGdJfoXEPLMO6gbLOo5GgXkFz9PiWQzCsgnp32Q5W1At5LqtA+6ldwAqgSSE8dZ2DIAAAAASUVORK5CYII=') 8 fill stretch;
+  border-style: solid;
+  border-width: 8px;
+  image-rendering: pixelated;
+}
+
+.zoomx2 {
+  zoom: 2;
 }
 
 .faceBox {
-  width: 160px;
-  height: 160px;
+  width: 80px;
+  height: 80px;
   display: flex;
   justify-content: center;
   align-items: center;
 }
 .face {
-  width: 96px;
-  height: 96px;
+  width: 48px;
+  height: 48px;
 }
-.text {
+.message {
   flex: 1;
   list-style-type: none;
   margin: 0;
   padding: 0;
   font-family: 'ＭＳ ゴシック';
-  font-size: 24px;
+  font-size: 12px;
 }
 
 .line {
   overflow: hidden;
-  height: 32px;
+  height: 16px;
   width: 19em;
-  white-space: nowrap;
+  position: relative;
+}
+
+.text, .shadow {
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+.text {
   background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAAgCAIAAAC3sD5OAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAYdEVYdFNvZnR3YXJlAHBhaW50Lm5ldCA0LjAuOWwzfk4AAACeSURBVBhXRco7C4EBHIXx84UVxWCwGAwWg8FAMVgMBgNFWSjK5XWX+/36+hCPP3pTv3o6deS4DFw+6f9ivnn+18uLd3l981mdJ117th60H6h5o3FH9Rv1K6qeqV1Q5UT5jEoHSkdU3GNU2GGU32KUW5PdoMyK9BqllhglFxgl5hjFZxjFpsQmKDrGKDLCKDzEKOQQHKBAH7+DfF18Pd5tzKHdOuDlPwAAAABJRU5ErkJggg==');
   background-size: contain;
   -webkit-background-clip: text;
   color: rgba(0, 0, 0, 0);
+  white-space: nowrap;
+  margin: 0;
+  padding: 0;
+}
+.shadow {
+  color: white;
+  text-shadow: 1px 1px 0px #000;
+  white-space: nowrap;
+  margin: 0;
+  padding: 0;
 }

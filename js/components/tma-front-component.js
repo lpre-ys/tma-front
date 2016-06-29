@@ -15,13 +15,49 @@ const tmaFrontComponent = {
             m('.faceBox', [
               m('img.face', {src: 'https://placehold.it/96x96'})
             ]),
-            m('ul.text', [
-              m('li.line', '１２３４５６７８９０１２３４５６７８９０'),
-              m('li.line', 'テスト2'),
-              m('li.line', 'テスト3'),
-              m('li.line', 'テスト4')
+            m('ul.message', [
+              m('li.line', [
+                m('p.shadow', '１２３４５６７８９０１２３４５６７８９０'),
+                m('p.text', '１２３４５６７８９０１２３４５６７８９０')
+              ]),
+              m('li.line', [
+                m('p.shadow', '１２３４５６７８９０１２３４５６７８９０'),
+                m('p.text', '１２３４５６７８９０１２３４５６７８９０')
+              ]),
+              m('li.line', [
+                m('p.shadow', '１２３４５６７８９０１２３４５６７８９０'),
+                m('p.text', '１２３４５６７８９０１２３４５６７８９０')
+              ]),
+              m('li.line', [
+                m('p.shadow', '１２３４５６７８９０１２３４５６７８９０'),
+                m('p.text', '１２３４５６７８９０１２３４５６７８９０')
+              ])
+            ])
+          ]),
+          m('.messageWindow', [
+            m('.faceBox', [
+              m('img.face', {src: 'https://placehold.it/96x96'})
+            ]),
+            m('ul.message', [
+              m('li.line', [
+                m('p.shadow', '１２３４５６７８９０１２３４５６７８９０'),
+                m('p.text', '１２３４５６７８９０１２３４５６７８９０')
+              ]),
+              m('li.line', [
+                m('p.shadow', '１２３４５６７８９０１２３４５６７８９０'),
+                m('p.text', '１２３４５６７８９０１２３４５６７８９０')
+              ]),
+              m('li.line', [
+                m('p.shadow', '１２３４５６７８９０１２３４５６７８９０'),
+                m('p.text', '１２３４５６７８９０１２３４５６７８９０')
+              ]),
+              m('li.line', [
+                m('p.shadow', '１２３４５６７８９０１２３４５６７８９０'),
+                m('p.text', '１２３４５６７８９０１２３４５６７８９０')
+              ])
             ])
           ])
+
         ])
       ])
     ];
