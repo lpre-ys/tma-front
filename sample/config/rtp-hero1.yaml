@@ -1,0 +1,13 @@
+person:
+  RTP:
+    color: skyblue
+    faces:
+      アレックス:
+        name: アレックス
+        filename: 主人公.png
+        number: 1
+      ブライアン:
+        name: ブライアン
+        color: red
+        filename: 主人公.png
+        number: 2

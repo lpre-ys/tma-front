@@ -6,7 +6,7 @@ body {
 }
 #appContainer {
   display: flex;
-  justify-content: center;
+  justify-content: left;
   align-items: flex-start;
 }
 .frame {
@@ -26,6 +26,16 @@ body {
 .left {
   height: 100%;
   border-right: 1px solid #AAA;
+}
+
+.loadConfig {
+  border: 5px dotted #666;
+  color: #333;
+  margin: 20px;
+  height: 80px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 textarea {
@@ -99,4 +109,25 @@ textarea {
   white-space: nowrap;
   margin: 0;
   padding: 0;
+}
+/* for colors */
+.color0 {
+  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAAgCAIAAAC3sD5OAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAYdEVYdFNvZnR3YXJlAHBhaW50Lm5ldCA0LjAuOWwzfk4AAACeSURBVBhXRco7C4EBHIXx84UVxWCwGAwWg8FAMVgMBgNFWSjK5XWX+/36+hCPP3pTv3o6deS4DFw+6f9ivnn+18uLd3l981mdJ117th60H6h5o3FH9Rv1K6qeqV1Q5UT5jEoHSkdU3GNU2GGU32KUW5PdoMyK9BqllhglFxgl5hjFZxjFpsQmKDrGKDLCKDzEKOQQHKBAH7+DfF18Pd5tzKHdOuDlPwAAAABJRU5ErkJggg==');
+  background-size: contain;
+}
+.color1 {
+  background-color: blue;
+  background-size: contain;
+  -webkit-background-clip: text;
+}
+.color2 {
+  background-color: orange;
+  background-size: contain;
+  -webkit-background-clip: text;
+}
+/** TODO **/
+.color11 {
+  background-color: red;
+  background-size: contain;
+  -webkit-background-clip: text;
 }
