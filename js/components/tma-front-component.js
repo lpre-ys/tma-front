@@ -1,6 +1,7 @@
 import m from 'mithril';
 import zoomComponent from './zoom-component';
 import loadComponent from './load-component';
+import TmaFrontVM from '../view-model/tma-front-vm';
 import Zoom from '../model/zoom';
 import Scenario from '../model/scenario';
 
@@ -8,13 +9,14 @@ const tmaFrontComponent = {
   controller: function () {
     this.zoom = new Zoom({zoomLevel: 1});
     this.scenario = new Scenario();
+    this.vm = new TmaFrontVM({scenario: this.scenario});
   },
   view: (ctrl) => {
     const windowList = ctrl.scenario.windowList;
     const colors = ctrl.scenario.colors;
     return [
       m('.left', [
-        m.component(loadComponent, {scenario: ctrl.scenario}),
+        m.component(loadComponent, {vm: ctrl.vm.loadVM}),
         m('h2', 'シナリオファイル'),
         m('textarea#input', {
           value: ctrl.scenario.scenarioText(),

@@ -94,11 +94,15 @@
 	
 	var _loadComponent2 = _interopRequireDefault(_loadComponent);
 	
-	var _zoom = __webpack_require__(7);
+	var _tmaFrontVm = __webpack_require__(6);
+	
+	var _tmaFrontVm2 = _interopRequireDefault(_tmaFrontVm);
+	
+	var _zoom = __webpack_require__(11);
 	
 	var _zoom2 = _interopRequireDefault(_zoom);
 	
-	var _scenario = __webpack_require__(8);
+	var _scenario = __webpack_require__(12);
 	
 	var _scenario2 = _interopRequireDefault(_scenario);
 	
@@ -108,11 +112,12 @@
 	  controller: function () {
 	    this.zoom = new _zoom2.default({ zoomLevel: 1 });
 	    this.scenario = new _scenario2.default();
+	    this.vm = new _tmaFrontVm2.default({ scenario: this.scenario });
 	  },
 	  view: ctrl => {
 	    const windowList = ctrl.scenario.windowList;
 	    const colors = ctrl.scenario.colors;
-	    return [(0, _mithril2.default)('.left', [_mithril2.default.component(_loadComponent2.default, { scenario: ctrl.scenario }), (0, _mithril2.default)('h2', 'シナリオファイル'), (0, _mithril2.default)('textarea#input', {
+	    return [(0, _mithril2.default)('.left', [_mithril2.default.component(_loadComponent2.default, { vm: ctrl.vm.loadVM }), (0, _mithril2.default)('h2', 'シナリオファイル'), (0, _mithril2.default)('textarea#input', {
 	      value: ctrl.scenario.scenarioText(),
 	      onkeyup: _mithril2.default.withAttr('value', ctrl.scenario.scenarioText)
 	    })]), (0, _mithril2.default)('.right', [(0, _mithril2.default)('h2', 'プレビュー'), _mithril2.default.component(_zoomComponent2.default, { zoom: ctrl.zoom }), (0, _mithril2.default)('#messageList', { class: `zoom${ ctrl.zoom.zoomLevel() }x` }, [windowList.map(messageBox => {
@@ -202,21 +207,31 @@
 	
 	var _mithril2 = _interopRequireDefault(_mithril);
 	
-	var _loadVm = __webpack_require__(6);
-	
-	var _loadVm2 = _interopRequireDefault(_loadVm);
-	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	const loadComponent = {
 	  controller: function (data) {
-	    this.vm = new _loadVm2.default(data.scenario);
+	    this.vm = data.vm;
+	    this.tColor = false;
 	    this.noop = e => {
 	      e.preventDefault();
 	    };
 	  },
 	  view: ctrl => {
-	    return (0, _mithril2.default)('.loadComponent', [(0, _mithril2.default)('h2', '設定ファイル'), (0, _mithril2.default)('button.checkConfig', '現在の設定の確認'), (0, _mithril2.default)('.settingList', []), (0, _mithril2.default)('.loadConfig', {
+	    const settingList = [];
+	    if (ctrl.vm.status()) {
+	      // systemImg
+	      const systemImg = ctrl.vm.systemImg();
+	      const systemImgView = (0, _mithril2.default)('.systemImg', [(0, _mithril2.default)('h3', 'システムグラフィック'), (0, _mithril2.default)('img', {
+	        src: systemImg.dataUrl
+	      }), (0, _mithril2.default)('.tColor', ['透過色: ', (0, _mithril2.default)('span', {
+	        style: { color: systemImg.tColorCss }
+	      }, `■${ systemImg.tColorCss }`)]), (0, _mithril2.default)('h4', 'メッセージ枠ベース画像'), (0, _mithril2.default)('img', {
+	        src: systemImg.messageWindow
+	      })]);
+	      settingList.push(systemImgView);
+	    }
+	    return (0, _mithril2.default)('.loadComponent', [(0, _mithril2.default)('h2', '設定ファイル'), (0, _mithril2.default)('button.checkConfig', '現在の設定の確認'), (0, _mithril2.default)('.settingList', {}, settingList), (0, _mithril2.default)('.loadConfig', {
 	      ondragover: ctrl.noop,
 	      ondrop: ctrl.vm.dropFiles.bind(ctrl.vm)
 	    }, 'ここに設定ファイルをまとめてドロップしてください。')]);
@@ -235,18 +250,56 @@
 	  value: true
 	});
 	
+	var _loadVm = __webpack_require__(7);
+	
+	var _loadVm2 = _interopRequireDefault(_loadVm);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	class TmaFrontVM {
+	  constructor(data) {
+	    this.loadVM = new _loadVm2.default(data.scenario);
+	  }
+	}
+	exports.default = TmaFrontVM;
+
+/***/ },
+/* 7 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
 	var _mithril = __webpack_require__(1);
 	
 	var _mithril2 = _interopRequireDefault(_mithril);
+	
+	var _systemImg = __webpack_require__(8);
+	
+	var _systemImg2 = _interopRequireDefault(_systemImg);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	class LoadVM {
 	  constructor(scenario) {
+	    // init member
 	    this.style = _mithril2.default.prop();
 	    this.status = _mithril2.default.prop(false);
 	    this.peoples = [];
 	    this.scenario = scenario;
+	    this.systemImg = _mithril2.default.prop(false);
+	    this.png = [];
+	    // set styleSheet
+	    this.styleSheet = false;
+	    const styleSheets = document.styleSheets;
+	    for (let i = 0; i < styleSheets.length; i++) {
+	      if (styleSheets[i].href != null && styleSheets[i].href.endsWith('style.css')) {
+	        this.styleSheet = styleSheets[i];
+	      }
+	    }
 	  }
 	
 	  dropFiles(e) {
@@ -258,19 +311,30 @@
 	      const ext = getFileExt(file.name);
 	      if (file.name == 'style.yaml') {
 	        promises.push(this._readStyleYaml(file));
-	        // } else if (ext == 'png') {
-	        //   // 画像読み込み
-	        //   reader.readAsDataURL(file);
+	      } else if (ext == 'png') {
+	        promises.push(this._readPng(file));
 	      } else if (['yaml', 'yml'].includes(ext)) {
-	        // テキスト読み込み
 	        promises.push(this._readPeopleYaml(file));
 	      }
 	    }
-	    _mithril2.default.sync(promises).then(args => {
-	      console.log(this);
+	    _mithril2.default.sync(promises).then(() => {
 	      this.scenario.setConfig(this.style(), this.peoples);
-	      this.status = true;
+	      this.status(true);
+	      // set CSS images
+	      if (this.systemImg()) {
+	        this._editCss('.messageWindow', 'border-image-source', `url(${ this.systemImg().messageWindow })`);
+	        this._editCss('.text', 'background-image', `url(${ this.systemImg().defaultText })`);
+	        for (let i = 0; i < 20; i++) {
+	          this._editCss(`.color${ i }`, 'background-image', `url(${ this.systemImg().getTextColor(i) })`);
+	        }
+	      }
+	      // redraw
+	      _mithril2.default.redraw();
 	    });
+	  }
+	
+	  _editCss(selector, name, value) {
+	    this.styleSheet.insertRule(`${ selector } { ${ name }: ${ value }}`, this.styleSheet.cssRules.length);
 	  }
 	
 	  _readStyleYaml(file) {
@@ -300,8 +364,23 @@
 	
 	    return deferred.promise;
 	  }
+	
+	  _readPng(file) {
+	    const deferred = _mithril2.default.deferred();
+	    const reader = new FileReader();
+	    const systemImg = new _systemImg2.default(deferred);
+	    reader.readAsArrayBuffer(file);
+	    this.systemImg(systemImg); //TODO
+	
+	    reader.onloadend = systemImg.loadEnd.bind(systemImg);
+	    reader.onerror = deferred.reject;
+	
+	    return deferred.promise;
+	  }
 	}
 	exports.default = LoadVM;
+	// import Png from '../model/png';
+	
 	const getFileExt = filename => {
 	  const dotIndex = filename.lastIndexOf('.');
 	  if (dotIndex < 0) {
@@ -309,45 +388,287 @@
 	  }
 	  return filename.substr(dotIndex + 1);
 	};
-	const handleLoadEnd = e => {
-	  if (e.target.readyState == FileReader.DONE) {
-	    const file = e.target.result;
-	    if (file.startsWith('data:image')) {
-	      // 画像読み込み
-	      const img = new Image();
-	      img.src = file;
-	      img.onload = handleImageOnLoad;
-	    } else {
-	      const outputList = document.getElementById('outputList');
-	      const li = document.createElement('li');
-	      li.textContent = e.target.result;
-	      outputList.appendChild(li);
+
+/***/ },
+/* 8 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _png = __webpack_require__(9);
+	
+	var _png2 = _interopRequireDefault(_png);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	class SystemImg extends _png2.default {
+	  constructor(deferred) {
+	    super(deferred);
+	    this.messageWindowDataUrl = false;
+	  }
+	
+	  get messageWindow() {
+	    if (this.file == false) {
+	      return false;
+	    }
+	    if (this.messageWindowDataUrl == false) {
+	      // make messageWindow
+	      const canvas = this._makeCanvas(32, 32);
+	
+	      // frame transparent set
+	      const ctx = canvas.getContext('2d');
+	      ctx.drawImage(this.img, 32, 0, 32, 32, 0, 0, 32, 32);
+	      const imageData = ctx.getImageData(0, 0, 32, 32);
+	      const tColor = this.palette[0];
+	      for (let y = 0; y < canvas.height; y++) {
+	        for (let x = 0; x < canvas.width; x++) {
+	          const offset = (y * canvas.width + x) * 4;
+	          // 中央
+	          if (x >= 8 && x <= 24 && y >= 8 && y <= 24) {
+	            imageData.data[offset + 3] = 0;
+	            continue;
+	          }
+	          const r = imageData.data[offset];
+	          const g = imageData.data[offset + 1];
+	          const b = imageData.data[offset + 2];
+	          if (tColor.r == r && tColor.g == g && tColor.b == b) {
+	            imageData.data[offset + 3] = 0;
+	          }
+	        }
+	      }
+	
+	      // frame serialize
+	      ctx.putImageData(imageData, 0, 0);
+	      const frame = new Image();
+	      frame.src = canvas.toDataURL();
+	
+	      // draw background
+	      ctx.drawImage(this.img, 0, 0, 32, 32, 0, 0, 32, 32);
+	      // draw frame
+	      ctx.drawImage(frame, 0, 0);
+	
+	      this.messageWindowDataUrl = canvas.toDataURL();
+	    }
+	    return this.messageWindowDataUrl;
+	  }
+	
+	  get defaultText() {
+	    return this.getTextColor(0);
+	  }
+	
+	  getTextColor(number) {
+	    // make background
+	    const canvas = this._makeCanvas(16, 16);
+	    const ctx = canvas.getContext('2d');
+	    const x = 16 * (number % 10);
+	    const y = 48 + Math.floor(number / 10) * 16;
+	    console.log(x);
+	    console.log(y);
+	    ctx.drawImage(this.img, x, y, 16, 16, 0, 0, 16, 16);
+	
+	    return canvas.toDataURL();
+	  }
+	
+	  _makeCanvas(w, h) {
+	    const canvas = document.createElement('canvas');
+	    canvas.width = w;
+	    canvas.height = h;
+	
+	    return canvas;
+	  }
+	}
+	
+	exports.default = SystemImg; // const canvasTest = (img) => {
+	//   const canvas = document.createElement('canvas');
+	//   // test
+	//   canvas.width = 5;
+	//   canvas.height = 33;
+	//   const ctx = canvas.getContext('2d');
+	//   ctx.drawImage(img, 0, 0, 5, 33);
+	//   return canvas.toDataURL();
+	// };
+
+/***/ },
+/* 9 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _base64Arraybuffer = __webpack_require__(10);
+	
+	var _base64Arraybuffer2 = _interopRequireDefault(_base64Arraybuffer);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	class Png {
+	  constructor(deferred) {
+	    // private init
+	    this.file = false;
+	    this.dataUrl = false;
+	    this.palette = [];
+	    this.deferred = deferred;
+	    this.img = false;
+	  }
+	
+	  get imageInfo() {
+	    return {
+	      dataUrl: this.dataUrl,
+	      palette: this.palette
+	    };
+	  }
+	
+	  loadEnd(e) {
+	    if (e.target.readyState == FileReader.DONE) {
+	      this.file = e.target.result;
+	      // dataUrl変換、IMG要素追加
+	      this.dataUrl = 'data:image/png;base64,' + _base64Arraybuffer2.default.encode(this.file);
+	      this.img = new Image();
+	      this.img.src = this.dataUrl;
+	      // パレット読み込み
+	      this.palette = this.readPlte(pngInfo.signature);
+	      // resolve
+	      this.deferred.resolve(true);
 	    }
 	  }
-	};
-	const handleImageOnLoad = e => {
-	  // 画像を変換して新しいimgタグにセット
-	  const img = e.target;
-	  const data = canvasTest(img);
-	  if (data) {
-	    const message = document.getElementById('message');
-	    // message.innerText = 'TEST MESSAGE.';
-	    message.classList.add('mask-text');
-	    message.style.backgroundImage = `url(${ data })`;
+	
+	  readPlte(offset) {
+	    const buffer = this.file;
+	    if (offset >= buffer.byteLength) {
+	      return false;
+	    }
+	    const dv = new DataView(buffer);
+	    const length = dv.getUint32(offset);
+	    const name = [];
+	    for (let i = 0; i < 4; i++) {
+	      name.push(dv.getUint8(offset + pngInfo.chunk.length + i));
+	    }
+	    if (String.fromCharCode.apply(null, name) == 'PLTE') {
+	      const palette = [];
+	      const pOffset = offset + pngInfo.chunk.length + pngInfo.chunk.name;
+	      const pLength = length / 3;
+	      for (let i = 0; i < pLength; i++) {
+	        palette.push({
+	          r: dv.getUint8(pOffset + i * 3),
+	          g: dv.getUint8(pOffset + i * 3 + 1),
+	          b: dv.getUint8(pOffset + i * 3 + 2)
+	        });
+	      }
+	      return palette;
+	    } else {
+	      return this.readPlte(offset + pngInfo.chunk.length + pngInfo.chunk.name + length + pngInfo.chunk.crc);
+	    }
 	  }
-	};
-	const canvasTest = img => {
-	  const canvas = document.createElement('canvas');
-	  // test
-	  canvas.width = 5;
-	  canvas.height = 33;
-	  const ctx = canvas.getContext('2d');
-	  ctx.drawImage(img, 0, 0, 5, 33);
-	  return canvas.toDataURL();
+	
+	  get tColorCss() {
+	    if (!this.palette) {
+	      return '';
+	    }
+	    const c = this.palette[0];
+	    return `rgb(${ c.r }, ${ c.g }, ${ c.b })`;
+	  }
+	}
+	
+	exports.default = Png;
+	const pngInfo = {
+	  signature: 8,
+	  chunk: {
+	    length: 4,
+	    name: 4,
+	    crc: 4
+	  }
 	};
 
 /***/ },
-/* 7 */
+/* 10 */
+/***/ function(module, exports) {
+
+	"use strict";
+	
+	/*
+	 * base64-arraybuffer
+	 * https://github.com/niklasvh/base64-arraybuffer
+	 *
+	 * Copyright (c) 2012 Niklas von Hertzen
+	 * Licensed under the MIT license.
+	 */
+	(function () {
+	  "use strict";
+	
+	  var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+	
+	  // Use a lookup table to find the index.
+	  var lookup = new Uint8Array(256);
+	  for (var i = 0; i < chars.length; i++) {
+	    lookup[chars.charCodeAt(i)] = i;
+	  }
+	
+	  exports.encode = function (arraybuffer) {
+	    var bytes = new Uint8Array(arraybuffer),
+	        i,
+	        len = bytes.length,
+	        base64 = "";
+	
+	    for (i = 0; i < len; i += 3) {
+	      base64 += chars[bytes[i] >> 2];
+	      base64 += chars[(bytes[i] & 3) << 4 | bytes[i + 1] >> 4];
+	      base64 += chars[(bytes[i + 1] & 15) << 2 | bytes[i + 2] >> 6];
+	      base64 += chars[bytes[i + 2] & 63];
+	    }
+	
+	    if (len % 3 === 2) {
+	      base64 = base64.substring(0, base64.length - 1) + "=";
+	    } else if (len % 3 === 1) {
+	      base64 = base64.substring(0, base64.length - 2) + "==";
+	    }
+	
+	    return base64;
+	  };
+	
+	  exports.decode = function (base64) {
+	    var bufferLength = base64.length * 0.75,
+	        len = base64.length,
+	        i,
+	        p = 0,
+	        encoded1,
+	        encoded2,
+	        encoded3,
+	        encoded4;
+	
+	    if (base64[base64.length - 1] === "=") {
+	      bufferLength--;
+	      if (base64[base64.length - 2] === "=") {
+	        bufferLength--;
+	      }
+	    }
+	
+	    var arraybuffer = new ArrayBuffer(bufferLength),
+	        bytes = new Uint8Array(arraybuffer);
+	
+	    for (i = 0; i < len; i += 4) {
+	      encoded1 = lookup[base64.charCodeAt(i)];
+	      encoded2 = lookup[base64.charCodeAt(i + 1)];
+	      encoded3 = lookup[base64.charCodeAt(i + 2)];
+	      encoded4 = lookup[base64.charCodeAt(i + 3)];
+	
+	      bytes[p++] = encoded1 << 2 | encoded2 >> 4;
+	      bytes[p++] = (encoded2 & 15) << 4 | encoded3 >> 2;
+	      bytes[p++] = (encoded3 & 3) << 6 | encoded4 & 63;
+	    }
+	
+	    return arraybuffer;
+	  };
+	})();
+
+/***/ },
+/* 11 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -372,7 +693,7 @@
 	exports.default = Zoom;
 
 /***/ },
-/* 8 */
+/* 12 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -385,7 +706,7 @@
 	
 	var _mithril2 = _interopRequireDefault(_mithril);
 	
-	var _tk2kMessageAssist = __webpack_require__(9);
+	var _tk2kMessageAssist = __webpack_require__(13);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -420,12 +741,12 @@
 	exports.default = Scenario;
 
 /***/ },
-/* 9 */
+/* 13 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
-	var _scenarioParser = __webpack_require__(10);
+	var _scenarioParser = __webpack_require__(14);
 	
 	var _scenarioParser2 = _interopRequireDefault(_scenarioParser);
 	
@@ -438,7 +759,7 @@
 	};
 
 /***/ },
-/* 10 */
+/* 14 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -457,15 +778,15 @@
 	  };
 	}();
 	
-	var _message = __webpack_require__(11);
+	var _message = __webpack_require__(15);
 	
 	var _message2 = _interopRequireDefault(_message);
 	
-	var _messageBlock = __webpack_require__(12);
+	var _messageBlock = __webpack_require__(16);
 	
 	var _messageBlock2 = _interopRequireDefault(_messageBlock);
 	
-	var _config = __webpack_require__(13);
+	var _config = __webpack_require__(17);
 	
 	var _config2 = _interopRequireDefault(_config);
 	
@@ -510,6 +831,9 @@
 	        return value.trim();
 	      });
 	
+	      // 継続タグの初期化
+	      this.continuetag = '';
+	
 	      // limit別に分ける
 	      var result = [];
 	      var tmp = [];
@@ -551,6 +875,8 @@
 	  }, {
 	    key: '_tagFormat',
 	    value: function _tagFormat(textList) {
+	      var _this3 = this;
+	
 	      // 前回からの継続タグを追加
 	      var input = this.continueTag + textList.join("\n").replace(noEndTagRegExp, "<$1></$1>");
 	      // 継続タグのチェック
@@ -562,7 +888,7 @@
 	            // 閉じタグ
 	            var lastTag = stack.pop(tag);
 	            if (lastTag != tag.substr(2, tag.length - 3)) {
-	              throw new Error('タグの対応がおかしいです。');
+	              throw new Error('タグの対応がおかしいです。: ' + lastTag);
 	            }
 	          } else {
 	            // 開始タグ
@@ -571,9 +897,17 @@
 	        });
 	      }
 	      if (stack.length > 0) {
-	        this.continueTag = stack.map(function (v) {
-	          return '<' + v + '>';
-	        }).join('');
+	        (function () {
+	          var prev = '';
+	          _this3.continueTag = stack.filter(function (v) {
+	            if (prev != v) {
+	              prev = v;
+	              return true;
+	            }
+	          }).map(function (v) {
+	            return '<' + v + '>';
+	          }).join('');
+	        })();
 	      }
 	
 	      // 最終出力
@@ -591,7 +925,7 @@
 	exports.default = ScenarioParser;
 
 /***/ },
-/* 11 */
+/* 15 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -615,7 +949,7 @@
 	exports.default = Message;
 
 /***/ },
-/* 12 */
+/* 16 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -666,7 +1000,7 @@
 	exports.default = MessageBlock;
 
 /***/ },
-/* 13 */
+/* 17 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -685,7 +1019,7 @@
 	  };
 	}();
 	
-	var _jsYaml = __webpack_require__(14);
+	var _jsYaml = __webpack_require__(18);
 	
 	var _jsYaml2 = _interopRequireDefault(_jsYaml);
 	
@@ -794,7 +1128,7 @@
 	exports.default = Config;
 
 /***/ },
-/* 14 */
+/* 18 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = (__webpack_require__(2))(3);

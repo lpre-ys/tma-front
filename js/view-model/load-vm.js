@@ -1,11 +1,24 @@
 import m from 'mithril';
+// import Png from '../model/png';
+import SystemImg from '../model/system-img';
 
 export default class LoadVM {
   constructor(scenario) {
+    // init member
     this.style = m.prop();
     this.status = m.prop(false);
     this.peoples = [];
     this.scenario = scenario;
+    this.systemImg = m.prop(false);
+    this.png = [];
+    // set styleSheet
+    this.styleSheet = false;
+    const styleSheets = document.styleSheets;
+    for (let i = 0; i < styleSheets.length; i++) {
+      if (styleSheets[i].href != null && styleSheets[i].href.endsWith('style.css')) {
+        this.styleSheet = styleSheets[i];
+      }
+    }
   }
 
   dropFiles(e) {
@@ -17,19 +30,30 @@ export default class LoadVM {
       const ext = getFileExt(file.name);
       if (file.name == 'style.yaml') {
         promises.push(this._readStyleYaml(file));
-      // } else if (ext == 'png') {
-      //   // 画像読み込み
-      //   reader.readAsDataURL(file);
+      } else if (ext == 'png') {
+        promises.push(this._readPng(file));
       } else if (['yaml', 'yml'].includes(ext)) {
-        // テキスト読み込み
         promises.push(this._readPeopleYaml(file));
       }
     }
-    m.sync(promises).then((args) => {
-      console.log(this);
+    m.sync(promises).then(() => {
       this.scenario.setConfig(this.style(), this.peoples);
-      this.status = true;
+      this.status(true);
+      // set CSS images
+      if (this.systemImg()) {
+        this._editCss('.messageWindow', 'border-image-source', `url(${this.systemImg().messageWindow})`);
+        this._editCss('.text', 'background-image', `url(${this.systemImg().defaultText})`);
+        for (let i = 0; i < 20; i++) {
+          this._editCss(`.color${i}`, 'background-image', `url(${this.systemImg().getTextColor(i)})`);
+        }
+      }
+      // redraw
+      m.redraw();
     });
+  }
+
+  _editCss(selector, name, value) {
+    this.styleSheet.insertRule(`${selector} { ${name}: ${value}}`, this.styleSheet.cssRules.length);
   }
 
   _readStyleYaml(file) {
@@ -59,6 +83,19 @@ export default class LoadVM {
 
     return deferred.promise;
   }
+
+  _readPng(file) {
+    const deferred = m.deferred();
+    const reader = new FileReader();
+    const systemImg = new SystemImg(deferred);
+    reader.readAsArrayBuffer(file);
+    this.systemImg(systemImg); //TODO
+
+    reader.onloadend = systemImg.loadEnd.bind(systemImg);
+    reader.onerror = deferred.reject;
+
+    return deferred.promise;
+  }
 }
 const getFileExt = (filename) => {
   const dotIndex = filename.lastIndexOf('.');
@@ -66,40 +103,4 @@ const getFileExt = (filename) => {
     throw new Error('拡張子が有りません');
   }
   return filename.substr(dotIndex + 1);
-};
-const handleLoadEnd = (e) => {
-  if (e.target.readyState == FileReader.DONE) {
-    const file = e.target.result;
-    if (file.startsWith('data:image')) {
-      // 画像読み込み
-      const img = new Image();
-      img.src = file;
-      img.onload = handleImageOnLoad;
-    } else {
-      const outputList = document.getElementById('outputList');
-      const li = document.createElement('li');
-      li.textContent = e.target.result;
-      outputList.appendChild(li);
-    }
-  }
-};
-const handleImageOnLoad = (e) => {
-  // 画像を変換して新しいimgタグにセット
-  const img = e.target;
-  const data = canvasTest(img);
-  if (data) {
-    const message = document.getElementById('message');
-    // message.innerText = 'TEST MESSAGE.';
-    message.classList.add('mask-text');
-    message.style.backgroundImage = `url(${data})`;
-  }
-};
-const canvasTest = (img) => {
-  const canvas = document.createElement('canvas');
-  // test
-  canvas.width = 5;
-  canvas.height = 33;
-  const ctx = canvas.getContext('2d');
-  ctx.drawImage(img, 0, 0, 5, 33);
-  return canvas.toDataURL();
 };
