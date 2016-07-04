@@ -7,6 +7,12 @@ export default class Scenario {
     this.scenarioText = m.prop('');
   }
 
+  get tkScript() {
+    if (this.parser) {
+      return this.parser.serialize();
+    }
+  }
+
   get windowList() {
     const scenario = this.scenarioText();
 

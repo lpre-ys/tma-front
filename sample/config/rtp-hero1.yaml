@@ -5,7 +5,7 @@ person:
       アレックス:
         name: アレックス
         filename: 主人公.png
-        number: 1
+        number: 0
       ブライアン:
         name: ブライアン
         color: red

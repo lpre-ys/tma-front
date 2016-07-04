@@ -120,7 +120,9 @@
 	    return [(0, _mithril2.default)('.left', [_mithril2.default.component(_loadComponent2.default, { vm: ctrl.vm.loadVM }), (0, _mithril2.default)('h2', 'シナリオファイル'), (0, _mithril2.default)('textarea#input', {
 	      value: ctrl.scenario.scenarioText(),
 	      onkeyup: _mithril2.default.withAttr('value', ctrl.scenario.scenarioText)
-	    })]), (0, _mithril2.default)('.right', [(0, _mithril2.default)('h2', 'プレビュー'), _mithril2.default.component(_zoomComponent2.default, { zoom: ctrl.zoom }), (0, _mithril2.default)('#messageList', { class: `zoom${ ctrl.zoom.zoomLevel() }x` }, [windowList.map(messageBox => {
+	    }), (0, _mithril2.default)('h2', 'TkoolBridge script'), (0, _mithril2.default)('textarea#tkScript', {
+	      readonly: 'readonly'
+	    }, [ctrl.scenario.tkScript])]), (0, _mithril2.default)('.right', [(0, _mithril2.default)('h2', 'プレビュー'), _mithril2.default.component(_zoomComponent2.default, { zoom: ctrl.zoom }), (0, _mithril2.default)('#messageList', { class: `zoom${ ctrl.zoom.zoomLevel() }x` }, [windowList.map(messageBox => {
 	      const face = messageBox.face;
 	      return messageBox.messageList.map(message => {
 	        let messageView = [];
@@ -728,6 +730,12 @@
 	  constructor() {
 	    this.parser = false;
 	    this.scenarioText = _mithril2.default.prop('');
+	  }
+	
+	  get tkScript() {
+	    if (this.parser) {
+	      return this.parser.serialize();
+	    }
 	  }
 	
 	  get windowList() {

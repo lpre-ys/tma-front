@@ -21,7 +21,11 @@ const tmaFrontComponent = {
         m('textarea#input', {
           value: ctrl.scenario.scenarioText(),
           onkeyup: m.withAttr('value', ctrl.scenario.scenarioText)
-        })
+        }),
+        m('h2', 'TkoolBridge script'),
+        m('textarea#tkScript', {
+          readonly: 'readonly'
+        }, [ctrl.scenario.tkScript])
       ]),
       m('.right', [
         m('h2', 'プレビュー'),
