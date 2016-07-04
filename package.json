@@ -23,6 +23,7 @@
     "base64-arraybuffer": "^0.1.5",
     "js-yaml": "^3.6.1",
     "mithril": "^0.2.5",
+    "onecolor": "^3.0.4",
     "tk2k-message-assist": "git+https://github.com/lpre-ys/tk2k-message-assist.git"
   },
   "devDependencies": {

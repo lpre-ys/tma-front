@@ -10,7 +10,7 @@ export default class Scenario {
   get windowList() {
     const scenario = this.scenarioText();
 
-    if (scenario) {
+    if (this.parser && scenario) {
       return this.parser.parse(scenario);
     }
 
@@ -23,7 +23,6 @@ export default class Scenario {
 
   get colors() {
     if (this.parser) {
-      console.log(this.parser);
       return this.parser.config.colors;
     }
     return [];

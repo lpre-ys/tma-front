@@ -3,7 +3,7 @@ const webpack = require('webpack');
 
 module.exports = {
   entry: {
-    vendor: ['mithril', 'js-yaml']
+    vendor: ['mithril', 'js-yaml', 'onecolor', 'base64-arraybuffer']
   },
   output: {
     path: path.join(__dirname, 'build'),

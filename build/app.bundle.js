@@ -143,22 +143,68 @@
 	const domParser = new DOMParser();
 	const makeMessageLi = (scenarioText, colors) => {
 	  let html = scenarioText;
-	  // 独自タグを全てspanに変換
+	  // 色タグをspanに変換
 	  Object.keys(colors).forEach(color => {
 	    const number = colors[color];
 	    const colorTagRegExp = new RegExp(`<${ color }>`, 'g');
 	    html = html.replace(colorTagRegExp, `<color${ number }>`);
 	  });
 	  html = html.replace(startTagRegExp, '<span class="$1">').replace(endTagRegExp, '</span>');
-	  // 1回DOMParserに読ませてタグを除去する
+	  // DOMParserに読ませて変換する
 	  const dom = domParser.parseFromString(html, 'text/html');
-	  const text = dom.body.innerText;
+	  // 本文の組み立て
+	  const message = domToView(dom.body);
 	
-	  return (0, _mithril2.default)('li.line', [(0, _mithril2.default)('p.shadow', text), (0, _mithril2.default)('p.text', _mithril2.default.trust(html))]);
+	  return (0, _mithril2.default)('li.line', [(0, _mithril2.default)('p.shadow', dom.body.innerText), (0, _mithril2.default)('p.text', message)]);
+	};
+	
+	const domToView = dom => {
+	  let view = [];
+	  let iList = [];
+	  for (let node = dom.firstChild; node; node = node.nextSibling) {
+	    const klass = node.getAttribute ? node.getAttribute('class') : false;
+	    if (Object.keys(controlTags).includes(klass)) {
+	      // 制御タグはiタグに変えてキープ
+	      iList.push((0, _mithril2.default)('i', {
+	        class: klass
+	      }, controlTags[klass]));
+	      continue;
+	    } else {
+	      // iタグのストックがあればspanに包んでpush
+	      if (iList.length > 0) {
+	        view.push((0, _mithril2.default)('span', {
+	          class: 'control'
+	        }, iList));
+	        iList = [];
+	      }
+	    }
+	    if (node.nodeName == 'SPAN') {
+	      // 他のタグはspanのまま
+	      view.push((0, _mithril2.default)('span', {
+	        class: klass
+	      }, domToView(node)));
+	    } else {
+	      // span以外の要素は全てテキストに変える
+	      view.push(node.textContent);
+	    }
+	  }
+	  // iタグのストックがあればspanに包んでpush
+	  if (iList.length > 0) {
+	    view.push((0, _mithril2.default)('span', {
+	      class: 'control'
+	    }, iList));
+	    iList = [];
+	  }
+	  return view;
 	};
 	
 	const startTagRegExp = /<([a-z0-9\-\_]+)>/g;
 	const endTagRegExp = /<\/([a-z0-9\-\_]+)>/g;
+	const controlTags = {
+	  stop: 's',
+	  wait: 'w',
+	  q_wait: 'q'
+	};
 	
 	exports.default = tmaFrontComponent;
 
@@ -327,6 +373,8 @@
 	        for (let i = 0; i < 20; i++) {
 	          this._editCss(`.color${ i }`, 'background-image', `url(${ this.systemImg().getTextColor(i) })`);
 	        }
+	        this._editCss(':root', '--control-base-color', this.systemImg().controlCharColor);
+	        this._editCss(':root', '--control-sub-color', this.systemImg().controlCharBgColor);
 	      }
 	      // redraw
 	      _mithril2.default.redraw();
@@ -357,8 +405,8 @@
 	
 	    const deferred = _mithril2.default.deferred();
 	    reader.onloadend = e => {
-	      deferred.resolve(true);
 	      this.peoples.push(e.target.result);
+	      deferred.resolve(true);
 	    };
 	    reader.onerror = deferred.reject;
 	
@@ -403,19 +451,44 @@
 	
 	var _png2 = _interopRequireDefault(_png);
 	
+	var _onecolor = __webpack_require__(20);
+	
+	var _onecolor2 = _interopRequireDefault(_onecolor);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	class SystemImg extends _png2.default {
 	  constructor(deferred) {
 	    super(deferred);
-	    this.messageWindowDataUrl = false;
+	    this._messageWindowDataUrl = false;
+	    this._messageWindowMainColor;
+	  }
+	
+	  get messageWindowMainColor() {
+	    return this._messageWindowMainColor;
+	  }
+	
+	  get controlCharColor() {
+	    if (!this._messageWindowMainColor) {
+	      return false;
+	    }
+	    const bg = (0, _onecolor2.default)(this._messageWindowMainColor);
+	    return bg.value() > .7 ? 'black' : 'white';
+	  }
+	
+	  get controlCharBgColor() {
+	    if (!this._messageWindowMainColor) {
+	      return false;
+	    }
+	    const bg = (0, _onecolor2.default)(this._messageWindowMainColor);
+	    return bg.value() > .7 ? 'white' : 'black';
 	  }
 	
 	  get messageWindow() {
 	    if (this.file == false) {
 	      return false;
 	    }
-	    if (this.messageWindowDataUrl == false) {
+	    if (this._messageWindowDataUrl == false) {
 	      // make messageWindow
 	      const canvas = this._makeCanvas(32, 32);
 	
@@ -448,12 +521,37 @@
 	
 	      // draw background
 	      ctx.drawImage(this.img, 0, 0, 32, 32, 0, 0, 32, 32);
+	
+	      // calc main color
+	      const bgImageData = ctx.getImageData(0, 0, 32, 32);
+	      const pixelNumber = canvas.height * canvas.width;
+	      let h = 0,
+	          s = 0,
+	          l = 0;
+	      for (let y = 0; y < canvas.height; y++) {
+	        for (let x = 0; x < canvas.width; x++) {
+	          const offset = (y * canvas.width + x) * 4;
+	          const r = bgImageData.data[offset];
+	          const g = bgImageData.data[offset + 1];
+	          const b = bgImageData.data[offset + 2];
+	          const color = (0, _onecolor2.default)(`rgb(${ r }, ${ g }, ${ b })`);
+	          // 色の平均を計算する
+	          h += color.hue();
+	          s += color.saturation();
+	          l += color.lightness();
+	        }
+	      }
+	      h /= pixelNumber;
+	      s /= pixelNumber;
+	      l /= pixelNumber;
+	      this._messageWindowMainColor = (0, _onecolor2.default)(["HSL", h, s, l]).css();
+	
 	      // draw frame
 	      ctx.drawImage(frame, 0, 0);
 	
-	      this.messageWindowDataUrl = canvas.toDataURL();
+	      this._messageWindowDataUrl = canvas.toDataURL();
 	    }
-	    return this.messageWindowDataUrl;
+	    return this._messageWindowDataUrl;
 	  }
 	
 	  get defaultText() {
@@ -466,8 +564,6 @@
 	    const ctx = canvas.getContext('2d');
 	    const x = 16 * (number % 10);
 	    const y = 48 + Math.floor(number / 10) * 16;
-	    console.log(x);
-	    console.log(y);
 	    ctx.drawImage(this.img, x, y, 16, 16, 0, 0, 16, 16);
 	
 	    return canvas.toDataURL();
@@ -481,16 +577,7 @@
 	    return canvas;
 	  }
 	}
-	
-	exports.default = SystemImg; // const canvasTest = (img) => {
-	//   const canvas = document.createElement('canvas');
-	//   // test
-	//   canvas.width = 5;
-	//   canvas.height = 33;
-	//   const ctx = canvas.getContext('2d');
-	//   ctx.drawImage(img, 0, 0, 5, 33);
-	//   return canvas.toDataURL();
-	// };
+	exports.default = SystemImg;
 
 /***/ },
 /* 9 */
@@ -588,84 +675,9 @@
 
 /***/ },
 /* 10 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
 
-	"use strict";
-	
-	/*
-	 * base64-arraybuffer
-	 * https://github.com/niklasvh/base64-arraybuffer
-	 *
-	 * Copyright (c) 2012 Niklas von Hertzen
-	 * Licensed under the MIT license.
-	 */
-	(function () {
-	  "use strict";
-	
-	  var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-	
-	  // Use a lookup table to find the index.
-	  var lookup = new Uint8Array(256);
-	  for (var i = 0; i < chars.length; i++) {
-	    lookup[chars.charCodeAt(i)] = i;
-	  }
-	
-	  exports.encode = function (arraybuffer) {
-	    var bytes = new Uint8Array(arraybuffer),
-	        i,
-	        len = bytes.length,
-	        base64 = "";
-	
-	    for (i = 0; i < len; i += 3) {
-	      base64 += chars[bytes[i] >> 2];
-	      base64 += chars[(bytes[i] & 3) << 4 | bytes[i + 1] >> 4];
-	      base64 += chars[(bytes[i + 1] & 15) << 2 | bytes[i + 2] >> 6];
-	      base64 += chars[bytes[i + 2] & 63];
-	    }
-	
-	    if (len % 3 === 2) {
-	      base64 = base64.substring(0, base64.length - 1) + "=";
-	    } else if (len % 3 === 1) {
-	      base64 = base64.substring(0, base64.length - 2) + "==";
-	    }
-	
-	    return base64;
-	  };
-	
-	  exports.decode = function (base64) {
-	    var bufferLength = base64.length * 0.75,
-	        len = base64.length,
-	        i,
-	        p = 0,
-	        encoded1,
-	        encoded2,
-	        encoded3,
-	        encoded4;
-	
-	    if (base64[base64.length - 1] === "=") {
-	      bufferLength--;
-	      if (base64[base64.length - 2] === "=") {
-	        bufferLength--;
-	      }
-	    }
-	
-	    var arraybuffer = new ArrayBuffer(bufferLength),
-	        bytes = new Uint8Array(arraybuffer);
-	
-	    for (i = 0; i < len; i += 4) {
-	      encoded1 = lookup[base64.charCodeAt(i)];
-	      encoded2 = lookup[base64.charCodeAt(i + 1)];
-	      encoded3 = lookup[base64.charCodeAt(i + 2)];
-	      encoded4 = lookup[base64.charCodeAt(i + 3)];
-	
-	      bytes[p++] = encoded1 << 2 | encoded2 >> 4;
-	      bytes[p++] = (encoded2 & 15) << 4 | encoded3 >> 2;
-	      bytes[p++] = (encoded3 & 3) << 6 | encoded4 & 63;
-	    }
-	
-	    return arraybuffer;
-	  };
-	})();
+	module.exports = (__webpack_require__(2))(57);
 
 /***/ },
 /* 11 */
@@ -719,7 +731,7 @@
 	  get windowList() {
 	    const scenario = this.scenarioText();
 	
-	    if (scenario) {
+	    if (this.parser && scenario) {
 	      return this.parser.parse(scenario);
 	    }
 	
@@ -732,7 +744,6 @@
 	
 	  get colors() {
 	    if (this.parser) {
-	      console.log(this.parser);
 	      return this.parser.config.colors;
 	    }
 	    return [];
@@ -790,6 +801,10 @@
 	
 	var _config2 = _interopRequireDefault(_config);
 	
+	var _tbSerializer = __webpack_require__(19);
+	
+	var _tbSerializer2 = _interopRequireDefault(_tbSerializer);
+	
 	function _interopRequireDefault(obj) {
 	  return obj && obj.__esModule ? obj : { default: obj };
 	}
@@ -801,7 +816,7 @@
 	}
 	
 	// 単独タグ正規表現
-	var noEndTagRegExp = /<([a-z]+) \/>/g;
+	var noEndTagRegExp = /<([a-z\-\_]+) \/>/g;
 	// 顔グラ変更命令正規表現
 	var faceCommandRegExp = /^\[([^\]]+)]$/;
 	
@@ -819,6 +834,8 @@
 	    faces.forEach(function (face) {
 	      _this.config.loadPersonYaml(face);
 	    });
+	    this.serializer = new _tbSerializer2.default(this.config);
+	    this.parsedMessages = false;
 	  }
 	
 	  _createClass(ScenarioParser, [{
@@ -832,7 +849,7 @@
 	      });
 	
 	      // 継続タグの初期化
-	      this.continuetag = '';
+	      this.continueTag = '';
 	
 	      // limit別に分ける
 	      var result = [];
@@ -870,7 +887,17 @@
 	        result.push(block);
 	      }
 	
+	      this.parsedMessages = result;
+	
 	      return result;
+	    }
+	  }, {
+	    key: 'serialize',
+	    value: function serialize() {
+	      if (!this.parsedMessages) {
+	        return '';
+	      }
+	      return this.serializer.serialize(this.parsedMessages);
 	    }
 	  }, {
 	    key: '_tagFormat',
@@ -881,9 +908,14 @@
 	      var input = this.continueTag + textList.join("\n").replace(noEndTagRegExp, "<$1></$1>");
 	      // 継続タグのチェック
 	      var stack = [];
-	      var tags = input.match(/<\/?[a-z]+>/g);
+	      var tags = input.match(/.?<\/?[a-z\_\-]+>/g);
 	      if (tags) {
 	        tags.forEach(function (tag) {
+	          if (tag.startsWith('\\')) {
+	            // エスケープ文字付きの場合対応しない
+	            return;
+	          }
+	          tag = tag.replace(/.?(<\/?[a-z\_\-]+>)/, '$1');
 	          if (tag.startsWith('</')) {
 	            // 閉じタグ
 	            var lastTag = stack.pop(tag);
@@ -978,7 +1010,7 @@
 	  function MessageBlock(face) {
 	    _classCallCheck(this, MessageBlock);
 	
-	    this.face = face;
+	    this.face = face || false;
 	    this.messageList = [];
 	  }
 	
@@ -1045,6 +1077,11 @@
 	  }
 	
 	  _createClass(Config, [{
+	    key: 'getColorNumber',
+	    value: function getColorNumber(name) {
+	      return this._config.color[name] ? this._config.color[name] : false;
+	    }
+	  }, {
 	    key: 'getFace',
 	    value: function getFace(faceKey) {
 	      if (!this.hasFace) {
@@ -1132,6 +1169,154 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = (__webpack_require__(2))(3);
+
+/***/ },
+/* 19 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _createClass = function () {
+	  function defineProperties(target, props) {
+	    for (var i = 0; i < props.length; i++) {
+	      var descriptor = props[i];descriptor.enumerable = descriptor.enumerable || false;descriptor.configurable = true;if ("value" in descriptor) descriptor.writable = true;Object.defineProperty(target, descriptor.key, descriptor);
+	    }
+	  }return function (Constructor, protoProps, staticProps) {
+	    if (protoProps) defineProperties(Constructor.prototype, protoProps);if (staticProps) defineProperties(Constructor, staticProps);return Constructor;
+	  };
+	}();
+	
+	function _classCallCheck(instance, Constructor) {
+	  if (!(instance instanceof Constructor)) {
+	    throw new TypeError("Cannot call a class as a function");
+	  }
+	}
+	
+	var TbSerializer = function () {
+	  function TbSerializer(config) {
+	    _classCallCheck(this, TbSerializer);
+	
+	    this.config = config;
+	  }
+	
+	  _createClass(TbSerializer, [{
+	    key: 'serialize',
+	    value: function serialize(messageBlockList) {
+	      var _this = this;
+	
+	      var result = [];
+	      messageBlockList.forEach(function (messageBlock) {
+	        // 顔グラ関連
+	        var faceMessage = false;
+	        if (messageBlock.face) {
+	          // TODO pos, mirror
+	          result.push('Faice("' + messageBlock.face.filename + '", ' + messageBlock.face.number + ', 0, 0)');
+	          faceMessage = _this._toTbScript(messageBlock.face.name);
+	        }
+	        messageBlock.messageList.forEach(function (message) {
+	          // タグ置換
+	          var line = message.line.map(function (text) {
+	            return _this._toTbScript(text);
+	          });
+	
+	          // 改行を置換してまとめる
+	          if (faceMessage) {
+	            line.unshift(faceMessage);
+	          }
+	          result.push('Text("' + line.join(cChar.br) + '")');
+	        });
+	      });
+	      return result.join("\n");
+	    }
+	  }, {
+	    key: '_toTbScript',
+	    value: function _toTbScript(text) {
+	      var _this2 = this;
+	
+	      // タグとメッセージに分解
+	      var parts = text.split(/(\\?<\/?[a-z\-\_]+>)/);
+	      if (parts.length == 1) {
+	        // 変換無し
+	        return this._removeEscapeChar(text);
+	      }
+	      // タグの変換
+	      var prevColor = 0;
+	      var colorStack = [];
+	      parts = parts.map(function (part) {
+	        if (/^<[a-z\-\_]+>$/.test(part)) {
+	          // 開始タグ
+	          var tagName = part.substr(1, part.length - 2);
+	          var colorNumber = _this2.config.getColorNumber(tagName);
+	          if (colorNumber) {
+	            // 色タグ
+	            colorStack.push(prevColor);
+	            prevColor = colorNumber;
+	            return cChar.color + '[' + colorNumber + ']';
+	          }
+	          // 制御タグ
+	          return '' + _this2._getCChar(tagName);
+	        } else if (/^<\/[a-z\-\_]+>$/.test(part)) {
+	          // 閉じタグ
+	          var _tagName = part.substr(2, part.length - 3);
+	          if (!_this2.config.getColorNumber(_tagName) === false) {
+	            // 色タグ
+	            prevColor = colorStack.pop();
+	            return cChar.color + '[' + prevColor + ']';
+	          } else if (cNormalTags.includes(_tagName)) {
+	            // 閉じタグ有りの制御タグ
+	            return '' + _this2._getCChar(_tagName + '_end');
+	          } else if (cNoEndTags.includes(_tagName)) {
+	            // 閉じタグが無いタグの場合、空
+	            return '';
+	          }
+	        }
+	        // タグ以外のテキストの場合、エスケープ文字を消す
+	        return _this2._removeEscapeChar(part);
+	      });
+	      return parts.join('');
+	    }
+	  }, {
+	    key: '_getCChar',
+	    value: function _getCChar(name) {
+	      if (!cChar[name]) {
+	        throw new Error('対応していないタグです。: ' + name);
+	      }
+	      return cChar[name];
+	    }
+	  }, {
+	    key: '_removeEscapeChar',
+	    value: function _removeEscapeChar(text) {
+	      return text.replace(/([^\\]?)\\/, '$1').replace('\\', '\\\\');
+	    }
+	  }]);
+	
+	  return TbSerializer;
+	}();
+	
+	exports.default = TbSerializer;
+	
+	var cChar = {
+	  br: '\\k',
+	  color: '\\C',
+	  stop: '\\!',
+	  wait: '\\|',
+	  q_wait: '\\.',
+	  flash: '\\>',
+	  flash_end: '\\<'
+	};
+	
+	var cNoEndTags = ['stop', 'wait', 'q_wait'];
+	var cNormalTags = ['flash'];
+
+/***/ },
+/* 20 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = (__webpack_require__(2))(38);
 
 /***/ }
 /******/ ]);

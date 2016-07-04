@@ -55,7 +55,7 @@ const tmaFrontComponent = {
 const domParser = new DOMParser();
 const makeMessageLi = (scenarioText, colors) => {
   let html = scenarioText;
-  // 独自タグを全てspanに変換
+  // 色タグをspanに変換
   Object.keys(colors).forEach((color) => {
     const number = colors[color];
     const colorTagRegExp = new RegExp(`<${color}>`, 'g');
@@ -63,17 +63,63 @@ const makeMessageLi = (scenarioText, colors) => {
   });
   html = html.replace(startTagRegExp, '<span class="$1">')
              .replace(endTagRegExp, '</span>');
-  // 1回DOMParserに読ませてタグを除去する
+  // DOMParserに読ませて変換する
   const dom = domParser.parseFromString(html, 'text/html');
-  const text = dom.body.innerText;
+  // 本文の組み立て
+  const message = domToView(dom.body);
 
   return m('li.line', [
-    m('p.shadow', text),
-    m('p.text', m.trust(html))
+    m('p.shadow', dom.body.innerText),
+    m('p.text', message)
   ]);
+};
+
+const domToView = (dom) => {
+  let view = [];
+  let iList = [];
+  for (let node = dom.firstChild; node; node = node.nextSibling) {
+    const klass = node.getAttribute ? node.getAttribute('class') : false;
+    if (Object.keys(controlTags).includes(klass)) {
+      // 制御タグはiタグに変えてキープ
+      iList.push(m('i', {
+        class: klass
+      }, controlTags[klass]));
+      continue;
+    } else {
+      // iタグのストックがあればspanに包んでpush
+      if (iList.length > 0) {
+        view.push(m('span', {
+          class: 'control'
+        }, iList));
+        iList = [];
+      }
+    }
+    if (node.nodeName == 'SPAN') {
+        // 他のタグはspanのまま
+        view.push(m('span', {
+          class: klass
+        }, domToView(node)));
+    } else {
+      // span以外の要素は全てテキストに変える
+      view.push(node.textContent);
+    }
+  }
+  // iタグのストックがあればspanに包んでpush
+  if (iList.length > 0) {
+    view.push(m('span', {
+      class: 'control'
+    }, iList));
+    iList = [];
+  }
+  return view;
 };
 
 const startTagRegExp = /<([a-z0-9\-\_]+)>/g;
 const endTagRegExp = /<\/([a-z0-9\-\_]+)>/g;
+const controlTags = {
+  stop: 's',
+  wait: 'w',
+  q_wait: 'q'
+};
 
 export default tmaFrontComponent;

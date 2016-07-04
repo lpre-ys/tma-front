@@ -46,6 +46,8 @@ export default class LoadVM {
         for (let i = 0; i < 20; i++) {
           this._editCss(`.color${i}`, 'background-image', `url(${this.systemImg().getTextColor(i)})`);
         }
+        this._editCss(':root', '--control-base-color', this.systemImg().controlCharColor);
+        this._editCss(':root', '--control-sub-color', this.systemImg().controlCharBgColor);
       }
       // redraw
       m.redraw();
@@ -76,8 +78,8 @@ export default class LoadVM {
 
     const deferred = m.deferred();
     reader.onloadend = (e) => {
-      deferred.resolve(true);
       this.peoples.push(e.target.result);
+      deferred.resolve(true);
     };
     reader.onerror = deferred.reject;
 
