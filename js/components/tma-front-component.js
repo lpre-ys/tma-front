@@ -55,6 +55,10 @@ const tmaFrontComponent = {
 const domParser = new DOMParser();
 const makeMessageLi = (scenarioText, colors) => {
   let html = scenarioText;
+  // エスケープの変換
+  html = html.replace('\\<', '&lt;')
+             .replace(/([^\\]?)\\/, '$1')
+             .replace('\\', '\\\\');
   // 色タグをspanに変換
   Object.keys(colors).forEach((color) => {
     const number = colors[color];

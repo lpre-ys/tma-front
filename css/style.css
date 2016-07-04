@@ -181,7 +181,7 @@ textarea {
   display: none;
 }
 
-.text:hover i:first-child {
+i:first-child {
   display: inline-block;
 }
 
