@@ -3,6 +3,7 @@ import m from 'mithril';
 const loadComponent = {
   controller: function (data) {
     this.vm = data.vm;
+    this.buttonStatus = m.prop(false);
     this.tColor = false;
     this.noop = (e) => {
       e.preventDefault();
@@ -10,35 +11,62 @@ const loadComponent = {
   },
   view: (ctrl) => {
     const settingList = [];
-    if (ctrl.vm.status()) {
+    const vm = ctrl.vm;
+    if (vm.loadStatus) {
       // systemImg
-      const systemImg = ctrl.vm.systemImg();
+      const systemImg = vm.systemImg;
       const systemImgView = m('.systemImg', [
         m('h3', 'システムグラフィック'),
-        m('img', {
-          src: systemImg.dataUrl
-        }),
-        m('.tColor', [
-          '透過色: ',
-          m('span', {
-              style: {color: systemImg.tColorCss}
-            }, `■${systemImg.tColorCss}`)
-        ]),
-        m('h4', 'メッセージ枠ベース画像'),
-        m('img', {
-          src: systemImg.messageWindow
-        })
+        m('.systemItems', [
+          m('img', {
+            src: systemImg.dataUrl
+          }),
+          m('.tColor', [
+            '透過色: ',
+            m('br'),
+            m('span', {
+                style: {color: systemImg.tColorCss}
+              }, `■${systemImg.tColorCss}`)
+          ]),
+          m('div', [
+            '枠:',
+            m('br'),
+            m('img', {
+              src: systemImg.messageWindow
+            })
+          ])
+        ])
       ]);
       settingList.push(systemImgView);
+      // face graphics
+      const faceListView = vm.config.faceKeyList.map((faceKey) => {
+        return [
+          m('li', [
+            m('p', faceKey),
+            m('.faceImg', {style: vm.getFaceStyle(faceKey)})
+          ])
+        ];
+      });
+      const faceImgView = m('.faceSetting', [
+        m('h3', '顔グラフィック'),
+        m('ul.faceList', faceListView)
+      ]);
+      settingList.push(faceImgView);
     }
     return m('.loadComponent', [
       m('h2', '設定ファイル'),
-      m('button.checkConfig', '現在の設定の確認'),
+      m('button.checkConfig', {
+        class: vm.loadStatus ? 'enable' : 'disable',
+        'data-button-status': ctrl.buttonStatus() == 'on' ? 'off' : 'on',
+        onclick: m.withAttr('data-button-status', ctrl.buttonStatus)
+      }, '設定の' + (ctrl.buttonStatus() == 'on' ? '非表示' : '表示')),
       m('.settingList', {
+        class: ctrl.buttonStatus() == 'on' ? 'enable' : 'disable'
       }, settingList),
       m('.loadConfig', {
+        class: vm.loadStatus ? 'disable' : 'enable',
         ondragover: ctrl.noop,
-        ondrop: ctrl.vm.dropFiles.bind(ctrl.vm)
+        ondrop: vm.dropFiles.bind(vm)
       }, 'ここに設定ファイルをまとめてドロップしてください。')
     ]);
   }

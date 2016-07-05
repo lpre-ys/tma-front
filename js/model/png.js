@@ -1,9 +1,10 @@
 import base64_arraybuffer from 'base64-arraybuffer';
 
 export default class Png {
-  constructor(deferred) {
+  constructor(deferred, filename) {
     // private init
     this.file = false;
+    this.filename = filename;
     this.dataUrl = false;
     this.palette = [];
     this.deferred = deferred;
@@ -27,7 +28,10 @@ export default class Png {
       // パレット読み込み
       this.palette = this.readPlte(pngInfo.signature);
       // resolve
-      this.deferred.resolve(true);
+      this.deferred.resolve({
+        type: 'png',
+        file: this
+      });
     }
   }
 

@@ -94,120 +94,29 @@
 	
 	var _loadComponent2 = _interopRequireDefault(_loadComponent);
 	
+	var _messageListComponent = __webpack_require__(22);
+	
+	var _messageListComponent2 = _interopRequireDefault(_messageListComponent);
+	
 	var _tmaFrontVm = __webpack_require__(6);
 	
 	var _tmaFrontVm2 = _interopRequireDefault(_tmaFrontVm);
-	
-	var _zoom = __webpack_require__(11);
-	
-	var _zoom2 = _interopRequireDefault(_zoom);
-	
-	var _scenario = __webpack_require__(12);
-	
-	var _scenario2 = _interopRequireDefault(_scenario);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	const tmaFrontComponent = {
 	  controller: function () {
-	    this.zoom = new _zoom2.default({ zoomLevel: 1 });
-	    this.scenario = new _scenario2.default();
 	    this.vm = new _tmaFrontVm2.default({ scenario: this.scenario });
 	  },
 	  view: ctrl => {
-	    const windowList = ctrl.scenario.windowList;
-	    const colors = ctrl.scenario.colors;
-	    return [(0, _mithril2.default)('.left', [_mithril2.default.component(_loadComponent2.default, { vm: ctrl.vm.loadVM }), (0, _mithril2.default)('h2', 'シナリオファイル'), (0, _mithril2.default)('textarea#input', {
-	      value: ctrl.scenario.scenarioText(),
-	      onkeyup: _mithril2.default.withAttr('value', ctrl.scenario.scenarioText)
+	    const vm = ctrl.vm;
+	    return [(0, _mithril2.default)('.left', [_mithril2.default.component(_loadComponent2.default, { vm: vm }), (0, _mithril2.default)('h2', 'シナリオファイル'), (0, _mithril2.default)('textarea#input', {
+	      value: vm.scenario.scenarioText(),
+	      onkeyup: _mithril2.default.withAttr('value', vm.scenario.scenarioText)
 	    }), (0, _mithril2.default)('h2', 'TkoolBridge script'), (0, _mithril2.default)('textarea#tkScript', {
 	      readonly: 'readonly'
-	    }, [ctrl.scenario.tkScript])]), (0, _mithril2.default)('.right', [(0, _mithril2.default)('h2', 'プレビュー'), _mithril2.default.component(_zoomComponent2.default, { zoom: ctrl.zoom }), (0, _mithril2.default)('#messageList', { class: `zoom${ ctrl.zoom.zoomLevel() }x` }, [windowList.map(messageBox => {
-	      const face = messageBox.face;
-	      return messageBox.messageList.map(message => {
-	        let messageView = [];
-	        let lineView = [];
-	        if (face) {
-	          // TODO
-	          messageView.push((0, _mithril2.default)('.faceBox', [(0, _mithril2.default)('img.face', { src: 'https://placehold.it/96x96' })]));
-	          lineView.push(makeMessageLi(face.name, colors));
-	        }
-	        message.line.forEach(lineText => {
-	          lineView.push(makeMessageLi(lineText, colors));
-	        });
-	        messageView.push((0, _mithril2.default)('ul.message', lineView));
-	        return (0, _mithril2.default)('.messageWindow', messageView);
-	      });
-	    })])])];
+	    }, [vm.scenario.tkScript])]), (0, _mithril2.default)('.right', [(0, _mithril2.default)('h2', 'プレビュー'), _mithril2.default.component(_zoomComponent2.default, { vm: vm }), _mithril2.default.component(_messageListComponent2.default, { vm: vm })])];
 	  }
-	};
-	
-	const domParser = new DOMParser();
-	const makeMessageLi = (scenarioText, colors) => {
-	  let html = scenarioText;
-	  // エスケープの変換
-	  html = html.replace('\\<', '&lt;').replace(/([^\\]?)\\/, '$1').replace('\\', '\\\\');
-	  // 色タグをspanに変換
-	  Object.keys(colors).forEach(color => {
-	    const number = colors[color];
-	    const colorTagRegExp = new RegExp(`<${ color }>`, 'g');
-	    html = html.replace(colorTagRegExp, `<color${ number }>`);
-	  });
-	  html = html.replace(startTagRegExp, '<span class="$1">').replace(endTagRegExp, '</span>');
-	  // DOMParserに読ませて変換する
-	  const dom = domParser.parseFromString(html, 'text/html');
-	  // 本文の組み立て
-	  const message = domToView(dom.body);
-	
-	  return (0, _mithril2.default)('li.line', [(0, _mithril2.default)('p.shadow', dom.body.innerText), (0, _mithril2.default)('p.text', message)]);
-	};
-	
-	const domToView = dom => {
-	  let view = [];
-	  let iList = [];
-	  for (let node = dom.firstChild; node; node = node.nextSibling) {
-	    const klass = node.getAttribute ? node.getAttribute('class') : false;
-	    if (Object.keys(controlTags).includes(klass)) {
-	      // 制御タグはiタグに変えてキープ
-	      iList.push((0, _mithril2.default)('i', {
-	        class: klass
-	      }, controlTags[klass]));
-	      continue;
-	    } else {
-	      // iタグのストックがあればspanに包んでpush
-	      if (iList.length > 0) {
-	        view.push((0, _mithril2.default)('span', {
-	          class: 'control'
-	        }, iList));
-	        iList = [];
-	      }
-	    }
-	    if (node.nodeName == 'SPAN') {
-	      // 他のタグはspanのまま
-	      view.push((0, _mithril2.default)('span', {
-	        class: klass
-	      }, domToView(node)));
-	    } else {
-	      // span以外の要素は全てテキストに変える
-	      view.push(node.textContent);
-	    }
-	  }
-	  // iタグのストックがあればspanに包んでpush
-	  if (iList.length > 0) {
-	    view.push((0, _mithril2.default)('span', {
-	      class: 'control'
-	    }, iList));
-	    iList = [];
-	  }
-	  return view;
-	};
-	
-	const startTagRegExp = /<([a-z0-9\-\_]+)>/g;
-	const endTagRegExp = /<\/([a-z0-9\-\_]+)>/g;
-	const controlTags = {
-	  stop: 's',
-	  wait: 'w',
-	  q_wait: 'q'
 	};
 	
 	exports.default = tmaFrontComponent;
@@ -229,14 +138,15 @@
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	const zoomComponent = {
-	  controller: function (args) {
-	    this.zoom = args.zoom;
+	  controller: function (data) {
+	    this.vm = data.vm;
 	  },
 	  view: ctrl => {
+	    const vm = ctrl.vm;
 	    return (0, _mithril2.default)('.zoomBox', ['ズーム：', (0, _mithril2.default)('select', {
 	      name: 'zoom',
-	      value: ctrl.zoom.zoomLevel(),
-	      onchange: _mithril2.default.withAttr('value', ctrl.zoom.zoomLevel)
+	      value: vm.zoom.zoomLevel(),
+	      onchange: _mithril2.default.withAttr('value', vm.zoom.zoomLevel)
 	    }, [(0, _mithril2.default)('option', { value: 1 }, '1x'), (0, _mithril2.default)('option', { value: 2 }, '2x')])]);
 	  }
 	};
@@ -262,6 +172,7 @@
 	const loadComponent = {
 	  controller: function (data) {
 	    this.vm = data.vm;
+	    this.buttonStatus = _mithril2.default.prop(false);
 	    this.tColor = false;
 	    this.noop = e => {
 	      e.preventDefault();
@@ -269,21 +180,35 @@
 	  },
 	  view: ctrl => {
 	    const settingList = [];
-	    if (ctrl.vm.status()) {
+	    const vm = ctrl.vm;
+	    if (vm.loadStatus) {
 	      // systemImg
-	      const systemImg = ctrl.vm.systemImg();
-	      const systemImgView = (0, _mithril2.default)('.systemImg', [(0, _mithril2.default)('h3', 'システムグラフィック'), (0, _mithril2.default)('img', {
+	      const systemImg = vm.systemImg;
+	      const systemImgView = (0, _mithril2.default)('.systemImg', [(0, _mithril2.default)('h3', 'システムグラフィック'), (0, _mithril2.default)('.systemItems', [(0, _mithril2.default)('img', {
 	        src: systemImg.dataUrl
-	      }), (0, _mithril2.default)('.tColor', ['透過色: ', (0, _mithril2.default)('span', {
+	      }), (0, _mithril2.default)('.tColor', ['透過色: ', (0, _mithril2.default)('br'), (0, _mithril2.default)('span', {
 	        style: { color: systemImg.tColorCss }
-	      }, `■${ systemImg.tColorCss }`)]), (0, _mithril2.default)('h4', 'メッセージ枠ベース画像'), (0, _mithril2.default)('img', {
+	      }, `■${ systemImg.tColorCss }`)]), (0, _mithril2.default)('div', ['枠:', (0, _mithril2.default)('br'), (0, _mithril2.default)('img', {
 	        src: systemImg.messageWindow
-	      })]);
+	      })])])]);
 	      settingList.push(systemImgView);
+	      // face graphics
+	      const faceListView = vm.config.faceKeyList.map(faceKey => {
+	        return [(0, _mithril2.default)('li', [(0, _mithril2.default)('p', faceKey), (0, _mithril2.default)('.faceImg', { style: vm.getFaceStyle(faceKey) })])];
+	      });
+	      const faceImgView = (0, _mithril2.default)('.faceSetting', [(0, _mithril2.default)('h3', '顔グラフィック'), (0, _mithril2.default)('ul.faceList', faceListView)]);
+	      settingList.push(faceImgView);
 	    }
-	    return (0, _mithril2.default)('.loadComponent', [(0, _mithril2.default)('h2', '設定ファイル'), (0, _mithril2.default)('button.checkConfig', '現在の設定の確認'), (0, _mithril2.default)('.settingList', {}, settingList), (0, _mithril2.default)('.loadConfig', {
+	    return (0, _mithril2.default)('.loadComponent', [(0, _mithril2.default)('h2', '設定ファイル'), (0, _mithril2.default)('button.checkConfig', {
+	      class: vm.loadStatus ? 'enable' : 'disable',
+	      'data-button-status': ctrl.buttonStatus() == 'on' ? 'off' : 'on',
+	      onclick: _mithril2.default.withAttr('data-button-status', ctrl.buttonStatus)
+	    }, '設定の' + (ctrl.buttonStatus() == 'on' ? '非表示' : '表示')), (0, _mithril2.default)('.settingList', {
+	      class: ctrl.buttonStatus() == 'on' ? 'enable' : 'disable'
+	    }, settingList), (0, _mithril2.default)('.loadConfig', {
+	      class: vm.loadStatus ? 'disable' : 'enable',
 	      ondragover: ctrl.noop,
-	      ondrop: ctrl.vm.dropFiles.bind(ctrl.vm)
+	      ondrop: vm.dropFiles.bind(vm)
 	    }, 'ここに設定ファイルをまとめてドロップしてください。')]);
 	  }
 	};
@@ -300,60 +225,50 @@
 	  value: true
 	});
 	
-	var _loadVm = __webpack_require__(7);
-	
-	var _loadVm2 = _interopRequireDefault(_loadVm);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	class TmaFrontVM {
-	  constructor(data) {
-	    this.loadVM = new _loadVm2.default(data.scenario);
-	  }
-	}
-	exports.default = TmaFrontVM;
-
-/***/ },
-/* 7 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	
 	var _mithril = __webpack_require__(1);
 	
 	var _mithril2 = _interopRequireDefault(_mithril);
 	
-	var _systemImg = __webpack_require__(8);
+	var _png = __webpack_require__(7);
+	
+	var _png2 = _interopRequireDefault(_png);
+	
+	var _systemImg = __webpack_require__(9);
 	
 	var _systemImg2 = _interopRequireDefault(_systemImg);
 	
+	var _scenario = __webpack_require__(12);
+	
+	var _scenario2 = _interopRequireDefault(_scenario);
+	
+	var _styleSheet = __webpack_require__(21);
+	
+	var _styleSheet2 = _interopRequireDefault(_styleSheet);
+	
+	var _zoom = __webpack_require__(11);
+	
+	var _zoom2 = _interopRequireDefault(_zoom);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
-	class LoadVM {
-	  constructor(scenario) {
+	class TmaFrontVM {
+	  constructor() {
 	    // init member
-	    this.style = _mithril2.default.prop();
-	    this.status = _mithril2.default.prop(false);
-	    this.peoples = [];
-	    this.scenario = scenario;
-	    this.systemImg = _mithril2.default.prop(false);
-	    this.png = [];
-	    // set styleSheet
-	    this.styleSheet = false;
-	    const styleSheets = document.styleSheets;
-	    for (let i = 0; i < styleSheets.length; i++) {
-	      if (styleSheets[i].href != null && styleSheets[i].href.endsWith('style.css')) {
-	        this.styleSheet = styleSheets[i];
-	      }
-	    }
+	    this.scenario = new _scenario2.default();
+	    // for load setting
+	    this.loadStatus = false;
+	    this.systemImg = false;
+	    this.faceImgs = {};
+	    this.config = false;
+	    // get styleSheet
+	    this.styleSheet = new _styleSheet2.default('style.css');
+	    this.zoom = new _zoom2.default({ zoomLevel: 1 });
 	  }
 	
 	  dropFiles(e) {
+	    // イベントの停止
 	    e.preventDefault();
+	    // ファイル読み込みのpromise設定
 	    const promises = [];
 	    const files = e.dataTransfer.files;
 	    for (let i = 0; i < files.length; i++) {
@@ -361,32 +276,58 @@
 	      const ext = getFileExt(file.name);
 	      if (file.name == 'style.yaml') {
 	        promises.push(this._readStyleYaml(file));
+	      } else if (file.name == 'system.png') {
+	        promises.push(this._readSystemImg(file));
 	      } else if (ext == 'png') {
-	        promises.push(this._readPng(file));
+	        promises.push(this._readPng(file, file.name));
 	      } else if (['yaml', 'yml'].includes(ext)) {
 	        promises.push(this._readPeopleYaml(file));
 	      }
 	    }
-	    _mithril2.default.sync(promises).then(() => {
-	      this.scenario.setConfig(this.style(), this.peoples);
-	      this.status(true);
-	      // set CSS images
-	      if (this.systemImg()) {
-	        this._editCss('.messageWindow', 'border-image-source', `url(${ this.systemImg().messageWindow })`);
-	        this._editCss('.text', 'background-image', `url(${ this.systemImg().defaultText })`);
-	        for (let i = 0; i < 20; i++) {
-	          this._editCss(`.color${ i }`, 'background-image', `url(${ this.systemImg().getTextColor(i) })`);
+	    // 全てのファイルの読み込みが終わったら、設定の取り込みを行う
+	    _mithril2.default.sync(promises).then(args => {
+	      let styleYaml = false;
+	      const poepleYamls = [];
+	      args.forEach(({ type, file }) => {
+	        if (type == 'png') {
+	          if (file instanceof _systemImg2.default) {
+	            this.systemImg = file;
+	          } else {
+	            this.faceImgs[file.filename] = file;
+	          }
+	        } else if (type == 'styleYaml') {
+	          styleYaml = file;
+	        } else if (type == 'peopleYaml') {
+	          poepleYamls.push(file);
 	        }
-	        this._editCss(':root', '--control-base-color', this.systemImg().controlCharColor);
-	        this._editCss(':root', '--control-sub-color', this.systemImg().controlCharBgColor);
+	      });
+	      this.config = this.scenario.setConfig(styleYaml, poepleYamls);
+	      this.loadStatus = true;
+	      // set system images css
+	      if (this.systemImg) {
+	        this.styleSheet.editCss('.messageWindow', 'border-image-source', `url(${ this.systemImg.messageWindow })`);
+	        this.styleSheet.editCss('.text', 'background-image', `url(${ this.systemImg.defaultText })`);
+	        for (let i = 0; i < 20; i++) {
+	          this.styleSheet.editCss(`.color${ i }`, 'background-image', `url(${ this.systemImg.getTextColor(i) })`);
+	        }
+	        this.styleSheet.editCss(':root', '--control-base-color', this.systemImg.controlCharColor);
+	        this.styleSheet.editCss(':root', '--control-sub-color', this.systemImg.controlCharBgColor);
 	      }
 	      // redraw
 	      _mithril2.default.redraw();
 	    });
 	  }
 	
-	  _editCss(selector, name, value) {
-	    this.styleSheet.insertRule(`${ selector } { ${ name }: ${ value }}`, this.styleSheet.cssRules.length);
+	  getFaceStyle(face) {
+	    const faceConfig = typeof face == 'string' ? this.config.getFace(face) : face;
+	    const filename = faceConfig.filename + (!faceConfig.filename.endsWith('.png') ? '.png' : '');
+	    const dataUrl = this.faceImgs[filename].dataUrl;
+	    const posx = faceConfig.number % 4 * 48;
+	    const posy = Math.floor(faceConfig.number / 4) * 48;
+	    return {
+	      backgroundImage: `url(${ dataUrl })`,
+	      backgroundPosition: `-${ posx }px -${ posy }px`
+	    };
 	  }
 	
 	  _readStyleYaml(file) {
@@ -395,8 +336,10 @@
 	
 	    const deferred = _mithril2.default.deferred();
 	    reader.onloadend = e => {
-	      this.style(e.target.result);
-	      deferred.resolve(true);
+	      deferred.resolve({
+	        type: 'styleYaml',
+	        file: e.target.result
+	      });
 	    };
 	    reader.onerror = deferred.reject;
 	
@@ -409,30 +352,41 @@
 	
 	    const deferred = _mithril2.default.deferred();
 	    reader.onloadend = e => {
-	      this.peoples.push(e.target.result);
-	      deferred.resolve(true);
+	      deferred.resolve({
+	        type: 'peopleYaml',
+	        file: e.target.result
+	      });
 	    };
 	    reader.onerror = deferred.reject;
 	
 	    return deferred.promise;
 	  }
 	
-	  _readPng(file) {
+	  _readSystemImg(file) {
 	    const deferred = _mithril2.default.deferred();
 	    const reader = new FileReader();
-	    const systemImg = new _systemImg2.default(deferred);
+	    const systemImg = new _systemImg2.default(deferred, 'system.png');
 	    reader.readAsArrayBuffer(file);
-	    this.systemImg(systemImg); //TODO
 	
 	    reader.onloadend = systemImg.loadEnd.bind(systemImg);
 	    reader.onerror = deferred.reject;
 	
 	    return deferred.promise;
 	  }
-	}
-	exports.default = LoadVM;
-	// import Png from '../model/png';
 	
+	  _readPng(file, filename) {
+	    const deferred = _mithril2.default.deferred();
+	    const reader = new FileReader();
+	    const png = new _png2.default(deferred, filename);
+	    reader.readAsArrayBuffer(file);
+	
+	    reader.onloadend = png.loadEnd.bind(png);
+	    reader.onerror = deferred.reject;
+	
+	    return deferred.promise;
+	  }
+	}
+	exports.default = TmaFrontVM;
 	const getFileExt = filename => {
 	  const dotIndex = filename.lastIndexOf('.');
 	  if (dotIndex < 0) {
@@ -442,7 +396,7 @@
 	};
 
 /***/ },
-/* 8 */
+/* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -451,11 +405,115 @@
 	  value: true
 	});
 	
-	var _png = __webpack_require__(9);
+	var _base64Arraybuffer = __webpack_require__(8);
+	
+	var _base64Arraybuffer2 = _interopRequireDefault(_base64Arraybuffer);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	class Png {
+	  constructor(deferred, filename) {
+	    // private init
+	    this.file = false;
+	    this.filename = filename;
+	    this.dataUrl = false;
+	    this.palette = [];
+	    this.deferred = deferred;
+	    this.img = false;
+	  }
+	
+	  get imageInfo() {
+	    return {
+	      dataUrl: this.dataUrl,
+	      palette: this.palette
+	    };
+	  }
+	
+	  loadEnd(e) {
+	    if (e.target.readyState == FileReader.DONE) {
+	      this.file = e.target.result;
+	      // dataUrl変換、IMG要素追加
+	      this.dataUrl = 'data:image/png;base64,' + _base64Arraybuffer2.default.encode(this.file);
+	      this.img = new Image();
+	      this.img.src = this.dataUrl;
+	      // パレット読み込み
+	      this.palette = this.readPlte(pngInfo.signature);
+	      // resolve
+	      this.deferred.resolve({
+	        type: 'png',
+	        file: this
+	      });
+	    }
+	  }
+	
+	  readPlte(offset) {
+	    const buffer = this.file;
+	    if (offset >= buffer.byteLength) {
+	      return false;
+	    }
+	    const dv = new DataView(buffer);
+	    const length = dv.getUint32(offset);
+	    const name = [];
+	    for (let i = 0; i < 4; i++) {
+	      name.push(dv.getUint8(offset + pngInfo.chunk.length + i));
+	    }
+	    if (String.fromCharCode.apply(null, name) == 'PLTE') {
+	      const palette = [];
+	      const pOffset = offset + pngInfo.chunk.length + pngInfo.chunk.name;
+	      const pLength = length / 3;
+	      for (let i = 0; i < pLength; i++) {
+	        palette.push({
+	          r: dv.getUint8(pOffset + i * 3),
+	          g: dv.getUint8(pOffset + i * 3 + 1),
+	          b: dv.getUint8(pOffset + i * 3 + 2)
+	        });
+	      }
+	      return palette;
+	    } else {
+	      return this.readPlte(offset + pngInfo.chunk.length + pngInfo.chunk.name + length + pngInfo.chunk.crc);
+	    }
+	  }
+	
+	  get tColorCss() {
+	    if (!this.palette) {
+	      return '';
+	    }
+	    const c = this.palette[0];
+	    return `rgb(${ c.r }, ${ c.g }, ${ c.b })`;
+	  }
+	}
+	
+	exports.default = Png;
+	const pngInfo = {
+	  signature: 8,
+	  chunk: {
+	    length: 4,
+	    name: 4,
+	    crc: 4
+	  }
+	};
+
+/***/ },
+/* 8 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = (__webpack_require__(2))(57);
+
+/***/ },
+/* 9 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _png = __webpack_require__(7);
 	
 	var _png2 = _interopRequireDefault(_png);
 	
-	var _onecolor = __webpack_require__(20);
+	var _onecolor = __webpack_require__(10);
 	
 	var _onecolor2 = _interopRequireDefault(_onecolor);
 	
@@ -584,104 +642,10 @@
 	exports.default = SystemImg;
 
 /***/ },
-/* 9 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	
-	var _base64Arraybuffer = __webpack_require__(10);
-	
-	var _base64Arraybuffer2 = _interopRequireDefault(_base64Arraybuffer);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	class Png {
-	  constructor(deferred) {
-	    // private init
-	    this.file = false;
-	    this.dataUrl = false;
-	    this.palette = [];
-	    this.deferred = deferred;
-	    this.img = false;
-	  }
-	
-	  get imageInfo() {
-	    return {
-	      dataUrl: this.dataUrl,
-	      palette: this.palette
-	    };
-	  }
-	
-	  loadEnd(e) {
-	    if (e.target.readyState == FileReader.DONE) {
-	      this.file = e.target.result;
-	      // dataUrl変換、IMG要素追加
-	      this.dataUrl = 'data:image/png;base64,' + _base64Arraybuffer2.default.encode(this.file);
-	      this.img = new Image();
-	      this.img.src = this.dataUrl;
-	      // パレット読み込み
-	      this.palette = this.readPlte(pngInfo.signature);
-	      // resolve
-	      this.deferred.resolve(true);
-	    }
-	  }
-	
-	  readPlte(offset) {
-	    const buffer = this.file;
-	    if (offset >= buffer.byteLength) {
-	      return false;
-	    }
-	    const dv = new DataView(buffer);
-	    const length = dv.getUint32(offset);
-	    const name = [];
-	    for (let i = 0; i < 4; i++) {
-	      name.push(dv.getUint8(offset + pngInfo.chunk.length + i));
-	    }
-	    if (String.fromCharCode.apply(null, name) == 'PLTE') {
-	      const palette = [];
-	      const pOffset = offset + pngInfo.chunk.length + pngInfo.chunk.name;
-	      const pLength = length / 3;
-	      for (let i = 0; i < pLength; i++) {
-	        palette.push({
-	          r: dv.getUint8(pOffset + i * 3),
-	          g: dv.getUint8(pOffset + i * 3 + 1),
-	          b: dv.getUint8(pOffset + i * 3 + 2)
-	        });
-	      }
-	      return palette;
-	    } else {
-	      return this.readPlte(offset + pngInfo.chunk.length + pngInfo.chunk.name + length + pngInfo.chunk.crc);
-	    }
-	  }
-	
-	  get tColorCss() {
-	    if (!this.palette) {
-	      return '';
-	    }
-	    const c = this.palette[0];
-	    return `rgb(${ c.r }, ${ c.g }, ${ c.b })`;
-	  }
-	}
-	
-	exports.default = Png;
-	const pngInfo = {
-	  signature: 8,
-	  chunk: {
-	    length: 4,
-	    name: 4,
-	    crc: 4
-	  }
-	};
-
-/***/ },
 /* 10 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = (__webpack_require__(2))(57);
+	module.exports = (__webpack_require__(2))(38);
 
 /***/ },
 /* 11 */
@@ -750,6 +714,7 @@
 	
 	  setConfig(style, peoples) {
 	    this.parser = new _tk2kMessageAssist.ScenarioParser(style, peoples);
+	    return this.parser.config;
 	  }
 	
 	  get colors() {
@@ -758,6 +723,7 @@
 	    }
 	    return [];
 	  }
+	
 	}
 	exports.default = Scenario;
 
@@ -870,9 +836,6 @@
 	          // 顔グラ変更
 	          var faceCommand = text.substr(1, text.length - 2);
 	          var faceConfig = _this2.config.getFace(faceCommand);
-	          if (!faceConfig) {
-	            throw new Error('未知の顔グラフィックです。：' + faceCommand);
-	          }
 	          // メッセージブロックの作り直し
 	          if (tmp.length > 0) {
 	            block.addMessage(_this2._tagFormat(tmp));
@@ -885,7 +848,7 @@
 	          return; //continue
 	        }
 	        tmp.push(text);
-	        if (tmp.length == _this2.config.lineLimit) {
+	        if (tmp.length == _this2.config.lineLimit + (block.face ? -1 : 0)) {
 	          block.addMessage(_this2._tagFormat(tmp));
 	          tmp = [];
 	        }
@@ -1126,9 +1089,8 @@
 	          var person = yamlObj.person[name];
 	          Object.keys(person.faces).forEach(function (faceName) {
 	            var face = person.faces[faceName];
-	            var templateConfig = _this._config.style.template.face;
 	            var nameConfig = _this._config.style.display.name;
-	            var faceKey = '' + name + templateConfig.prefix + faceName + templateConfig.suffix;
+	            var faceKey = name + '_' + faceName;
 	            var color = face.color || person.color || false;
 	            var displayName = face.name || person.name;
 	            if (color && nameConfig.colorScope == 'inner') {
@@ -1323,10 +1285,149 @@
 	var cNormalTags = ['flash'];
 
 /***/ },
-/* 20 */
+/* 20 */,
+/* 21 */
+/***/ function(module, exports) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	class StyleSheet {
+	  constructor(name) {
+	    this.styleSheet = StyleSheet.getCSSStyleSheet(name);
+	  }
+	
+	  editCss(selector, name, value) {
+	    this.styleSheet.insertRule(`${ selector } { ${ name }: ${ value }}`, this.styleSheet.cssRules.length);
+	  }
+	
+	  static getCSSStyleSheet(name) {
+	    let result = false;
+	    Array.prototype.forEach.call(document.styleSheets, styleSheet => {
+	      if (styleSheet.href != null && styleSheet.href.endsWith(name)) {
+	        result = styleSheet;
+	      }
+	    });
+	    return result;
+	  }
+	
+	}
+	exports.default = StyleSheet;
+
+/***/ },
+/* 22 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = (__webpack_require__(2))(38);
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _mithril = __webpack_require__(1);
+	
+	var _mithril2 = _interopRequireDefault(_mithril);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	const messageListComponent = {
+	  controller: function (data) {
+	    this.vm = data.vm;
+	  },
+	  view: ctrl => {
+	    const vm = ctrl.vm;
+	    const windowList = vm.scenario.windowList;
+	    const colors = vm.scenario.colors;
+	    return (0, _mithril2.default)('#messageList', { class: `zoom${ vm.zoom.zoomLevel() }x` }, [windowList.map(messageBox => {
+	      const face = messageBox.face;
+	      return messageBox.messageList.map(message => {
+	        let messageView = [];
+	        let lineView = [];
+	        if (face) {
+	          messageView.push((0, _mithril2.default)('.faceBox', [(0, _mithril2.default)('.faceImg', { style: vm.getFaceStyle(face) })]));
+	          lineView.push(makeMessageLi(face.name, colors));
+	        }
+	        message.line.forEach(lineText => {
+	          lineView.push(makeMessageLi(lineText, colors));
+	        });
+	        messageView.push((0, _mithril2.default)('ul.message', lineView));
+	        return (0, _mithril2.default)('.messageWindow', messageView);
+	      });
+	    })]);
+	  }
+	};
+	
+	const domParser = new DOMParser();
+	const makeMessageLi = (scenarioText, colors) => {
+	  let html = scenarioText;
+	  // エスケープの変換
+	  html = html.replace('\\<', '&lt;').replace(/([^\\]?)\\/, '$1').replace('\\', '\\\\');
+	  // 色タグをspanに変換
+	  Object.keys(colors).forEach(color => {
+	    const number = colors[color];
+	    const colorTagRegExp = new RegExp(`<${ color }>`, 'g');
+	    html = html.replace(colorTagRegExp, `<color${ number }>`);
+	  });
+	  html = html.replace(startTagRegExp, '<span class="$1">').replace(endTagRegExp, '</span>');
+	  // DOMParserに読ませて変換する
+	  const dom = domParser.parseFromString(html, 'text/html');
+	  // 本文の組み立て
+	  const message = domToView(dom.body);
+	
+	  return (0, _mithril2.default)('li.line', [(0, _mithril2.default)('p.shadow', dom.body.innerText), (0, _mithril2.default)('p.text', message)]);
+	};
+	
+	const domToView = dom => {
+	  let view = [];
+	  let iList = [];
+	  for (let node = dom.firstChild; node; node = node.nextSibling) {
+	    const klass = node.getAttribute ? node.getAttribute('class') : false;
+	    if (Object.keys(controlTags).includes(klass)) {
+	      // 制御タグはiタグに変えてキープ
+	      iList.push((0, _mithril2.default)('i', {
+	        class: klass
+	      }, controlTags[klass]));
+	      continue;
+	    } else {
+	      // iタグのストックがあればspanに包んでpush
+	      if (iList.length > 0) {
+	        view.push((0, _mithril2.default)('span', {
+	          class: 'control'
+	        }, iList));
+	        iList = [];
+	      }
+	    }
+	    if (node.nodeName == 'SPAN') {
+	      // 他のタグはspanのまま
+	      view.push((0, _mithril2.default)('span', {
+	        class: klass
+	      }, domToView(node)));
+	    } else {
+	      // span以外の要素は全てテキストに変える
+	      view.push(node.textContent);
+	    }
+	  }
+	  // iタグのストックがあればspanに包んでpush
+	  if (iList.length > 0) {
+	    view.push((0, _mithril2.default)('span', {
+	      class: 'control'
+	    }, iList));
+	    iList = [];
+	  }
+	  return view;
+	};
+	
+	const startTagRegExp = /<([a-z0-9\-\_]+)>/g;
+	const endTagRegExp = /<\/([a-z0-9\-\_]+)>/g;
+	const controlTags = {
+	  stop: 's',
+	  wait: 'w',
+	  q_wait: 'q'
+	};
+	
+	exports.default = messageListComponent;
 
 /***/ }
 /******/ ]);

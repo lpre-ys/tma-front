@@ -4,11 +4,7 @@ style:
       prefix: '【'
       suffix: '】'
       colorScope: 'outer'
-    lineLimit: 3
-  template:
-    face:
-      prefix: '_'
-      suffix: ''
+    lineLimit: 4
 color:
   default: 0
   blue: 1

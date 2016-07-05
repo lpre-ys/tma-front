@@ -25,6 +25,7 @@ export default class Scenario {
 
   setConfig(style, peoples) {
     this.parser = new ScenarioParser(style, peoples);
+    return this.parser.config;
   }
 
   get colors() {
@@ -33,4 +34,5 @@ export default class Scenario {
     }
     return [];
   }
+
 }
