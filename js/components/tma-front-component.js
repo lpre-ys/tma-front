@@ -16,12 +16,13 @@ const tmaFrontComponent = {
         m('h2', 'シナリオファイル'),
         m('textarea#input', {
           value: vm.scenario.scenarioText(),
-          onkeyup: m.withAttr('value', vm.scenario.scenarioText)
+          onkeyup: m.withAttr('value', vm.setScenarioText, vm)
         }),
         m('h2', 'TkoolBridge script'),
         m('textarea#tkScript', {
-          readonly: 'readonly'
-        }, [vm.scenario.tkScript])
+          readonly: 'readonly',
+          onfocus: tmaFrontComponent.selectText
+        }, [vm.scenario.tkScript()])
       ]),
       m('.right', [
         m('h2', 'プレビュー'),
@@ -29,6 +30,9 @@ const tmaFrontComponent = {
         m.component(messageListComponent, {vm: vm})
       ])
     ];
+  },
+  selectText: (e) => {
+    e.target.select();
   }
 };
 

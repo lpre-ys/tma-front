@@ -2,6 +2,7 @@ import m from 'mithril';
 import Png from '../model/png';
 import SystemImg from '../model/system-img';
 import Scenario from '../model/scenario';
+import {ScenarioParser} from 'tk2k-message-assist';
 import StyleSheet from '../model/style-sheet';
 import Zoom from '../model/zoom';
 
@@ -9,6 +10,7 @@ export default class TmaFrontVM {
   constructor() {
     // init member
     this.scenario = new Scenario();
+    this.parser = false;
     // for load setting
     this.loadStatus = false;
     this.systemImg = false;
@@ -55,7 +57,8 @@ export default class TmaFrontVM {
           poepleYamls.push(file);
         }
       });
-      this.config = this.scenario.setConfig(styleYaml, poepleYamls);
+      this.parser = new ScenarioParser(styleYaml, poepleYamls);
+      this.config = this.parser.config;
       this.loadStatus = true;
       // set system images css
       if (this.systemImg) {
@@ -67,9 +70,23 @@ export default class TmaFrontVM {
         this.styleSheet.editCss(':root', '--control-base-color', this.systemImg.controlCharColor);
         this.styleSheet.editCss(':root', '--control-sub-color', this.systemImg.controlCharBgColor);
       }
+      this.parse();
       // redraw
       m.redraw();
     });
+  }
+
+  setScenarioText(v) {
+    if (v == this.scenario.scenarioText()) {
+      // 変更が無い場合何もしない
+      return;
+    }
+    this.scenario.scenarioText(v);
+    this.parse();
+  }
+
+  parse() {
+    this.scenario.parse(this.parser);
   }
 
   getFaceStyle(face) {

@@ -6,8 +6,8 @@ const messageListComponent = {
   },
   view: (ctrl) => {
     const vm = ctrl.vm;
-    const windowList = vm.scenario.windowList;
-    const colors = vm.scenario.colors;
+    const windowList = vm.scenario.windowList();
+    const colors = vm.config ? vm.config.colors : [];
     return m('#messageList', {class: `zoom${vm.zoom.zoomLevel()}x`}, [
       windowList.map((messageBox) => {
         const face = messageBox.face;
@@ -20,8 +20,25 @@ const messageListComponent = {
             ]));
             lineView.push(makeMessageLi(face.name, colors));
           }
+          // 継続タグ
+          let continueTag = '';
           message.line.forEach((lineText) => {
+            lineText = continueTag + lineText;
             lineView.push(makeMessageLi(lineText, colors));
+            // 継続タグの設定
+            const dom = domParser.parseFromString(lineText, 'text/html');
+            const parsed = dom.body.innerHTML;
+            if (lineText != parsed) {
+              const tags = parsed.substr(lineText.length)
+                                 .match(/<\/[a-z\-\_]+>/g);
+              if (tags) {
+                continueTag = tags.map((v) => v.replace('/', ''))
+                                                    .reverse()
+                                                    .join('');
+              }
+            } else {
+              continueTag = '';
+            }
           });
           messageView.push(m('ul.message', lineView));
           return m('.messageWindow', messageView);
@@ -35,9 +52,10 @@ const domParser = new DOMParser();
 const makeMessageLi = (scenarioText, colors) => {
   let html = scenarioText;
   // エスケープの変換
-  html = html.replace('\\<', '&lt;')
-             .replace(/([^\\]?)\\/, '$1')
-             .replace('\\', '\\\\');
+  html = html.replace(/\\</g, '&lt;')
+             .replace(/\\\\/g, '<yen-mark>')
+             .replace(/\\/g, '')
+             .replace(/<yen-mark>/g, '\\');
   // 色タグをspanに変換
   Object.keys(colors).forEach((color) => {
     const number = colors[color];

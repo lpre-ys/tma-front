@@ -94,11 +94,11 @@
 	
 	var _loadComponent2 = _interopRequireDefault(_loadComponent);
 	
-	var _messageListComponent = __webpack_require__(22);
+	var _messageListComponent = __webpack_require__(6);
 	
 	var _messageListComponent2 = _interopRequireDefault(_messageListComponent);
 	
-	var _tmaFrontVm = __webpack_require__(6);
+	var _tmaFrontVm = __webpack_require__(7);
 	
 	var _tmaFrontVm2 = _interopRequireDefault(_tmaFrontVm);
 	
@@ -112,10 +112,14 @@
 	    const vm = ctrl.vm;
 	    return [(0, _mithril2.default)('.left', [_mithril2.default.component(_loadComponent2.default, { vm: vm }), (0, _mithril2.default)('h2', 'シナリオファイル'), (0, _mithril2.default)('textarea#input', {
 	      value: vm.scenario.scenarioText(),
-	      onkeyup: _mithril2.default.withAttr('value', vm.scenario.scenarioText)
+	      onkeyup: _mithril2.default.withAttr('value', vm.setScenarioText, vm)
 	    }), (0, _mithril2.default)('h2', 'TkoolBridge script'), (0, _mithril2.default)('textarea#tkScript', {
-	      readonly: 'readonly'
-	    }, [vm.scenario.tkScript])]), (0, _mithril2.default)('.right', [(0, _mithril2.default)('h2', 'プレビュー'), _mithril2.default.component(_zoomComponent2.default, { vm: vm }), _mithril2.default.component(_messageListComponent2.default, { vm: vm })])];
+	      readonly: 'readonly',
+	      onfocus: tmaFrontComponent.selectText
+	    }, [vm.scenario.tkScript()])]), (0, _mithril2.default)('.right', [(0, _mithril2.default)('h2', 'プレビュー'), _mithril2.default.component(_zoomComponent2.default, { vm: vm }), _mithril2.default.component(_messageListComponent2.default, { vm: vm })])];
+	  },
+	  selectText: e => {
+	    e.target.select();
 	  }
 	};
 	
@@ -229,11 +233,138 @@
 	
 	var _mithril2 = _interopRequireDefault(_mithril);
 	
-	var _png = __webpack_require__(7);
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	const messageListComponent = {
+	  controller: function (data) {
+	    this.vm = data.vm;
+	  },
+	  view: ctrl => {
+	    const vm = ctrl.vm;
+	    const windowList = vm.scenario.windowList();
+	    const colors = vm.config ? vm.config.colors : [];
+	    return (0, _mithril2.default)('#messageList', { class: `zoom${ vm.zoom.zoomLevel() }x` }, [windowList.map(messageBox => {
+	      const face = messageBox.face;
+	      return messageBox.messageList.map(message => {
+	        let messageView = [];
+	        let lineView = [];
+	        if (face) {
+	          messageView.push((0, _mithril2.default)('.faceBox', [(0, _mithril2.default)('.faceImg', { style: vm.getFaceStyle(face) })]));
+	          lineView.push(makeMessageLi(face.name, colors));
+	        }
+	        // 継続タグ
+	        let continueTag = '';
+	        message.line.forEach(lineText => {
+	          lineText = continueTag + lineText;
+	          lineView.push(makeMessageLi(lineText, colors));
+	          // 継続タグの設定
+	          const dom = domParser.parseFromString(lineText, 'text/html');
+	          const parsed = dom.body.innerHTML;
+	          if (lineText != parsed) {
+	            const tags = parsed.substr(lineText.length).match(/<\/[a-z\-\_]+>/g);
+	            if (tags) {
+	              continueTag = tags.map(v => v.replace('/', '')).reverse().join('');
+	            }
+	          } else {
+	            continueTag = '';
+	          }
+	        });
+	        messageView.push((0, _mithril2.default)('ul.message', lineView));
+	        return (0, _mithril2.default)('.messageWindow', messageView);
+	      });
+	    })]);
+	  }
+	};
+	
+	const domParser = new DOMParser();
+	const makeMessageLi = (scenarioText, colors) => {
+	  let html = scenarioText;
+	  // エスケープの変換
+	  html = html.replace(/\\</g, '&lt;').replace(/\\\\/g, '<yen-mark>').replace(/\\/g, '').replace(/<yen-mark>/g, '\\');
+	  // 色タグをspanに変換
+	  Object.keys(colors).forEach(color => {
+	    const number = colors[color];
+	    const colorTagRegExp = new RegExp(`<${ color }>`, 'g');
+	    html = html.replace(colorTagRegExp, `<color${ number }>`);
+	  });
+	  html = html.replace(startTagRegExp, '<span class="$1">').replace(endTagRegExp, '</span>');
+	  // DOMParserに読ませて変換する
+	  const dom = domParser.parseFromString(html, 'text/html');
+	  // 本文の組み立て
+	  const message = domToView(dom.body);
+	
+	  return (0, _mithril2.default)('li.line', [(0, _mithril2.default)('p.shadow', dom.body.innerText), (0, _mithril2.default)('p.text', message)]);
+	};
+	
+	const domToView = dom => {
+	  let view = [];
+	  let iList = [];
+	  for (let node = dom.firstChild; node; node = node.nextSibling) {
+	    const klass = node.getAttribute ? node.getAttribute('class') : false;
+	    if (Object.keys(controlTags).includes(klass)) {
+	      // 制御タグはiタグに変えてキープ
+	      iList.push((0, _mithril2.default)('i', {
+	        class: klass
+	      }, controlTags[klass]));
+	      continue;
+	    } else {
+	      // iタグのストックがあればspanに包んでpush
+	      if (iList.length > 0) {
+	        view.push((0, _mithril2.default)('span', {
+	          class: 'control'
+	        }, iList));
+	        iList = [];
+	      }
+	    }
+	    if (node.nodeName == 'SPAN') {
+	      // 他のタグはspanのまま
+	      view.push((0, _mithril2.default)('span', {
+	        class: klass
+	      }, domToView(node)));
+	    } else {
+	      // span以外の要素は全てテキストに変える
+	      view.push(node.textContent);
+	    }
+	  }
+	  // iタグのストックがあればspanに包んでpush
+	  if (iList.length > 0) {
+	    view.push((0, _mithril2.default)('span', {
+	      class: 'control'
+	    }, iList));
+	    iList = [];
+	  }
+	  return view;
+	};
+	
+	const startTagRegExp = /<([a-z0-9\-\_]+)>/g;
+	const endTagRegExp = /<\/([a-z0-9\-\_]+)>/g;
+	const controlTags = {
+	  stop: 's',
+	  wait: 'w',
+	  q_wait: 'q'
+	};
+	
+	exports.default = messageListComponent;
+
+/***/ },
+/* 7 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _mithril = __webpack_require__(1);
+	
+	var _mithril2 = _interopRequireDefault(_mithril);
+	
+	var _png = __webpack_require__(8);
 	
 	var _png2 = _interopRequireDefault(_png);
 	
-	var _systemImg = __webpack_require__(9);
+	var _systemImg = __webpack_require__(10);
 	
 	var _systemImg2 = _interopRequireDefault(_systemImg);
 	
@@ -241,11 +372,13 @@
 	
 	var _scenario2 = _interopRequireDefault(_scenario);
 	
-	var _styleSheet = __webpack_require__(21);
+	var _tk2kMessageAssist = __webpack_require__(13);
+	
+	var _styleSheet = __webpack_require__(20);
 	
 	var _styleSheet2 = _interopRequireDefault(_styleSheet);
 	
-	var _zoom = __webpack_require__(11);
+	var _zoom = __webpack_require__(21);
 	
 	var _zoom2 = _interopRequireDefault(_zoom);
 	
@@ -255,6 +388,7 @@
 	  constructor() {
 	    // init member
 	    this.scenario = new _scenario2.default();
+	    this.parser = false;
 	    // for load setting
 	    this.loadStatus = false;
 	    this.systemImg = false;
@@ -301,7 +435,8 @@
 	          poepleYamls.push(file);
 	        }
 	      });
-	      this.config = this.scenario.setConfig(styleYaml, poepleYamls);
+	      this.parser = new _tk2kMessageAssist.ScenarioParser(styleYaml, poepleYamls);
+	      this.config = this.parser.config;
 	      this.loadStatus = true;
 	      // set system images css
 	      if (this.systemImg) {
@@ -313,9 +448,23 @@
 	        this.styleSheet.editCss(':root', '--control-base-color', this.systemImg.controlCharColor);
 	        this.styleSheet.editCss(':root', '--control-sub-color', this.systemImg.controlCharBgColor);
 	      }
+	      this.parse();
 	      // redraw
 	      _mithril2.default.redraw();
 	    });
+	  }
+	
+	  setScenarioText(v) {
+	    if (v == this.scenario.scenarioText()) {
+	      // 変更が無い場合何もしない
+	      return;
+	    }
+	    this.scenario.scenarioText(v);
+	    this.parse();
+	  }
+	
+	  parse() {
+	    this.scenario.parse(this.parser);
 	  }
 	
 	  getFaceStyle(face) {
@@ -396,7 +545,7 @@
 	};
 
 /***/ },
-/* 7 */
+/* 8 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -405,7 +554,7 @@
 	  value: true
 	});
 	
-	var _base64Arraybuffer = __webpack_require__(8);
+	var _base64Arraybuffer = __webpack_require__(9);
 	
 	var _base64Arraybuffer2 = _interopRequireDefault(_base64Arraybuffer);
 	
@@ -494,13 +643,13 @@
 	};
 
 /***/ },
-/* 8 */
+/* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = (__webpack_require__(2))(57);
 
 /***/ },
-/* 9 */
+/* 10 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -509,11 +658,11 @@
 	  value: true
 	});
 	
-	var _png = __webpack_require__(7);
+	var _png = __webpack_require__(8);
 	
 	var _png2 = _interopRequireDefault(_png);
 	
-	var _onecolor = __webpack_require__(10);
+	var _onecolor = __webpack_require__(11);
 	
 	var _onecolor2 = _interopRequireDefault(_onecolor);
 	
@@ -642,35 +791,10 @@
 	exports.default = SystemImg;
 
 /***/ },
-/* 10 */
-/***/ function(module, exports, __webpack_require__) {
-
-	module.exports = (__webpack_require__(2))(38);
-
-/***/ },
 /* 11 */
 /***/ function(module, exports, __webpack_require__) {
 
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	
-	var _mithril = __webpack_require__(1);
-	
-	var _mithril2 = _interopRequireDefault(_mithril);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	class Zoom {
-	  constructor(data) {
-	    data = data || {};
-	    this.zoomLevel = _mithril2.default.prop(data.zoomLevel || 1);
-	  }
-	
-	}
-	exports.default = Zoom;
+	module.exports = (__webpack_require__(2))(38);
 
 /***/ },
 /* 12 */
@@ -686,43 +810,43 @@
 	
 	var _mithril2 = _interopRequireDefault(_mithril);
 	
-	var _tk2kMessageAssist = __webpack_require__(13);
-	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	class Scenario {
 	  constructor() {
-	    this.parser = false;
 	    this.scenarioText = _mithril2.default.prop('');
+	    this.tkScript = _mithril2.default.prop('');
+	    this.windowList = _mithril2.default.prop([]);
 	  }
 	
-	  get tkScript() {
-	    if (this.parser) {
-	      return this.parser.serialize();
+	  parse(parser) {
+	    if (parser) {
+	      this.windowList(parser.parse(this.scenarioText()));
+	      this.tkScript(parser.serialize());
 	    }
 	  }
 	
-	  get windowList() {
-	    const scenario = this.scenarioText();
-	
-	    if (this.parser && scenario) {
-	      return this.parser.parse(scenario);
-	    }
-	
-	    return [];
-	  }
-	
-	  setConfig(style, peoples) {
-	    this.parser = new _tk2kMessageAssist.ScenarioParser(style, peoples);
-	    return this.parser.config;
-	  }
-	
-	  get colors() {
-	    if (this.parser) {
-	      return this.parser.config.colors;
-	    }
-	    return [];
-	  }
+	  // get windowList() {
+	  //   const scenario = this.scenarioText();
+	  //
+	  //   if (this.parser && scenario) {
+	  //     return this.parser.parse(scenario);
+	  //   }
+	  //
+	  //   return [];
+	  // }
+	  //
+	  // setConfig(style, peoples) {
+	  //   this.parser = new ScenarioParser(style, peoples);
+	  //   return this.parser.config;
+	  // }
+	  //
+	  // get colors() {
+	  //   if (this.parser) {
+	  //     return this.parser.config.colors;
+	  //   }
+	  //   return [];
+	  // }
 	
 	}
 	exports.default = Scenario;
@@ -832,6 +956,10 @@
 	      var tmp = [];
 	      var block = new _messageBlock2.default(false);
 	      textList.forEach(function (text) {
+	        // コメント行は読み飛ばす
+	        if (text.startsWith('//')) {
+	          return; //continue
+	        }
 	        if (_this2.config.hasFace && faceCommandRegExp.test(text)) {
 	          // 顔グラ変更
 	          var faceCommand = text.substr(1, text.length - 2);
@@ -847,8 +975,22 @@
 	          block = new _messageBlock2.default(faceConfig);
 	          return; //continue
 	        }
+	        // 改ページ判定
+	        var isPageBreak = false;
+	        if (/^<pb>/.test(text)) {
+	          isPageBreak = true;
+	          text = ''; // 文字表示無し
+	        } else if (/[^\\]<pb>/.test(text)) {
+	          isPageBreak = true;
+	          // pbタグ以降の文字列を削除
+	          var pbIndex = text.search(/[^\\]<pb>/) + 1;
+	          text = text.substr(0, pbIndex);
+	        }
 	        tmp.push(text);
 	        if (tmp.length == _this2.config.lineLimit + (block.face ? -1 : 0)) {
+	          isPageBreak = true;
+	        }
+	        if (isPageBreak) {
 	          block.addMessage(_this2._tagFormat(tmp));
 	          tmp = [];
 	        }
@@ -913,6 +1055,8 @@
 	            return '<' + v + '>';
 	          }).join('');
 	        })();
+	      } else {
+	        this.continueTag = '';
 	      }
 	
 	      // 最終出力
@@ -1285,8 +1429,7 @@
 	var cNormalTags = ['flash'];
 
 /***/ },
-/* 20 */,
-/* 21 */
+/* 20 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -1317,7 +1460,7 @@
 	exports.default = StyleSheet;
 
 /***/ },
-/* 22 */
+/* 21 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1332,102 +1475,14 @@
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
-	const messageListComponent = {
-	  controller: function (data) {
-	    this.vm = data.vm;
-	  },
-	  view: ctrl => {
-	    const vm = ctrl.vm;
-	    const windowList = vm.scenario.windowList;
-	    const colors = vm.scenario.colors;
-	    return (0, _mithril2.default)('#messageList', { class: `zoom${ vm.zoom.zoomLevel() }x` }, [windowList.map(messageBox => {
-	      const face = messageBox.face;
-	      return messageBox.messageList.map(message => {
-	        let messageView = [];
-	        let lineView = [];
-	        if (face) {
-	          messageView.push((0, _mithril2.default)('.faceBox', [(0, _mithril2.default)('.faceImg', { style: vm.getFaceStyle(face) })]));
-	          lineView.push(makeMessageLi(face.name, colors));
-	        }
-	        message.line.forEach(lineText => {
-	          lineView.push(makeMessageLi(lineText, colors));
-	        });
-	        messageView.push((0, _mithril2.default)('ul.message', lineView));
-	        return (0, _mithril2.default)('.messageWindow', messageView);
-	      });
-	    })]);
+	class Zoom {
+	  constructor(data) {
+	    data = data || {};
+	    this.zoomLevel = _mithril2.default.prop(data.zoomLevel || 1);
 	  }
-	};
 	
-	const domParser = new DOMParser();
-	const makeMessageLi = (scenarioText, colors) => {
-	  let html = scenarioText;
-	  // エスケープの変換
-	  html = html.replace('\\<', '&lt;').replace(/([^\\]?)\\/, '$1').replace('\\', '\\\\');
-	  // 色タグをspanに変換
-	  Object.keys(colors).forEach(color => {
-	    const number = colors[color];
-	    const colorTagRegExp = new RegExp(`<${ color }>`, 'g');
-	    html = html.replace(colorTagRegExp, `<color${ number }>`);
-	  });
-	  html = html.replace(startTagRegExp, '<span class="$1">').replace(endTagRegExp, '</span>');
-	  // DOMParserに読ませて変換する
-	  const dom = domParser.parseFromString(html, 'text/html');
-	  // 本文の組み立て
-	  const message = domToView(dom.body);
-	
-	  return (0, _mithril2.default)('li.line', [(0, _mithril2.default)('p.shadow', dom.body.innerText), (0, _mithril2.default)('p.text', message)]);
-	};
-	
-	const domToView = dom => {
-	  let view = [];
-	  let iList = [];
-	  for (let node = dom.firstChild; node; node = node.nextSibling) {
-	    const klass = node.getAttribute ? node.getAttribute('class') : false;
-	    if (Object.keys(controlTags).includes(klass)) {
-	      // 制御タグはiタグに変えてキープ
-	      iList.push((0, _mithril2.default)('i', {
-	        class: klass
-	      }, controlTags[klass]));
-	      continue;
-	    } else {
-	      // iタグのストックがあればspanに包んでpush
-	      if (iList.length > 0) {
-	        view.push((0, _mithril2.default)('span', {
-	          class: 'control'
-	        }, iList));
-	        iList = [];
-	      }
-	    }
-	    if (node.nodeName == 'SPAN') {
-	      // 他のタグはspanのまま
-	      view.push((0, _mithril2.default)('span', {
-	        class: klass
-	      }, domToView(node)));
-	    } else {
-	      // span以外の要素は全てテキストに変える
-	      view.push(node.textContent);
-	    }
-	  }
-	  // iタグのストックがあればspanに包んでpush
-	  if (iList.length > 0) {
-	    view.push((0, _mithril2.default)('span', {
-	      class: 'control'
-	    }, iList));
-	    iList = [];
-	  }
-	  return view;
-	};
-	
-	const startTagRegExp = /<([a-z0-9\-\_]+)>/g;
-	const endTagRegExp = /<\/([a-z0-9\-\_]+)>/g;
-	const controlTags = {
-	  stop: 's',
-	  wait: 'w',
-	  q_wait: 'q'
-	};
-	
-	exports.default = messageListComponent;
+	}
+	exports.default = Zoom;
 
 /***/ }
 /******/ ]);

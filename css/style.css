@@ -8,6 +8,7 @@
 }
 body {
   background-color: #EEE;
+  margin: 5px;
 }
 #appContainer {
   display: flex;
@@ -77,7 +78,7 @@ body {
 
 textarea {
   width: 400px;
-  height: 500px;
+  height: 200px;
   margin: 10px;
 }
 
