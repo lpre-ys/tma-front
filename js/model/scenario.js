@@ -1,4 +1,5 @@
 import m from 'mithril';
+import Window from './window';
 
 export default class Scenario {
   constructor() {
@@ -9,31 +10,19 @@ export default class Scenario {
 
   parse(parser) {
     if (parser) {
-      this.windowList(parser.parse(this.scenarioText()));
+      const messageList = parser.parse(this.scenarioText());
       this.tkScript(parser.serialize());
+
+      // ウィンドウに変換
+      const windowList = [];
+      messageList.forEach((messageBox) => {
+        const face = messageBox.face;
+        messageBox.messageList.map((message) => {
+          windowList.push(new Window({message, face}));
+        });
+      });
+      this.windowList(windowList);
     }
   }
-
-  // get windowList() {
-  //   const scenario = this.scenarioText();
-  //
-  //   if (this.parser && scenario) {
-  //     return this.parser.parse(scenario);
-  //   }
-  //
-  //   return [];
-  // }
-  //
-  // setConfig(style, peoples) {
-  //   this.parser = new ScenarioParser(style, peoples);
-  //   return this.parser.config;
-  // }
-  //
-  // get colors() {
-  //   if (this.parser) {
-  //     return this.parser.config.colors;
-  //   }
-  //   return [];
-  // }
 
 }

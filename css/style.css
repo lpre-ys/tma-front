@@ -82,6 +82,11 @@ textarea {
   margin: 10px;
 }
 
+.comment {
+  margin: 5px;
+  font-size: 10px;
+}
+
 .messageWindow {
   width: 320px;
   height: 80px;
@@ -158,6 +163,10 @@ textarea {
 }
 
 /* for control chars */
+.flash {
+  border-bottom: 1px solid var(--control-base-color);
+}
+
 .text i {
   font-size: 8pt;
   font-style: normal;
@@ -167,11 +176,7 @@ textarea {
   position: absolute;
   display: inline-block;
   top: -12px;
-  margin-left: -8px
-}
-
-.control i:not(:first-child) {
-  display: none;
+  margin-left: -8px;
 }
 
 .control:hover i {
@@ -210,11 +215,7 @@ textarea {
   opacity: 0.8;
 }
 
-.control i + i::before {
-  display: none;
-}
-
-i:first-child {
+.showIcon i:first-child {
   display: inline-block;
 }
 

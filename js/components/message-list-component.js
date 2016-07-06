@@ -3,48 +3,58 @@ import m from 'mithril';
 const messageListComponent = {
   controller: function (data) {
     this.vm = data.vm;
+    this.toggleClass = messageListComponent.toggleClass;
   },
   view: (ctrl) => {
     const vm = ctrl.vm;
     const windowList = vm.scenario.windowList();
     const colors = vm.config ? vm.config.colors : [];
-    return m('#messageList', {class: `zoom${vm.zoom.zoomLevel()}x`}, [
-      windowList.map((messageBox) => {
-        const face = messageBox.face;
-        return messageBox.messageList.map((message) => {
-          let messageView = [];
-          let lineView = [];
-          if (face) {
-            messageView.push(m('.faceBox', [
-              m('.faceImg', {style: vm.getFaceStyle(face)})
-            ]));
-            lineView.push(makeMessageLi(face.name, colors));
-          }
-          // 継続タグ
-          let continueTag = '';
-          message.line.forEach((lineText) => {
-            lineText = continueTag + lineText;
-            lineView.push(makeMessageLi(lineText, colors));
-            // 継続タグの設定
-            const dom = domParser.parseFromString(lineText, 'text/html');
-            const parsed = dom.body.innerHTML;
-            if (lineText != parsed) {
-              const tags = parsed.substr(lineText.length)
-                                 .match(/<\/[a-z\-\_]+>/g);
-              if (tags) {
-                continueTag = tags.map((v) => v.replace('/', ''))
-                                                    .reverse()
-                                                    .join('');
-              }
-            } else {
-              continueTag = '';
-            }
-          });
-          messageView.push(m('ul.message', lineView));
-          return m('.messageWindow', messageView);
+    return m('#messageList', {class: `zoom${vm.zoom.zoomLevel()}x`},
+      windowList.map((windowObj) => {
+        let messageView = [];
+        let lineView = [];
+        let commentsView = [];
+
+        // コメント
+        windowObj.comments.forEach((comment) => {
+          commentsView.push(m('p.comment', comment));
         });
+
+        // 顔グラフィック
+        if (windowObj.face) {
+          const face = windowObj.face;
+          messageView.push(m('.faceBox', [
+            m('.faceImg', {style: vm.getFaceStyle(face)})
+          ]));
+          lineView.push(makeMessageLi(face.name, colors));
+        }
+        // 継続タグ
+        let continueTag = '';
+        windowObj.line.forEach((lineText) => {
+          lineText = continueTag + lineText;
+          lineView.push(makeMessageLi(lineText, colors));
+          // 継続タグの設定
+          const dom = domParser.parseFromString(lineText, 'text/html');
+          const parsed = dom.body.innerHTML;
+          if (lineText != parsed) {
+            const tags = parsed.substr(lineText.length)
+                               .match(/<\/[a-z\-\_]+>/g);
+            if (tags) {
+              continueTag = tags.map((v) => v.replace('/', ''))
+                                                  .reverse()
+                                                  .join('');
+            }
+          } else {
+            continueTag = '';
+          }
+        });
+        messageView.push(m('ul.message', lineView));
+        return [commentsView, m('.messageWindow', {
+          class: windowObj.iconStatus ? 'showIcon' : '',
+          onclick: windowObj.toggleIcon.bind(windowObj)
+        }, messageView)];
       })
-    ]);
+    );
   }
 };
 

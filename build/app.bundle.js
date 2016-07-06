@@ -238,41 +238,51 @@
 	const messageListComponent = {
 	  controller: function (data) {
 	    this.vm = data.vm;
+	    this.toggleClass = messageListComponent.toggleClass;
 	  },
 	  view: ctrl => {
 	    const vm = ctrl.vm;
 	    const windowList = vm.scenario.windowList();
 	    const colors = vm.config ? vm.config.colors : [];
-	    return (0, _mithril2.default)('#messageList', { class: `zoom${ vm.zoom.zoomLevel() }x` }, [windowList.map(messageBox => {
-	      const face = messageBox.face;
-	      return messageBox.messageList.map(message => {
-	        let messageView = [];
-	        let lineView = [];
-	        if (face) {
-	          messageView.push((0, _mithril2.default)('.faceBox', [(0, _mithril2.default)('.faceImg', { style: vm.getFaceStyle(face) })]));
-	          lineView.push(makeMessageLi(face.name, colors));
-	        }
-	        // 継続タグ
-	        let continueTag = '';
-	        message.line.forEach(lineText => {
-	          lineText = continueTag + lineText;
-	          lineView.push(makeMessageLi(lineText, colors));
-	          // 継続タグの設定
-	          const dom = domParser.parseFromString(lineText, 'text/html');
-	          const parsed = dom.body.innerHTML;
-	          if (lineText != parsed) {
-	            const tags = parsed.substr(lineText.length).match(/<\/[a-z\-\_]+>/g);
-	            if (tags) {
-	              continueTag = tags.map(v => v.replace('/', '')).reverse().join('');
-	            }
-	          } else {
-	            continueTag = '';
-	          }
-	        });
-	        messageView.push((0, _mithril2.default)('ul.message', lineView));
-	        return (0, _mithril2.default)('.messageWindow', messageView);
+	    return (0, _mithril2.default)('#messageList', { class: `zoom${ vm.zoom.zoomLevel() }x` }, windowList.map(windowObj => {
+	      let messageView = [];
+	      let lineView = [];
+	      let commentsView = [];
+	
+	      // コメント
+	      windowObj.comments.forEach(comment => {
+	        commentsView.push((0, _mithril2.default)('p.comment', comment));
 	      });
-	    })]);
+	
+	      // 顔グラフィック
+	      if (windowObj.face) {
+	        const face = windowObj.face;
+	        messageView.push((0, _mithril2.default)('.faceBox', [(0, _mithril2.default)('.faceImg', { style: vm.getFaceStyle(face) })]));
+	        lineView.push(makeMessageLi(face.name, colors));
+	      }
+	      // 継続タグ
+	      let continueTag = '';
+	      windowObj.line.forEach(lineText => {
+	        lineText = continueTag + lineText;
+	        lineView.push(makeMessageLi(lineText, colors));
+	        // 継続タグの設定
+	        const dom = domParser.parseFromString(lineText, 'text/html');
+	        const parsed = dom.body.innerHTML;
+	        if (lineText != parsed) {
+	          const tags = parsed.substr(lineText.length).match(/<\/[a-z\-\_]+>/g);
+	          if (tags) {
+	            continueTag = tags.map(v => v.replace('/', '')).reverse().join('');
+	          }
+	        } else {
+	          continueTag = '';
+	        }
+	      });
+	      messageView.push((0, _mithril2.default)('ul.message', lineView));
+	      return [commentsView, (0, _mithril2.default)('.messageWindow', {
+	        class: windowObj.iconStatus ? 'showIcon' : '',
+	        onclick: windowObj.toggleIcon.bind(windowObj)
+	      }, messageView)];
+	    }));
 	  }
 	};
 	
@@ -810,6 +820,10 @@
 	
 	var _mithril2 = _interopRequireDefault(_mithril);
 	
+	var _window = __webpack_require__(22);
+	
+	var _window2 = _interopRequireDefault(_window);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	class Scenario {
@@ -821,32 +835,20 @@
 	
 	  parse(parser) {
 	    if (parser) {
-	      this.windowList(parser.parse(this.scenarioText()));
+	      const messageList = parser.parse(this.scenarioText());
 	      this.tkScript(parser.serialize());
+	
+	      // ウィンドウに変換
+	      const windowList = [];
+	      messageList.forEach(messageBox => {
+	        const face = messageBox.face;
+	        messageBox.messageList.map(message => {
+	          windowList.push(new _window2.default({ message, face }));
+	        });
+	      });
+	      this.windowList(windowList);
 	    }
 	  }
-	
-	  // get windowList() {
-	  //   const scenario = this.scenarioText();
-	  //
-	  //   if (this.parser && scenario) {
-	  //     return this.parser.parse(scenario);
-	  //   }
-	  //
-	  //   return [];
-	  // }
-	  //
-	  // setConfig(style, peoples) {
-	  //   this.parser = new ScenarioParser(style, peoples);
-	  //   return this.parser.config;
-	  // }
-	  //
-	  // get colors() {
-	  //   if (this.parser) {
-	  //     return this.parser.config.colors;
-	  //   }
-	  //   return [];
-	  // }
 	
 	}
 	exports.default = Scenario;
@@ -954,10 +956,12 @@
 	      // limit別に分ける
 	      var result = [];
 	      var tmp = [];
+	      var comments = [];
 	      var block = new _messageBlock2.default(false);
 	      textList.forEach(function (text) {
-	        // コメント行は読み飛ばす
+	        // コメント行
 	        if (text.startsWith('//')) {
+	          comments.push(text.substr(2).trim());
 	          return; //continue
 	        }
 	        if (_this2.config.hasFace && faceCommandRegExp.test(text)) {
@@ -966,8 +970,9 @@
 	          var faceConfig = _this2.config.getFace(faceCommand);
 	          // メッセージブロックの作り直し
 	          if (tmp.length > 0) {
-	            block.addMessage(_this2._tagFormat(tmp));
+	            block.addMessage(_this2._tagFormat(tmp, comments));
 	            tmp = [];
+	            comments = [];
 	          }
 	          if (block.hasMessage()) {
 	            result.push(block);
@@ -991,12 +996,13 @@
 	          isPageBreak = true;
 	        }
 	        if (isPageBreak) {
-	          block.addMessage(_this2._tagFormat(tmp));
+	          block.addMessage(_this2._tagFormat(tmp, comments));
 	          tmp = [];
+	          comments = [];
 	        }
 	      });
 	      if (tmp.length > 0) {
-	        block.addMessage(this._tagFormat(tmp));
+	        block.addMessage(this._tagFormat(tmp, comments));
 	      }
 	      if (block.hasMessage()) {
 	        result.push(block);
@@ -1016,7 +1022,7 @@
 	    }
 	  }, {
 	    key: '_tagFormat',
-	    value: function _tagFormat(textList) {
+	    value: function _tagFormat(textList, comments) {
 	      var _this3 = this;
 	
 	      // 前回からの継続タグを追加
@@ -1064,7 +1070,7 @@
 	        return '</' + v + '>';
 	      }).join('');
 	
-	      return new _message2.default(output.trim().split("\n"));
+	      return new _message2.default(output.trim().split("\n"), comments);
 	    }
 	  }]);
 	
@@ -1090,9 +1096,12 @@
 	}
 	
 	var Message = function Message(textList) {
+	  var comments = arguments.length <= 1 || arguments[1] === undefined ? [] : arguments[1];
+	
 	  _classCallCheck(this, Message);
 	
 	  this.line = textList;
+	  this.comments = comments;
 	};
 	
 	exports.default = Message;
@@ -1325,15 +1334,25 @@
 	      var _this = this;
 	
 	      var result = [];
+	      var showFace = false;
 	      messageBlockList.forEach(function (messageBlock) {
 	        // 顔グラ関連
 	        var faceMessage = false;
 	        if (messageBlock.face) {
+	          showFace = true;
 	          // TODO pos, mirror
 	          result.push('Faice("' + messageBlock.face.filename + '", ' + messageBlock.face.number + ', 0, 0)');
 	          faceMessage = _this._toTbScript(messageBlock.face.name);
+	        } else if (showFace) {
+	          showFace = false;
+	          // 顔グラを非表示に
+	          result.push('Faice(0, 0, 0)');
 	        }
 	        messageBlock.messageList.forEach(function (message) {
+	          // コメント行の出力
+	          message.comments.forEach(function (comment) {
+	            result.push('Note("' + comment + '")');
+	          });
 	          // タグ置換
 	          var line = message.line.map(function (text) {
 	            return _this._toTbScript(text);
@@ -1483,6 +1502,30 @@
 	
 	}
 	exports.default = Zoom;
+
+/***/ },
+/* 22 */
+/***/ function(module, exports) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	class Window {
+	  constructor(data) {
+	    data = data || {};
+	    this.line = data.message.line || {};
+	    this.comments = data.message.comments || {};
+	    this.face = data.face || false;
+	    this.iconStatus = false;
+	  }
+	
+	  toggleIcon() {
+	    this.iconStatus = !this.iconStatus;
+	  }
+	}
+	exports.default = Window;
 
 /***/ }
 /******/ ]);
