@@ -15,6 +15,7 @@ const loadComponent = {
     if (vm.loadStatus) {
       // systemImg
       const systemImg = vm.systemImg;
+      const colors = vm.config ? vm.config.colors : [];
       const systemImgView = m('.systemImg', [
         m('h3', 'システムグラフィック'),
         m('.systemItems', [
@@ -35,6 +36,16 @@ const loadComponent = {
               src: systemImg.messageWindow
             })
           ])
+        ]),
+        m('h4', '色タグ'),
+        m('.colorTagList.messageWindow', [
+          m('ul.message', Object.keys(colors).map((color) => {
+            const number = colors[color];
+            return m('li.line',
+              m('p.shadow', `${number}: <${color}> `),
+              m('p.text', m('span', {class: `color${number}`}, `${number}: <${color}> `))
+            );
+          }))
         ])
       ]);
       settingList.push(systemImgView);

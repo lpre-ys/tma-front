@@ -188,13 +188,17 @@
 	    if (vm.loadStatus) {
 	      // systemImg
 	      const systemImg = vm.systemImg;
+	      const colors = vm.config ? vm.config.colors : [];
 	      const systemImgView = (0, _mithril2.default)('.systemImg', [(0, _mithril2.default)('h3', 'システムグラフィック'), (0, _mithril2.default)('.systemItems', [(0, _mithril2.default)('img', {
 	        src: systemImg.dataUrl
 	      }), (0, _mithril2.default)('.tColor', ['透過色: ', (0, _mithril2.default)('br'), (0, _mithril2.default)('span', {
 	        style: { color: systemImg.tColorCss }
 	      }, `■${ systemImg.tColorCss }`)]), (0, _mithril2.default)('div', ['枠:', (0, _mithril2.default)('br'), (0, _mithril2.default)('img', {
 	        src: systemImg.messageWindow
-	      })])])]);
+	      })])]), (0, _mithril2.default)('h4', '色タグ'), (0, _mithril2.default)('.colorTagList.messageWindow', [(0, _mithril2.default)('ul.message', Object.keys(colors).map(color => {
+	        const number = colors[color];
+	        return (0, _mithril2.default)('li.line', (0, _mithril2.default)('p.shadow', `${ number }: <${ color }> `), (0, _mithril2.default)('p.text', (0, _mithril2.default)('span', { class: `color${ number }` }, `${ number }: <${ color }> `)));
+	      }))])]);
 	      settingList.push(systemImgView);
 	      // face graphics
 	      const faceListView = vm.config.faceKeyList.map(faceKey => {
