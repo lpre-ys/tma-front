@@ -14,6 +14,7 @@ export default class Scenario {
       this.tkScript = parser.serialize();
 
       // ウィンドウに変換
+      this.windowList = [];
       messageList.forEach((messageBox) => {
         const face = messageBox.face;
         messageBox.messageList.map((message) => {

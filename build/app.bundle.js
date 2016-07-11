@@ -355,7 +355,8 @@
 	const controlTags = {
 	  stop: 's',
 	  wait: 'w',
-	  q_wait: 'q'
+	  q_wait: 'q',
+	  close: 'c'
 	};
 	
 	exports.default = messageListComponent;
@@ -843,6 +844,7 @@
 	      this.tkScript = parser.serialize();
 	
 	      // ウィンドウに変換
+	      this.windowList = [];
 	      messageList.forEach(messageBox => {
 	        const face = messageBox.face;
 	        messageBox.messageList.map(message => {
@@ -1475,11 +1477,12 @@
 	  stop: '\\!',
 	  wait: '\\|',
 	  q_wait: '\\.',
+	  close: '\\^',
 	  flash: '\\>',
 	  flash_end: '\\<'
 	};
 	
-	var cNoEndTags = ['stop', 'wait', 'q_wait'];
+	var cNoEndTags = ['br', 'stop', 'wait', 'q_wait', 'close'];
 	var cNormalTags = ['flash'];
 
 /***/ },

@@ -130,7 +130,8 @@ const endTagRegExp = /<\/([a-z0-9\-\_]+)>/g;
 const controlTags = {
   stop: 's',
   wait: 'w',
-  q_wait: 'q'
+  q_wait: 'q',
+  close: 'c'
 };
 
 export default messageListComponent;
