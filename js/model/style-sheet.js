@@ -4,6 +4,9 @@ export default class StyleSheet {
   }
 
   editCss(selector, name, value) {
+    if (!this.styleSheet) {
+      return;
+    }
     this.styleSheet.insertRule(`${selector} { ${name}: ${value}}`, this.styleSheet.cssRules.length);
   }
 

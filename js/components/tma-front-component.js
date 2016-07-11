@@ -6,7 +6,7 @@ import TmaFrontVM from '../view-model/tma-front-vm';
 
 const tmaFrontComponent = {
   controller: function () {
-    this.vm = new TmaFrontVM({scenario: this.scenario});
+    this.vm = new TmaFrontVM();
   },
   view: (ctrl) => {
     const vm = ctrl.vm;
@@ -22,7 +22,7 @@ const tmaFrontComponent = {
         m('textarea#tkScript', {
           readonly: 'readonly',
           onfocus: tmaFrontComponent.selectText
-        }, [vm.scenario.tkScript()])
+        }, [vm.scenario.tkScript])
       ]),
       m('.right', [
         m('h2', 'プレビュー'),

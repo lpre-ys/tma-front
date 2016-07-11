@@ -106,7 +106,7 @@
 	
 	const tmaFrontComponent = {
 	  controller: function () {
-	    this.vm = new _tmaFrontVm2.default({ scenario: this.scenario });
+	    this.vm = new _tmaFrontVm2.default();
 	  },
 	  view: ctrl => {
 	    const vm = ctrl.vm;
@@ -116,7 +116,7 @@
 	    }), (0, _mithril2.default)('h2', 'TkoolBridge script'), (0, _mithril2.default)('textarea#tkScript', {
 	      readonly: 'readonly',
 	      onfocus: tmaFrontComponent.selectText
-	    }, [vm.scenario.tkScript()])]), (0, _mithril2.default)('.right', [(0, _mithril2.default)('h2', 'プレビュー'), _mithril2.default.component(_zoomComponent2.default, { vm: vm }), _mithril2.default.component(_messageListComponent2.default, { vm: vm })])];
+	    }, [vm.scenario.tkScript])]), (0, _mithril2.default)('.right', [(0, _mithril2.default)('h2', 'プレビュー'), _mithril2.default.component(_zoomComponent2.default, { vm: vm }), _mithril2.default.component(_messageListComponent2.default, { vm: vm })])];
 	  },
 	  selectText: e => {
 	    e.target.select();
@@ -246,7 +246,7 @@
 	  },
 	  view: ctrl => {
 	    const vm = ctrl.vm;
-	    const windowList = vm.scenario.windowList();
+	    const windowList = vm.scenario.windowList;
 	    const colors = vm.config ? vm.config.colors : [];
 	    return (0, _mithril2.default)('#messageList', { class: `zoom${ vm.zoom.zoomLevel() }x` }, windowList.map(windowObj => {
 	      let messageView = [];
@@ -386,13 +386,13 @@
 	
 	var _scenario2 = _interopRequireDefault(_scenario);
 	
-	var _tk2kMessageAssist = __webpack_require__(13);
+	var _tk2kMessageAssist = __webpack_require__(14);
 	
-	var _styleSheet = __webpack_require__(20);
+	var _styleSheet = __webpack_require__(21);
 	
 	var _styleSheet2 = _interopRequireDefault(_styleSheet);
 	
-	var _zoom = __webpack_require__(21);
+	var _zoom = __webpack_require__(22);
 	
 	var _zoom2 = _interopRequireDefault(_zoom);
 	
@@ -574,6 +574,15 @@
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
+	const pngInfo = {
+	  signature: 8,
+	  chunk: {
+	    length: 4,
+	    name: 4,
+	    crc: 4
+	  }
+	};
+	
 	class Png {
 	  constructor(deferred, filename) {
 	    // private init
@@ -638,23 +647,14 @@
 	  }
 	
 	  get tColorCss() {
-	    if (!this.palette) {
+	    if (this.palette.length < 1) {
 	      return '';
 	    }
 	    const c = this.palette[0];
 	    return `rgb(${ c.r }, ${ c.g }, ${ c.b })`;
 	  }
 	}
-	
 	exports.default = Png;
-	const pngInfo = {
-	  signature: 8,
-	  chunk: {
-	    length: 4,
-	    name: 4,
-	    crc: 4
-	  }
-	};
 
 /***/ },
 /* 9 */
@@ -824,33 +824,31 @@
 	
 	var _mithril2 = _interopRequireDefault(_mithril);
 	
-	var _window = __webpack_require__(22);
+	var _window = __webpack_require__(13);
 	
 	var _window2 = _interopRequireDefault(_window);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	class Scenario {
-	  constructor() {
-	    this.scenarioText = _mithril2.default.prop('');
-	    this.tkScript = _mithril2.default.prop('');
-	    this.windowList = _mithril2.default.prop([]);
+	  constructor(data = {}) {
+	    this.scenarioText = _mithril2.default.prop(data.scenarioText || '');
+	    this.tkScript = '';
+	    this.windowList = [];
 	  }
 	
 	  parse(parser) {
 	    if (parser) {
 	      const messageList = parser.parse(this.scenarioText());
-	      this.tkScript(parser.serialize());
+	      this.tkScript = parser.serialize();
 	
 	      // ウィンドウに変換
-	      const windowList = [];
 	      messageList.forEach(messageBox => {
 	        const face = messageBox.face;
 	        messageBox.messageList.map(message => {
-	          windowList.push(new _window2.default({ message, face }));
+	          this.windowList.push(new _window2.default({ message, face }));
 	        });
 	      });
-	      this.windowList(windowList);
 	    }
 	  }
 	
@@ -859,11 +857,36 @@
 
 /***/ },
 /* 13 */
+/***/ function(module, exports) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	class Window {
+	  constructor(data) {
+	    data = data || {};
+	    data.message = data.message || {};
+	    this.line = data.message.line || [];
+	    this.comments = data.message.comments || [];
+	    this.face = data.face || false;
+	    this.iconStatus = false;
+	  }
+	
+	  toggleIcon() {
+	    this.iconStatus = !this.iconStatus;
+	  }
+	}
+	exports.default = Window;
+
+/***/ },
+/* 14 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
-	var _scenarioParser = __webpack_require__(14);
+	var _scenarioParser = __webpack_require__(15);
 	
 	var _scenarioParser2 = _interopRequireDefault(_scenarioParser);
 	
@@ -876,7 +899,7 @@
 	};
 
 /***/ },
-/* 14 */
+/* 15 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -895,19 +918,19 @@
 	  };
 	}();
 	
-	var _message = __webpack_require__(15);
+	var _message = __webpack_require__(16);
 	
 	var _message2 = _interopRequireDefault(_message);
 	
-	var _messageBlock = __webpack_require__(16);
+	var _messageBlock = __webpack_require__(17);
 	
 	var _messageBlock2 = _interopRequireDefault(_messageBlock);
 	
-	var _config = __webpack_require__(17);
+	var _config = __webpack_require__(18);
 	
 	var _config2 = _interopRequireDefault(_config);
 	
-	var _tbSerializer = __webpack_require__(19);
+	var _tbSerializer = __webpack_require__(20);
 	
 	var _tbSerializer2 = _interopRequireDefault(_tbSerializer);
 	
@@ -961,11 +984,13 @@
 	      var result = [];
 	      var tmp = [];
 	      var comments = [];
+	      var isBeforeComment = false;
 	      var block = new _messageBlock2.default(false);
 	      textList.forEach(function (text) {
 	        // コメント行
 	        if (text.startsWith('//')) {
 	          comments.push(text.substr(2).trim());
+	          isBeforeComment = true;
 	          return; //continue
 	        }
 	        if (_this2.config.hasFace && faceCommandRegExp.test(text)) {
@@ -974,9 +999,14 @@
 	          var faceConfig = _this2.config.getFace(faceCommand);
 	          // メッセージブロックの作り直し
 	          if (tmp.length > 0) {
-	            block.addMessage(_this2._tagFormat(tmp, comments));
+	            if (isBeforeComment) {
+	              // 次のブロックにコメントを持ち越す
+	              block.addMessage(_this2._tagFormat(tmp, []));
+	            } else {
+	              block.addMessage(_this2._tagFormat(tmp, comments));
+	              comments = [];
+	            }
 	            tmp = [];
-	            comments = [];
 	          }
 	          if (block.hasMessage()) {
 	            result.push(block);
@@ -984,6 +1014,7 @@
 	          block = new _messageBlock2.default(faceConfig);
 	          return; //continue
 	        }
+	        isBeforeComment = false;
 	        // 改ページ判定
 	        var isPageBreak = false;
 	        if (/^<pb>/.test(text)) {
@@ -1084,7 +1115,7 @@
 	exports.default = ScenarioParser;
 
 /***/ },
-/* 15 */
+/* 16 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -1111,7 +1142,7 @@
 	exports.default = Message;
 
 /***/ },
-/* 16 */
+/* 17 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -1162,7 +1193,7 @@
 	exports.default = MessageBlock;
 
 /***/ },
-/* 17 */
+/* 18 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1181,7 +1212,7 @@
 	  };
 	}();
 	
-	var _jsYaml = __webpack_require__(18);
+	var _jsYaml = __webpack_require__(19);
 	
 	var _jsYaml2 = _interopRequireDefault(_jsYaml);
 	
@@ -1294,13 +1325,13 @@
 	exports.default = Config;
 
 /***/ },
-/* 18 */
+/* 19 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = (__webpack_require__(2))(3);
 
 /***/ },
-/* 19 */
+/* 20 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -1452,7 +1483,7 @@
 	var cNormalTags = ['flash'];
 
 /***/ },
-/* 20 */
+/* 21 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -1466,6 +1497,9 @@
 	  }
 	
 	  editCss(selector, name, value) {
+	    if (!this.styleSheet) {
+	      return;
+	    }
 	    this.styleSheet.insertRule(`${ selector } { ${ name }: ${ value }}`, this.styleSheet.cssRules.length);
 	  }
 	
@@ -1483,7 +1517,7 @@
 	exports.default = StyleSheet;
 
 /***/ },
-/* 21 */
+/* 22 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1506,30 +1540,6 @@
 	
 	}
 	exports.default = Zoom;
-
-/***/ },
-/* 22 */
-/***/ function(module, exports) {
-
-	"use strict";
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	class Window {
-	  constructor(data) {
-	    data = data || {};
-	    this.line = data.message.line || {};
-	    this.comments = data.message.comments || {};
-	    this.face = data.face || false;
-	    this.iconStatus = false;
-	  }
-	
-	  toggleIcon() {
-	    this.iconStatus = !this.iconStatus;
-	  }
-	}
-	exports.default = Window;
 
 /***/ }
 /******/ ]);

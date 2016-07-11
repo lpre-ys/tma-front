@@ -1,5 +1,14 @@
 import base64_arraybuffer from 'base64-arraybuffer';
 
+const pngInfo = {
+  signature: 8,
+  chunk: {
+    length: 4,
+    name: 4,
+    crc: 4
+  }
+};
+
 export default class Png {
   constructor(deferred, filename) {
     // private init
@@ -66,19 +75,10 @@ export default class Png {
   }
 
   get tColorCss() {
-    if (!this.palette) {
+    if (this.palette.length < 1) {
       return '';
     }
     const c = this.palette[0];
     return `rgb(${c.r}, ${c.g}, ${c.b})`;
   }
 }
-
-const pngInfo = {
-  signature: 8,
-  chunk: {
-    length: 4,
-    name: 4,
-    crc: 4
-  }
-};

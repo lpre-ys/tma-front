@@ -7,7 +7,7 @@ const messageListComponent = {
   },
   view: (ctrl) => {
     const vm = ctrl.vm;
-    const windowList = vm.scenario.windowList();
+    const windowList = vm.scenario.windowList;
     const colors = vm.config ? vm.config.colors : [];
     return m('#messageList', {class: `zoom${vm.zoom.zoomLevel()}x`},
       windowList.map((windowObj) => {
