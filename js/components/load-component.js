@@ -1,4 +1,6 @@
 import m from 'mithril';
+import systemImgComponent from './load/system-img-component';
+import faceImgComponent from './load/face-img-component';
 
 const loadComponent = {
   controller: function (data) {
@@ -14,55 +16,9 @@ const loadComponent = {
     const vm = ctrl.vm;
     if (vm.loadStatus) {
       // systemImg
-      const systemImg = vm.systemImg;
-      const colors = vm.config ? vm.config.colors : [];
-      const systemImgView = m('.systemImg', [
-        m('h3', 'システムグラフィック'),
-        m('.systemItems', [
-          m('img', {
-            src: systemImg.dataUrl
-          }),
-          m('.tColor', [
-            '透過色: ',
-            m('br'),
-            m('span', {
-                style: {color: systemImg.tColorCss}
-              }, `■${systemImg.tColorCss}`)
-          ]),
-          m('div', [
-            '枠:',
-            m('br'),
-            m('img', {
-              src: systemImg.messageWindow
-            })
-          ])
-        ]),
-        m('h4', '色タグ'),
-        m('.colorTagList.messageWindow', [
-          m('ul.message', Object.keys(colors).map((color) => {
-            const number = colors[color];
-            return m('li.line',
-              m('p.shadow', `${number}: <${color}> `),
-              m('p.text', m('span', {class: `color${number}`}, `${number}: <${color}> `))
-            );
-          }))
-        ])
-      ]);
-      settingList.push(systemImgView);
+      settingList.push(m.component(systemImgComponent, {vm: vm}));
       // face graphics
-      const faceListView = vm.config.faceKeyList.map((faceKey) => {
-        return [
-          m('li', [
-            m('p', faceKey),
-            m('.faceImg', {style: vm.getFaceStyle(faceKey)})
-          ])
-        ];
-      });
-      const faceImgView = m('.faceSetting', [
-        m('h3', '顔グラフィック'),
-        m('ul.faceList', faceListView)
-      ]);
-      settingList.push(faceImgView);
+      settingList.push(m.component(faceImgComponent, {vm: vm}));
     }
     return m('.loadComponent', [
       m('h2', '設定ファイル'),

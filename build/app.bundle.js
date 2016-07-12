@@ -56,8 +56,6 @@
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
-	// import parser from 'tk2k-message-assist';
-	
 	_mithril2.default.mount(document.getElementById('appContainer'), _tmaFrontComponent2.default);
 
 /***/ },
@@ -147,6 +145,7 @@
 	  },
 	  view: ctrl => {
 	    const vm = ctrl.vm;
+	
 	    return (0, _mithril2.default)('.zoomBox', ['ズーム：', (0, _mithril2.default)('select', {
 	      name: 'zoom',
 	      value: vm.zoom.zoomLevel(),
@@ -171,6 +170,14 @@
 	
 	var _mithril2 = _interopRequireDefault(_mithril);
 	
+	var _systemImgComponent = __webpack_require__(24);
+	
+	var _systemImgComponent2 = _interopRequireDefault(_systemImgComponent);
+	
+	var _faceImgComponent = __webpack_require__(25);
+	
+	var _faceImgComponent2 = _interopRequireDefault(_faceImgComponent);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	const loadComponent = {
@@ -187,25 +194,9 @@
 	    const vm = ctrl.vm;
 	    if (vm.loadStatus) {
 	      // systemImg
-	      const systemImg = vm.systemImg;
-	      const colors = vm.config ? vm.config.colors : [];
-	      const systemImgView = (0, _mithril2.default)('.systemImg', [(0, _mithril2.default)('h3', 'システムグラフィック'), (0, _mithril2.default)('.systemItems', [(0, _mithril2.default)('img', {
-	        src: systemImg.dataUrl
-	      }), (0, _mithril2.default)('.tColor', ['透過色: ', (0, _mithril2.default)('br'), (0, _mithril2.default)('span', {
-	        style: { color: systemImg.tColorCss }
-	      }, `■${ systemImg.tColorCss }`)]), (0, _mithril2.default)('div', ['枠:', (0, _mithril2.default)('br'), (0, _mithril2.default)('img', {
-	        src: systemImg.messageWindow
-	      })])]), (0, _mithril2.default)('h4', '色タグ'), (0, _mithril2.default)('.colorTagList.messageWindow', [(0, _mithril2.default)('ul.message', Object.keys(colors).map(color => {
-	        const number = colors[color];
-	        return (0, _mithril2.default)('li.line', (0, _mithril2.default)('p.shadow', `${ number }: <${ color }> `), (0, _mithril2.default)('p.text', (0, _mithril2.default)('span', { class: `color${ number }` }, `${ number }: <${ color }> `)));
-	      }))])]);
-	      settingList.push(systemImgView);
+	      settingList.push(_mithril2.default.component(_systemImgComponent2.default, { vm: vm }));
 	      // face graphics
-	      const faceListView = vm.config.faceKeyList.map(faceKey => {
-	        return [(0, _mithril2.default)('li', [(0, _mithril2.default)('p', faceKey), (0, _mithril2.default)('.faceImg', { style: vm.getFaceStyle(faceKey) })])];
-	      });
-	      const faceImgView = (0, _mithril2.default)('.faceSetting', [(0, _mithril2.default)('h3', '顔グラフィック'), (0, _mithril2.default)('ul.faceList', faceListView)]);
-	      settingList.push(faceImgView);
+	      settingList.push(_mithril2.default.component(_faceImgComponent2.default, { vm: vm }));
 	    }
 	    return (0, _mithril2.default)('.loadComponent', [(0, _mithril2.default)('h2', '設定ファイル'), (0, _mithril2.default)('button.checkConfig', {
 	      class: vm.loadStatus ? 'enable' : 'disable',
@@ -397,12 +388,17 @@
 	
 	var _zoom2 = _interopRequireDefault(_zoom);
 	
+	var _const = __webpack_require__(23);
+	
+	var _const2 = _interopRequireDefault(_const);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	class TmaFrontVM {
-	  constructor() {
+	  constructor(data = {}) {
+	    data.scenario = data.scenario || {};
 	    // init member
-	    this.scenario = new _scenario2.default();
+	    this.scenario = new _scenario2.default(data.scenario);
 	    this.parser = false;
 	    // for load setting
 	    this.loadStatus = false;
@@ -457,7 +453,7 @@
 	      if (this.systemImg) {
 	        this.styleSheet.editCss('.messageWindow', 'border-image-source', `url(${ this.systemImg.messageWindow })`);
 	        this.styleSheet.editCss('.text', 'background-image', `url(${ this.systemImg.defaultText })`);
-	        for (let i = 0; i < 20; i++) {
+	        for (let i = 0; i < _const2.default.color.max + 1; i++) {
 	          this.styleSheet.editCss(`.color${ i }`, 'background-image', `url(${ this.systemImg.getTextColor(i) })`);
 	        }
 	        this.styleSheet.editCss(':root', '--control-base-color', this.systemImg.controlCharColor);
@@ -486,8 +482,8 @@
 	    const faceConfig = typeof face == 'string' ? this.config.getFace(face) : face;
 	    const filename = faceConfig.filename + (!faceConfig.filename.endsWith('.png') ? '.png' : '');
 	    const dataUrl = this.faceImgs[filename].dataUrl;
-	    const posx = faceConfig.number % 4 * 48;
-	    const posy = Math.floor(faceConfig.number / 4) * 48;
+	    const posx = faceConfig.number % 4 * _const2.default.face.width;
+	    const posy = Math.floor(faceConfig.number / 4) * _const2.default.face.height;
 	    return {
 	      backgroundImage: `url(${ dataUrl })`,
 	      backgroundPosition: `-${ posx }px -${ posy }px`
@@ -1543,6 +1539,97 @@
 	
 	}
 	exports.default = Zoom;
+
+/***/ },
+/* 23 */
+/***/ function(module, exports) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	const Const = {
+	  face: {
+	    width: 48,
+	    height: 48
+	  },
+	  color: {
+	    max: 19
+	  }
+	};
+	
+	exports.default = Const;
+
+/***/ },
+/* 24 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _mithril = __webpack_require__(1);
+	
+	var _mithril2 = _interopRequireDefault(_mithril);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	const systemImgComponent = {
+	  controller: function (data) {
+	    this.vm = data.vm;
+	  },
+	  view: ctrl => {
+	    const vm = ctrl.vm;
+	    const systemImg = vm.systemImg;
+	    const colors = vm.config ? vm.config.colors : [];
+	    return (0, _mithril2.default)('.systemImg', [(0, _mithril2.default)('h3', 'システムグラフィック'), (0, _mithril2.default)('.systemItems', [(0, _mithril2.default)('img', {
+	      src: systemImg.dataUrl
+	    }), (0, _mithril2.default)('.tColor', ['透過色: ', (0, _mithril2.default)('br'), (0, _mithril2.default)('span', {
+	      style: { color: systemImg.tColorCss }
+	    }, `■${ systemImg.tColorCss }`)]), (0, _mithril2.default)('div', ['枠:', (0, _mithril2.default)('br'), (0, _mithril2.default)('img', {
+	      src: systemImg.messageWindow
+	    })])]), (0, _mithril2.default)('h4', '色タグ'), (0, _mithril2.default)('.colorTagList.messageWindow', [(0, _mithril2.default)('ul.message', Object.keys(colors).map(color => {
+	      const number = colors[color];
+	      return (0, _mithril2.default)('li.line', (0, _mithril2.default)('p.shadow', `${ number }: <${ color }> `), (0, _mithril2.default)('p.text', (0, _mithril2.default)('span', { class: `color${ number }` }, `${ number }: <${ color }> `)));
+	    }))])]);
+	  }
+	};
+	
+	exports.default = systemImgComponent;
+
+/***/ },
+/* 25 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _mithril = __webpack_require__(1);
+	
+	var _mithril2 = _interopRequireDefault(_mithril);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	const faceImgComponent = {
+	  controller: function (data) {
+	    this.vm = data.vm;
+	  },
+	  view: ctrl => {
+	    const vm = ctrl.vm;
+	    const faceListView = vm.config.faceKeyList.map(faceKey => {
+	      return (0, _mithril2.default)('li', [(0, _mithril2.default)('p', faceKey), (0, _mithril2.default)('.faceImg', { style: vm.getFaceStyle(faceKey) })]);
+	    });
+	    return (0, _mithril2.default)('.faceSetting', [(0, _mithril2.default)('h3', '顔グラフィック'), (0, _mithril2.default)('ul.faceList', faceListView)]);
+	  }
+	};
+	
+	exports.default = faceImgComponent;
 
 /***/ }
 /******/ ]);

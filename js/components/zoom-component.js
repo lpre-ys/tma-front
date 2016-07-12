@@ -5,6 +5,7 @@ const zoomComponent = {
   },
   view: (ctrl) => {
     const vm = ctrl.vm;
+
     return m('.zoomBox', [
       'ズーム：',
       m('select', {

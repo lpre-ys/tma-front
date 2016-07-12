@@ -5,11 +5,13 @@ import Scenario from '../model/scenario';
 import {ScenarioParser} from 'tk2k-message-assist';
 import StyleSheet from '../model/style-sheet';
 import Zoom from '../model/zoom';
+import Const from '../utils/const';
 
 export default class TmaFrontVM {
-  constructor() {
+  constructor(data = {}) {
+    data.scenario = data.scenario || {};
     // init member
-    this.scenario = new Scenario();
+    this.scenario = new Scenario(data.scenario);
     this.parser = false;
     // for load setting
     this.loadStatus = false;
@@ -64,7 +66,7 @@ export default class TmaFrontVM {
       if (this.systemImg) {
         this.styleSheet.editCss('.messageWindow', 'border-image-source', `url(${this.systemImg.messageWindow})`);
         this.styleSheet.editCss('.text', 'background-image', `url(${this.systemImg.defaultText})`);
-        for (let i = 0; i < 20; i++) {
+        for (let i = 0; i < (Const.color.max + 1); i++) {
           this.styleSheet.editCss(`.color${i}`, 'background-image', `url(${this.systemImg.getTextColor(i)})`);
         }
         this.styleSheet.editCss(':root', '--control-base-color', this.systemImg.controlCharColor);
@@ -94,8 +96,8 @@ export default class TmaFrontVM {
     const filename = faceConfig.filename
                    + (!faceConfig.filename.endsWith('.png') ? '.png' : '');
     const dataUrl = this.faceImgs[filename].dataUrl;
-    const posx = (faceConfig.number % 4) * 48;
-    const posy = Math.floor(faceConfig.number / 4) * 48;
+    const posx = (faceConfig.number % 4) * Const.face.width;
+    const posy = Math.floor(faceConfig.number / 4) * Const.face.height;
     return {
       backgroundImage: `url(${dataUrl})`,
       backgroundPosition: `-${posx}px -${posy}px`
