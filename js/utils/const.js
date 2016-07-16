@@ -5,6 +5,12 @@ const Const = {
   },
   color: {
     max: 19
+  },
+  controlTags: {
+    stop: 's',
+    wait: 'w',
+    q_wait: 'q',
+    close: 'c'
   }
 };
 

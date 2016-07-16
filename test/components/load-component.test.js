@@ -2,6 +2,8 @@ import assert from 'power-assert';
 import sinon from 'sinon';
 import m from 'mithril';
 import loadComponent from '../../js/components/load-component';
+import faceImgComponent from '../../js/components/load/face-img-component';
+import systemImgComponent from '../../js/components/load/system-img-component';
 
 describe('loadComponent', () => {
   describe('controller', () => {
@@ -18,7 +20,9 @@ describe('loadComponent', () => {
   });
   describe('view', () => {
     // m.componentのスタブ
-    const mcStub = sinon.stub(m, 'component').returns(true);
+    const mcStub = sinon.stub(m, 'component');
+    mcStub.withArgs(faceImgComponent).returns('face-img');
+    mcStub.withArgs(systemImgComponent).returns('system-img');
 
     // view modelのモック
     const vmMock = {

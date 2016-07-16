@@ -92,11 +92,11 @@
 	
 	var _loadComponent2 = _interopRequireDefault(_loadComponent);
 	
-	var _messageListComponent = __webpack_require__(6);
+	var _messageListComponent = __webpack_require__(8);
 	
 	var _messageListComponent2 = _interopRequireDefault(_messageListComponent);
 	
-	var _tmaFrontVm = __webpack_require__(7);
+	var _tmaFrontVm = __webpack_require__(9);
 	
 	var _tmaFrontVm2 = _interopRequireDefault(_tmaFrontVm);
 	
@@ -170,11 +170,11 @@
 	
 	var _mithril2 = _interopRequireDefault(_mithril);
 	
-	var _systemImgComponent = __webpack_require__(24);
+	var _systemImgComponent = __webpack_require__(6);
 	
 	var _systemImgComponent2 = _interopRequireDefault(_systemImgComponent);
 	
-	var _faceImgComponent = __webpack_require__(25);
+	var _faceImgComponent = __webpack_require__(7);
 	
 	var _faceImgComponent2 = _interopRequireDefault(_faceImgComponent);
 	
@@ -230,127 +230,28 @@
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
-	const messageListComponent = {
+	const systemImgComponent = {
 	  controller: function (data) {
 	    this.vm = data.vm;
-	    this.toggleClass = messageListComponent.toggleClass;
 	  },
 	  view: ctrl => {
 	    const vm = ctrl.vm;
-	    const windowList = vm.scenario.windowList;
+	    const systemImg = vm.systemImg;
 	    const colors = vm.config ? vm.config.colors : [];
-	    return (0, _mithril2.default)('#messageList', { class: `zoom${ vm.zoom.zoomLevel() }x` }, windowList.map(windowObj => {
-	      let messageView = [];
-	      let lineView = [];
-	      let commentsView = [];
-	
-	      // コメント
-	      windowObj.comments.forEach(comment => {
-	        commentsView.push((0, _mithril2.default)('p.comment', comment));
-	      });
-	
-	      // 顔グラフィック
-	      if (windowObj.face) {
-	        const face = windowObj.face;
-	        messageView.push((0, _mithril2.default)('.faceBox', [(0, _mithril2.default)('.faceImg', { style: vm.getFaceStyle(face) })]));
-	        lineView.push(makeMessageLi(face.name, colors));
-	      }
-	      // 継続タグ
-	      let continueTag = '';
-	      windowObj.line.forEach(lineText => {
-	        lineText = continueTag + lineText;
-	        lineView.push(makeMessageLi(lineText, colors));
-	        // 継続タグの設定
-	        const dom = domParser.parseFromString(lineText, 'text/html');
-	        const parsed = dom.body.innerHTML;
-	        if (lineText != parsed) {
-	          const tags = parsed.substr(lineText.length).match(/<\/[a-z\-\_]+>/g);
-	          if (tags) {
-	            continueTag = tags.map(v => v.replace('/', '')).reverse().join('');
-	          }
-	        } else {
-	          continueTag = '';
-	        }
-	      });
-	      messageView.push((0, _mithril2.default)('ul.message', lineView));
-	      return [commentsView, (0, _mithril2.default)('.messageWindow', {
-	        class: windowObj.iconStatus ? 'showIcon' : '',
-	        onclick: windowObj.toggleIcon.bind(windowObj)
-	      }, messageView)];
-	    }));
+	    return (0, _mithril2.default)('.systemImg', [(0, _mithril2.default)('h3', 'システムグラフィック'), (0, _mithril2.default)('.systemItems', [(0, _mithril2.default)('img', {
+	      src: systemImg.dataUrl
+	    }), (0, _mithril2.default)('.tColor', ['透過色: ', (0, _mithril2.default)('br'), (0, _mithril2.default)('span', {
+	      style: { color: systemImg.tColorCss }
+	    }, `■${ systemImg.tColorCss }`)]), (0, _mithril2.default)('div', ['枠:', (0, _mithril2.default)('br'), (0, _mithril2.default)('img', {
+	      src: systemImg.messageWindow
+	    })])]), (0, _mithril2.default)('h4', '色タグ'), (0, _mithril2.default)('.colorTagList.messageWindow', [(0, _mithril2.default)('ul.message', Object.keys(colors).map(color => {
+	      const number = colors[color];
+	      return (0, _mithril2.default)('li.line', (0, _mithril2.default)('p.shadow', `${ number }: <${ color }> `), (0, _mithril2.default)('p.text', (0, _mithril2.default)('span', { class: `color${ number }` }, `${ number }: <${ color }> `)));
+	    }))])]);
 	  }
 	};
 	
-	const domParser = new DOMParser();
-	const makeMessageLi = (scenarioText, colors) => {
-	  let html = scenarioText;
-	  // エスケープの変換
-	  html = html.replace(/\\</g, '&lt;').replace(/\\\\/g, '<yen-mark>').replace(/\\/g, '').replace(/<yen-mark>/g, '\\');
-	  // 色タグをspanに変換
-	  Object.keys(colors).forEach(color => {
-	    const number = colors[color];
-	    const colorTagRegExp = new RegExp(`<${ color }>`, 'g');
-	    html = html.replace(colorTagRegExp, `<color${ number }>`);
-	  });
-	  html = html.replace(startTagRegExp, '<span class="$1">').replace(endTagRegExp, '</span>');
-	  // DOMParserに読ませて変換する
-	  const dom = domParser.parseFromString(html, 'text/html');
-	  // 本文の組み立て
-	  const message = domToView(dom.body);
-	
-	  return (0, _mithril2.default)('li.line', [(0, _mithril2.default)('p.shadow', dom.body.innerText), (0, _mithril2.default)('p.text', message)]);
-	};
-	
-	const domToView = dom => {
-	  let view = [];
-	  let iList = [];
-	  for (let node = dom.firstChild; node; node = node.nextSibling) {
-	    const klass = node.getAttribute ? node.getAttribute('class') : false;
-	    if (Object.keys(controlTags).includes(klass)) {
-	      // 制御タグはiタグに変えてキープ
-	      iList.push((0, _mithril2.default)('i', {
-	        class: klass
-	      }, controlTags[klass]));
-	      continue;
-	    } else {
-	      // iタグのストックがあればspanに包んでpush
-	      if (iList.length > 0) {
-	        view.push((0, _mithril2.default)('span', {
-	          class: 'control'
-	        }, iList));
-	        iList = [];
-	      }
-	    }
-	    if (node.nodeName == 'SPAN') {
-	      // 他のタグはspanのまま
-	      view.push((0, _mithril2.default)('span', {
-	        class: klass
-	      }, domToView(node)));
-	    } else {
-	      // span以外の要素は全てテキストに変える
-	      view.push(node.textContent);
-	    }
-	  }
-	  // iタグのストックがあればspanに包んでpush
-	  if (iList.length > 0) {
-	    view.push((0, _mithril2.default)('span', {
-	      class: 'control'
-	    }, iList));
-	    iList = [];
-	  }
-	  return view;
-	};
-	
-	const startTagRegExp = /<([a-z0-9\-\_]+)>/g;
-	const endTagRegExp = /<\/([a-z0-9\-\_]+)>/g;
-	const controlTags = {
-	  stop: 's',
-	  wait: 'w',
-	  q_wait: 'q',
-	  close: 'c'
-	};
-	
-	exports.default = messageListComponent;
+	exports.default = systemImgComponent;
 
 /***/ },
 /* 7 */
@@ -366,29 +267,115 @@
 	
 	var _mithril2 = _interopRequireDefault(_mithril);
 	
-	var _png = __webpack_require__(8);
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	const faceImgComponent = {
+	  controller: function (data) {
+	    this.vm = data.vm;
+	  },
+	  view: ctrl => {
+	    const vm = ctrl.vm;
+	    const faceListView = vm.config.faceKeyList.map(faceKey => {
+	      return (0, _mithril2.default)('li', [(0, _mithril2.default)('p', faceKey), (0, _mithril2.default)('.faceImg', { style: vm.getFaceStyle(faceKey) })]);
+	    });
+	    return (0, _mithril2.default)('.faceSetting', [(0, _mithril2.default)('h3', '顔グラフィック'), (0, _mithril2.default)('ul.faceList', faceListView)]);
+	  }
+	};
+	
+	exports.default = faceImgComponent;
+
+/***/ },
+/* 8 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _mithril = __webpack_require__(1);
+	
+	var _mithril2 = _interopRequireDefault(_mithril);
+	
+	var _messageComponent = __webpack_require__(28);
+	
+	var _messageComponent2 = _interopRequireDefault(_messageComponent);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	const messageListComponent = {
+	  controller: function (data) {
+	    this.vm = data.vm;
+	    this.toggleClass = messageListComponent.toggleClass;
+	  },
+	  view: ctrl => {
+	    const vm = ctrl.vm;
+	    const windowList = vm.scenario.windowList;
+	    const colors = vm.config ? vm.config.colors : [];
+	    return (0, _mithril2.default)('#messageList', { class: `zoom${ vm.zoom.zoomLevel() }x` }, windowList.map(windowObj => {
+	      let messageView = [];
+	      let commentsView = [];
+	
+	      // コメント
+	      windowObj.comments.forEach(comment => {
+	        commentsView.push((0, _mithril2.default)('p.comment', comment));
+	      });
+	
+	      // 顔グラフィック
+	      if (windowObj.face) {
+	        const face = windowObj.face;
+	        messageView.push((0, _mithril2.default)('.faceBox', [(0, _mithril2.default)('.faceImg', { style: vm.getFaceStyle(face) })]));
+	      }
+	      // テキスト
+	      messageView.push((0, _mithril2.default)(_messageComponent2.default, { line: windowObj.line(), colors: colors }));
+	      return [commentsView, (0, _mithril2.default)('.messageWindow', {
+	        class: windowObj.iconStatus ? 'showIcon' : '',
+	        onclick: windowObj.toggleIcon.bind(windowObj)
+	      }, messageView)];
+	    }));
+	  }
+	};
+	
+	exports.default = messageListComponent;
+
+/***/ },
+/* 9 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _mithril = __webpack_require__(1);
+	
+	var _mithril2 = _interopRequireDefault(_mithril);
+	
+	var _png = __webpack_require__(10);
 	
 	var _png2 = _interopRequireDefault(_png);
 	
-	var _systemImg = __webpack_require__(10);
+	var _systemImg = __webpack_require__(12);
 	
 	var _systemImg2 = _interopRequireDefault(_systemImg);
 	
-	var _scenario = __webpack_require__(12);
+	var _scenario = __webpack_require__(14);
 	
 	var _scenario2 = _interopRequireDefault(_scenario);
 	
-	var _tk2kMessageAssist = __webpack_require__(14);
+	var _tk2kMessageAssist = __webpack_require__(16);
 	
-	var _styleSheet = __webpack_require__(21);
+	var _styleSheet = __webpack_require__(23);
 	
 	var _styleSheet2 = _interopRequireDefault(_styleSheet);
 	
-	var _zoom = __webpack_require__(22);
+	var _zoom = __webpack_require__(24);
 	
 	var _zoom2 = _interopRequireDefault(_zoom);
 	
-	var _const = __webpack_require__(23);
+	var _const = __webpack_require__(25);
 	
 	var _const2 = _interopRequireDefault(_const);
 	
@@ -556,7 +543,7 @@
 	};
 
 /***/ },
-/* 8 */
+/* 10 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -565,7 +552,7 @@
 	  value: true
 	});
 	
-	var _base64Arraybuffer = __webpack_require__(9);
+	var _base64Arraybuffer = __webpack_require__(11);
 	
 	var _base64Arraybuffer2 = _interopRequireDefault(_base64Arraybuffer);
 	
@@ -654,13 +641,13 @@
 	exports.default = Png;
 
 /***/ },
-/* 9 */
+/* 11 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = (__webpack_require__(2))(57);
 
 /***/ },
-/* 10 */
+/* 12 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -669,11 +656,11 @@
 	  value: true
 	});
 	
-	var _png = __webpack_require__(8);
+	var _png = __webpack_require__(10);
 	
 	var _png2 = _interopRequireDefault(_png);
 	
-	var _onecolor = __webpack_require__(11);
+	var _onecolor = __webpack_require__(13);
 	
 	var _onecolor2 = _interopRequireDefault(_onecolor);
 	
@@ -802,13 +789,13 @@
 	exports.default = SystemImg;
 
 /***/ },
-/* 11 */
+/* 13 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = (__webpack_require__(2))(38);
 
 /***/ },
-/* 12 */
+/* 14 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -821,7 +808,7 @@
 	
 	var _mithril2 = _interopRequireDefault(_mithril);
 	
-	var _window = __webpack_require__(13);
+	var _window = __webpack_require__(15);
 	
 	var _window2 = _interopRequireDefault(_window);
 	
@@ -854,37 +841,83 @@
 	exports.default = Scenario;
 
 /***/ },
-/* 13 */
-/***/ function(module, exports) {
+/* 15 */
+/***/ function(module, exports, __webpack_require__) {
 
-	"use strict";
+	'use strict';
 	
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
+	
+	var _line = __webpack_require__(26);
+	
+	var _line2 = _interopRequireDefault(_line);
+	
+	var _domParser = __webpack_require__(27);
+	
+	var _domParser2 = _interopRequireDefault(_domParser);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
 	class Window {
 	  constructor(data) {
 	    data = data || {};
 	    data.message = data.message || {};
-	    this.line = data.message.line || [];
 	    this.comments = data.message.comments || [];
 	    this.face = data.face || false;
 	    this.iconStatus = false;
+	    // Line objの組み立て
+	    this.line(data.message.line || []);
+	  }
+	
+	  line(v) {
+	    if (arguments.length > 0) {
+	      // 組み立て
+	      if (!Array.isArray(v)) {
+	        v = [v];
+	      }
+	      // 顔設定があれば最初の行に追加する
+	      if (this.face !== false) {
+	        v.unshift(this.face.name);
+	      }
+	      // 継続タグ
+	      let continueTags = [];
+	      this._line = v.map(line => {
+	        line = continueTags.join('') + line;
+	        const dom = _domParser2.default.parseFromString(line, 'text/html');
+	        const parsedHtml = dom.body.innerHTML;
+	        if (line != parsedHtml) {
+	          const closeTags = parsedHtml.substr(line.length).split(/(<[^>]+>)/).filter(v => {
+	            return !!v;
+	          });
+	          continueTags = closeTags.map(v => {
+	            return v.replace('/', '');
+	          }).reverse();
+	        } else {
+	          continueTags = [];
+	        }
+	        return new _line2.default({ line: parsedHtml });
+	      });
+	    }
+	
+	    return this._line;
 	  }
 	
 	  toggleIcon() {
 	    this.iconStatus = !this.iconStatus;
 	  }
+	
 	}
 	exports.default = Window;
 
 /***/ },
-/* 14 */
+/* 16 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
-	var _scenarioParser = __webpack_require__(15);
+	var _scenarioParser = __webpack_require__(17);
 	
 	var _scenarioParser2 = _interopRequireDefault(_scenarioParser);
 	
@@ -897,7 +930,7 @@
 	};
 
 /***/ },
-/* 15 */
+/* 17 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -916,19 +949,19 @@
 	  };
 	}();
 	
-	var _message = __webpack_require__(16);
+	var _message = __webpack_require__(18);
 	
 	var _message2 = _interopRequireDefault(_message);
 	
-	var _messageBlock = __webpack_require__(17);
+	var _messageBlock = __webpack_require__(19);
 	
 	var _messageBlock2 = _interopRequireDefault(_messageBlock);
 	
-	var _config = __webpack_require__(18);
+	var _config = __webpack_require__(20);
 	
 	var _config2 = _interopRequireDefault(_config);
 	
-	var _tbSerializer = __webpack_require__(20);
+	var _tbSerializer = __webpack_require__(22);
 	
 	var _tbSerializer2 = _interopRequireDefault(_tbSerializer);
 	
@@ -1113,7 +1146,7 @@
 	exports.default = ScenarioParser;
 
 /***/ },
-/* 16 */
+/* 18 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -1140,7 +1173,7 @@
 	exports.default = Message;
 
 /***/ },
-/* 17 */
+/* 19 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -1191,7 +1224,7 @@
 	exports.default = MessageBlock;
 
 /***/ },
-/* 18 */
+/* 20 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1210,7 +1243,7 @@
 	  };
 	}();
 	
-	var _jsYaml = __webpack_require__(19);
+	var _jsYaml = __webpack_require__(21);
 	
 	var _jsYaml2 = _interopRequireDefault(_jsYaml);
 	
@@ -1311,6 +1344,14 @@
 	      return this._config.style.display.lineLimit;
 	    }
 	  }, {
+	    key: 'isFlash',
+	    get: function get() {
+	      if (this._config.style.display && this._config.style.display.isFlash) {
+	        return true;
+	      }
+	      return false;
+	    }
+	  }, {
 	    key: 'colors',
 	    get: function get() {
 	      return this._config.color;
@@ -1323,13 +1364,13 @@
 	exports.default = Config;
 
 /***/ },
-/* 19 */
+/* 21 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = (__webpack_require__(2))(3);
 
 /***/ },
-/* 20 */
+/* 22 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -1394,6 +1435,12 @@
 	          // 改行を置換してまとめる
 	          if (faceMessage) {
 	            line.unshift(faceMessage);
+	          }
+	          // 常時瞬間表示の場合、制御文字を追加
+	          if (_this.config.isFlash) {
+	            line = line.map(function (v) {
+	              return '\\>' + v;
+	            });
 	          }
 	          result.push('Text("' + line.join(cChar.br) + '")');
 	        });
@@ -1482,7 +1529,7 @@
 	var cNormalTags = ['flash'];
 
 /***/ },
-/* 21 */
+/* 23 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -1516,7 +1563,7 @@
 	exports.default = StyleSheet;
 
 /***/ },
-/* 22 */
+/* 24 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1541,10 +1588,10 @@
 	exports.default = Zoom;
 
 /***/ },
-/* 23 */
+/* 25 */
 /***/ function(module, exports) {
 
-	"use strict";
+	'use strict';
 	
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
@@ -1556,13 +1603,19 @@
 	  },
 	  color: {
 	    max: 19
+	  },
+	  controlTags: {
+	    stop: 's',
+	    wait: 'w',
+	    q_wait: 'q',
+	    close: 'c'
 	  }
 	};
 	
 	exports.default = Const;
 
 /***/ },
-/* 24 */
+/* 26 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1575,33 +1628,106 @@
 	
 	var _mithril2 = _interopRequireDefault(_mithril);
 	
+	var _domParser = __webpack_require__(27);
+	
+	var _domParser2 = _interopRequireDefault(_domParser);
+	
+	var _const = __webpack_require__(25);
+	
+	var _const2 = _interopRequireDefault(_const);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
-	const systemImgComponent = {
-	  controller: function (data) {
-	    this.vm = data.vm;
-	  },
-	  view: ctrl => {
-	    const vm = ctrl.vm;
-	    const systemImg = vm.systemImg;
-	    const colors = vm.config ? vm.config.colors : [];
-	    return (0, _mithril2.default)('.systemImg', [(0, _mithril2.default)('h3', 'システムグラフィック'), (0, _mithril2.default)('.systemItems', [(0, _mithril2.default)('img', {
-	      src: systemImg.dataUrl
-	    }), (0, _mithril2.default)('.tColor', ['透過色: ', (0, _mithril2.default)('br'), (0, _mithril2.default)('span', {
-	      style: { color: systemImg.tColorCss }
-	    }, `■${ systemImg.tColorCss }`)]), (0, _mithril2.default)('div', ['枠:', (0, _mithril2.default)('br'), (0, _mithril2.default)('img', {
-	      src: systemImg.messageWindow
-	    })])]), (0, _mithril2.default)('h4', '色タグ'), (0, _mithril2.default)('.colorTagList.messageWindow', [(0, _mithril2.default)('ul.message', Object.keys(colors).map(color => {
-	      const number = colors[color];
-	      return (0, _mithril2.default)('li.line', (0, _mithril2.default)('p.shadow', `${ number }: <${ color }> `), (0, _mithril2.default)('p.text', (0, _mithril2.default)('span', { class: `color${ number }` }, `${ number }: <${ color }> `)));
-	    }))])]);
+	class Line {
+	  constructor(data) {
+	    data = data || {};
+	    this.raw = _mithril2.default.prop(data.line || '');
+	    this._line = false;
+	    this._text = false;
 	  }
-	};
 	
-	exports.default = systemImgComponent;
+	  line(v) {
+	    // 変更は無視する
+	    if (v) {
+	      console.warn('lineを直接変更する事は出来ません。' + v);
+	    }
+	
+	    // 未変換であれば変換する
+	    if (this._line === false) {
+	      const raw = this.raw();
+	      const dom = _domParser2.default.parseFromString(raw, 'text/html');
+	      const tree = Line.domToTree(dom.body);
+	      this._line = tree;
+	    }
+	
+	    return this._line;
+	  }
+	
+	  text(v) {
+	    // 変更は無視する
+	    if (arguments.length > 0) {
+	      console.warn('textを直接変更する事は出来ません。' + v);
+	    }
+	
+	    // 未変換であれば変換する
+	    if (this._text === false) {
+	      const raw = this.raw();
+	      const dom = _domParser2.default.parseFromString(raw, 'text/html');
+	      this._text = dom.body.innerText;
+	    }
+	
+	    return this._text;
+	  }
+	  static domToTree(dom) {
+	    const ret = [];
+	    let controls = [];
+	    let isPreControl = false;
+	    for (let node = dom.firstChild; node; node = node.nextSibling) {
+	      const tag = node.nodeName.toLowerCase();
+	      if (Object.keys(_const2.default.controlTags).includes(tag)) {
+	        // 制御タグの場合、bodyは固定
+	        const body = _const2.default.controlTags[tag];
+	        // controlタグに包む
+	        controls.push({ tag, body });
+	        isPreControl = true;
+	        continue;
+	      }
+	      if (isPreControl) {
+	        ret.push({ tag: 'control', body: controls });
+	        controls = [];
+	        isPreControl = false;
+	      }
+	      if (node.nodeType == Node.TEXT_NODE) {
+	        ret.push(node.textContent);
+	      } else {
+	        let body;
+	        body = Line.domToTree(node);
+	        ret.push({ tag, body });
+	      }
+	    }
+	    if (isPreControl) {
+	      ret.push({ tag: 'control', body: controls });
+	    }
+	
+	    return ret;
+	  }
+	}
+	exports.default = Line;
 
 /***/ },
-/* 25 */
+/* 27 */
+/***/ function(module, exports) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	const domParser = new DOMParser();
+	exports.default = domParser;
+
+/***/ },
+/* 28 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1614,22 +1740,52 @@
 	
 	var _mithril2 = _interopRequireDefault(_mithril);
 	
+	var _const = __webpack_require__(25);
+	
+	var _const2 = _interopRequireDefault(_const);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
-	const faceImgComponent = {
+	const messageComponent = {
 	  controller: function (data) {
 	    this.vm = data.vm;
 	  },
-	  view: ctrl => {
-	    const vm = ctrl.vm;
-	    const faceListView = vm.config.faceKeyList.map(faceKey => {
-	      return (0, _mithril2.default)('li', [(0, _mithril2.default)('p', faceKey), (0, _mithril2.default)('.faceImg', { style: vm.getFaceStyle(faceKey) })]);
+	  view: (ctrl, args) => {
+	    if (!args || !Array.isArray(args.line)) {
+	      return;
+	    }
+	    const colors = args.colors || {};
+	    const childViewList = args.line.map(line => {
+	      // タグ置換処理
+	      return (0, _mithril2.default)('li.line', [(0, _mithril2.default)('p.shadow', line.text()), (0, _mithril2.default)('p.text', buildHtml(line.line(), colors))]);
 	    });
-	    return (0, _mithril2.default)('.faceSetting', [(0, _mithril2.default)('h3', '顔グラフィック'), (0, _mithril2.default)('ul.faceList', faceListView)]);
+	    return (0, _mithril2.default)('ul.message', childViewList);
 	  }
 	};
 	
-	exports.default = faceImgComponent;
+	const buildHtml = (obj, colors) => {
+	  const ret = [];
+	  if (!Array.isArray(obj)) {
+	    obj = [obj];
+	  }
+	  obj.forEach(obj => {
+	    if (typeof obj === 'string') {
+	      ret.push(obj);
+	    } else if (Object.keys(colors).includes(obj.tag)) {
+	      // 色タグ
+	      ret.push((0, _mithril2.default)('span', { class: `color${ colors[obj.tag] }` }, buildHtml(obj.body, colors)));
+	    } else if (Object.keys(_const2.default.controlTags).includes(obj.tag)) {
+	      // 制御文字タグ
+	      ret.push((0, _mithril2.default)('i', { class: obj.tag }, buildHtml(obj.body, colors)));
+	    } else {
+	      // その他（瞬間表示タグなど）
+	      ret.push((0, _mithril2.default)('span', { class: obj.tag }, buildHtml(obj.body, colors)));
+	    }
+	  });
+	  return ret;
+	};
+	
+	exports.default = messageComponent;
 
 /***/ }
 /******/ ]);

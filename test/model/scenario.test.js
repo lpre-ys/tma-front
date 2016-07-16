@@ -61,5 +61,34 @@ describe('Scenario model', () => {
       assert(parserStub.serialize.callCount === 1);
       assert(scenario.windowList.length == 1);
     });
+    describe('複雑なパース', () => {
+      const parser = {
+        parse: () => {},
+        serialize: () => {}
+      };
+      const parserStub = {
+        serialize: sinon.stub(parser, 'serialize').returns('serialized script')
+      };
+      it('2ウィンドウ、顔無し装飾無し', () => {
+        // tmaのparserメソッドの戻り値によって。
+        parserStub.parser = sinon.stub(parser, 'parse').returns([
+          {
+            face: false,
+            messageList: [
+              {line: ['1st window message']},
+              {line: ['2nd window message']}
+            ]
+          }
+        ]);
+        scenario.parse(parser);
+
+        assert(scenario.windowList.length == 2);
+        assert(scenario.windowList[0].line()[0].raw() == '1st window message');
+        assert(scenario.windowList[1].line()[0].raw() == '2nd window message');
+      });
+      it('2ウィンドウ、顔あり装飾無し', () => {
+
+      });
+    });
   });
 });
