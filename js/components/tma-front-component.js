@@ -13,12 +13,12 @@ const tmaFrontComponent = {
     return [
       m('.left', [
         m.component(loadComponent, {vm: vm}),
-        m('h2', 'シナリオファイル'),
+        m('h2', 'シナリオスクリプト'),
         m('textarea#input', {
           value: vm.scenario.scenarioText(),
           onkeyup: m.withAttr('value', vm.setScenarioText, vm)
         }),
-        m('h2', 'TkoolBridge script'),
+        m('h2', 'TKcode'),
         m('textarea#tkScript', {
           readonly: 'readonly',
           onfocus: tmaFrontComponent.selectText

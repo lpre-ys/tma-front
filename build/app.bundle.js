@@ -96,7 +96,7 @@
 	
 	var _messageListComponent2 = _interopRequireDefault(_messageListComponent);
 	
-	var _tmaFrontVm = __webpack_require__(9);
+	var _tmaFrontVm = __webpack_require__(11);
 	
 	var _tmaFrontVm2 = _interopRequireDefault(_tmaFrontVm);
 	
@@ -108,10 +108,10 @@
 	  },
 	  view: ctrl => {
 	    const vm = ctrl.vm;
-	    return [(0, _mithril2.default)('.left', [_mithril2.default.component(_loadComponent2.default, { vm: vm }), (0, _mithril2.default)('h2', 'シナリオファイル'), (0, _mithril2.default)('textarea#input', {
+	    return [(0, _mithril2.default)('.left', [_mithril2.default.component(_loadComponent2.default, { vm: vm }), (0, _mithril2.default)('h2', 'シナリオスクリプト'), (0, _mithril2.default)('textarea#input', {
 	      value: vm.scenario.scenarioText(),
 	      onkeyup: _mithril2.default.withAttr('value', vm.setScenarioText, vm)
-	    }), (0, _mithril2.default)('h2', 'TkoolBridge script'), (0, _mithril2.default)('textarea#tkScript', {
+	    }), (0, _mithril2.default)('h2', 'TKcode'), (0, _mithril2.default)('textarea#tkScript', {
 	      readonly: 'readonly',
 	      onfocus: tmaFrontComponent.selectText
 	    }, [vm.scenario.tkScript])]), (0, _mithril2.default)('.right', [(0, _mithril2.default)('h2', 'プレビュー'), _mithril2.default.component(_zoomComponent2.default, { vm: vm }), _mithril2.default.component(_messageListComponent2.default, { vm: vm })])];
@@ -298,7 +298,7 @@
 	
 	var _mithril2 = _interopRequireDefault(_mithril);
 	
-	var _messageComponent = __webpack_require__(28);
+	var _messageComponent = __webpack_require__(9);
 	
 	var _messageComponent2 = _interopRequireDefault(_messageComponent);
 	
@@ -307,7 +307,6 @@
 	const messageListComponent = {
 	  controller: function (data) {
 	    this.vm = data.vm;
-	    this.toggleClass = messageListComponent.toggleClass;
 	  },
 	  view: ctrl => {
 	    const vm = ctrl.vm;
@@ -325,14 +324,28 @@
 	      // 顔グラフィック
 	      if (windowObj.face) {
 	        const face = windowObj.face;
-	        messageView.push((0, _mithril2.default)('.faceBox', [(0, _mithril2.default)('.faceImg', { style: vm.getFaceStyle(face) })]));
+	        const classList = [];
+	        if (face.mirror) {
+	          classList.push('mirror');
+	        }
+	        if (face.pos) {
+	          classList.push('posRight');
+	        }
+	        messageView.push((0, _mithril2.default)('.faceBox', {
+	          class: classList.join(' ')
+	        }, [(0, _mithril2.default)('.faceImg', {
+	          style: vm.getFaceStyle(face)
+	        })]));
 	      }
 	      // テキスト
 	      messageView.push((0, _mithril2.default)(_messageComponent2.default, { line: windowObj.line(), colors: colors }));
-	      return [commentsView, (0, _mithril2.default)('.messageWindow', {
+	
+	      // 全体を.messageWindowでラップして返す
+	      const messageWindow = (0, _mithril2.default)('.messageWindow', {
 	        class: windowObj.iconStatus ? 'showIcon' : '',
 	        onclick: windowObj.toggleIcon.bind(windowObj)
-	      }, messageView)];
+	      }, messageView);
+	      return commentsView.length > 0 ? [commentsView, messageWindow] : messageWindow;
 	    }));
 	  }
 	};
@@ -353,29 +366,116 @@
 	
 	var _mithril2 = _interopRequireDefault(_mithril);
 	
-	var _png = __webpack_require__(10);
+	var _const = __webpack_require__(10);
+	
+	var _const2 = _interopRequireDefault(_const);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	const messageComponent = {
+	  controller: function (data) {
+	    this.vm = data.vm;
+	  },
+	  view: (ctrl, args) => {
+	    if (!args || !Array.isArray(args.line)) {
+	      return;
+	    }
+	    const colors = args.colors || {};
+	    const childViewList = args.line.map(line => {
+	      return (0, _mithril2.default)('li.line', [(0, _mithril2.default)('p.shadow', line.text()), (0, _mithril2.default)('p.text', buildHtml(line.line(), colors))]);
+	    });
+	    return (0, _mithril2.default)('ul.message', childViewList);
+	  }
+	};
+	
+	const buildHtml = (obj, colors) => {
+	  const ret = [];
+	  if (!Array.isArray(obj)) {
+	    obj = [obj];
+	  }
+	  obj.forEach(obj => {
+	    if (typeof obj === 'string') {
+	      ret.push(obj);
+	    } else if (Object.keys(colors).includes(obj.tag)) {
+	      // 色タグ
+	      ret.push((0, _mithril2.default)('span', { class: `color${ colors[obj.tag] }` }, buildHtml(obj.body, colors)));
+	    } else if (Object.keys(_const2.default.controlTags).includes(obj.tag)) {
+	      // 制御文字タグ
+	      ret.push((0, _mithril2.default)('i', { class: obj.tag }, buildHtml(obj.body, colors)));
+	    } else {
+	      // その他（瞬間表示タグなど）
+	      ret.push((0, _mithril2.default)('span', { class: obj.tag }, buildHtml(obj.body, colors)));
+	    }
+	  });
+	  return ret;
+	};
+	
+	exports.default = messageComponent;
+
+/***/ },
+/* 10 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	const Const = {
+	  face: {
+	    width: 48,
+	    height: 48
+	  },
+	  color: {
+	    max: 19
+	  },
+	  controlTags: {
+	    stop: 's',
+	    wait: 'w',
+	    q_wait: 'q',
+	    close: 'c'
+	  }
+	};
+	
+	exports.default = Const;
+
+/***/ },
+/* 11 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _mithril = __webpack_require__(1);
+	
+	var _mithril2 = _interopRequireDefault(_mithril);
+	
+	var _png = __webpack_require__(12);
 	
 	var _png2 = _interopRequireDefault(_png);
 	
-	var _systemImg = __webpack_require__(12);
+	var _systemImg = __webpack_require__(14);
 	
 	var _systemImg2 = _interopRequireDefault(_systemImg);
 	
-	var _scenario = __webpack_require__(14);
+	var _scenario = __webpack_require__(16);
 	
 	var _scenario2 = _interopRequireDefault(_scenario);
 	
-	var _tk2kMessageAssist = __webpack_require__(16);
+	var _tk2kMessageAssist = __webpack_require__(20);
 	
-	var _styleSheet = __webpack_require__(23);
+	var _styleSheet = __webpack_require__(28);
 	
 	var _styleSheet2 = _interopRequireDefault(_styleSheet);
 	
-	var _zoom = __webpack_require__(24);
+	var _zoom = __webpack_require__(29);
 	
 	var _zoom2 = _interopRequireDefault(_zoom);
 	
-	var _const = __webpack_require__(25);
+	var _const = __webpack_require__(10);
 	
 	var _const2 = _interopRequireDefault(_const);
 	
@@ -543,7 +643,7 @@
 	};
 
 /***/ },
-/* 10 */
+/* 12 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -552,7 +652,7 @@
 	  value: true
 	});
 	
-	var _base64Arraybuffer = __webpack_require__(11);
+	var _base64Arraybuffer = __webpack_require__(13);
 	
 	var _base64Arraybuffer2 = _interopRequireDefault(_base64Arraybuffer);
 	
@@ -641,13 +741,13 @@
 	exports.default = Png;
 
 /***/ },
-/* 11 */
+/* 13 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = (__webpack_require__(2))(57);
 
 /***/ },
-/* 12 */
+/* 14 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -656,11 +756,11 @@
 	  value: true
 	});
 	
-	var _png = __webpack_require__(10);
+	var _png = __webpack_require__(12);
 	
 	var _png2 = _interopRequireDefault(_png);
 	
-	var _onecolor = __webpack_require__(13);
+	var _onecolor = __webpack_require__(15);
 	
 	var _onecolor2 = _interopRequireDefault(_onecolor);
 	
@@ -789,13 +889,13 @@
 	exports.default = SystemImg;
 
 /***/ },
-/* 13 */
+/* 15 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = (__webpack_require__(2))(38);
 
 /***/ },
-/* 14 */
+/* 16 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -808,7 +908,7 @@
 	
 	var _mithril2 = _interopRequireDefault(_mithril);
 	
-	var _window = __webpack_require__(15);
+	var _window = __webpack_require__(17);
 	
 	var _window2 = _interopRequireDefault(_window);
 	
@@ -841,7 +941,7 @@
 	exports.default = Scenario;
 
 /***/ },
-/* 15 */
+/* 17 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -850,11 +950,11 @@
 	  value: true
 	});
 	
-	var _line = __webpack_require__(26);
+	var _line = __webpack_require__(18);
 	
 	var _line2 = _interopRequireDefault(_line);
 	
-	var _domParser = __webpack_require__(27);
+	var _domParser = __webpack_require__(19);
 	
 	var _domParser2 = _interopRequireDefault(_domParser);
 	
@@ -912,12 +1012,135 @@
 	exports.default = Window;
 
 /***/ },
-/* 16 */
+/* 18 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
-	var _scenarioParser = __webpack_require__(17);
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _mithril = __webpack_require__(1);
+	
+	var _mithril2 = _interopRequireDefault(_mithril);
+	
+	var _domParser = __webpack_require__(19);
+	
+	var _domParser2 = _interopRequireDefault(_domParser);
+	
+	var _const = __webpack_require__(10);
+	
+	var _const2 = _interopRequireDefault(_const);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	class Line {
+	  constructor(data) {
+	    data = data || {};
+	    this.raw = _mithril2.default.prop(data.line || '');
+	    this._line = false;
+	    this._text = false;
+	  }
+	
+	  line(v) {
+	    // 変更は無視する
+	    if (v) {}
+	    // console.warn('lineを直接変更する事は出来ません。' + v);
+	
+	
+	    // 未変換であれば変換する
+	    if (this._line === false) {
+	      const raw = Line.preEscape(this.raw());
+	      const dom = _domParser2.default.parseFromString(raw, 'text/html');
+	      const tree = Line.domToTree(dom.body);
+	      this._line = tree;
+	    }
+	
+	    return this._line;
+	  }
+	
+	  text(v) {
+	    // 変更は無視する
+	    if (arguments.length > 0) {}
+	    // console.warn('textを直接変更する事は出来ません。' + v);
+	
+	
+	    // 未変換であれば変換する
+	    if (this._text === false) {
+	      const raw = Line.preEscape(this.raw());
+	      const dom = _domParser2.default.parseFromString(raw, 'text/html');
+	      this._text = Line.postEscape(dom.body.innerText);
+	    }
+	
+	    return this._text;
+	  }
+	
+	  static preEscape(str) {
+	    // エスケープ記号を退避
+	    return str.replace(/\\\\/g, '#yen-mark#').replace(/\\</g, '#lt-mark#').replace(/\\/g, '#escape-mark#');
+	  }
+	
+	  static postEscape(str) {
+	    // 退避した記号を戻し、半角スペースを実体参照に変換する。
+	    return str.replace(/#yen-mark#/g, '\\').replace(/#lt-mark#/g, '<').replace(/#escape-mark#/g, '');
+	  }
+	
+	  static domToTree(dom) {
+	    const ret = [];
+	    let controls = [];
+	    let isPreControl = false;
+	    for (let node = dom.firstChild; node; node = node.nextSibling) {
+	      const tag = node.nodeName.toLowerCase();
+	      if (Object.keys(_const2.default.controlTags).includes(tag)) {
+	        // 制御タグの場合、bodyは固定
+	        const body = _const2.default.controlTags[tag];
+	        // controlタグに包む
+	        controls.push({ tag, body });
+	        isPreControl = true;
+	        continue;
+	      }
+	      if (isPreControl) {
+	        ret.push({ tag: 'control', body: controls });
+	        controls = [];
+	        isPreControl = false;
+	      }
+	      if (node.nodeType == Node.TEXT_NODE) {
+	        ret.push(Line.postEscape(node.textContent)); // エスケープを戻してから
+	      } else {
+	        let body;
+	        body = Line.domToTree(node);
+	        ret.push({ tag, body });
+	      }
+	    }
+	    if (isPreControl) {
+	      ret.push({ tag: 'control', body: controls });
+	    }
+	
+	    return ret;
+	  }
+	}
+	exports.default = Line;
+
+/***/ },
+/* 19 */
+/***/ function(module, exports) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	const domParser = new DOMParser();
+	exports.default = domParser;
+
+/***/ },
+/* 20 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	var _scenarioParser = __webpack_require__(21);
 	
 	var _scenarioParser2 = _interopRequireDefault(_scenarioParser);
 	
@@ -930,7 +1153,7 @@
 	};
 
 /***/ },
-/* 17 */
+/* 21 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -949,19 +1172,19 @@
 	  };
 	}();
 	
-	var _message = __webpack_require__(18);
+	var _message = __webpack_require__(22);
 	
 	var _message2 = _interopRequireDefault(_message);
 	
-	var _messageBlock = __webpack_require__(19);
+	var _messageBlock = __webpack_require__(23);
 	
 	var _messageBlock2 = _interopRequireDefault(_messageBlock);
 	
-	var _config = __webpack_require__(20);
+	var _config = __webpack_require__(24);
 	
 	var _config2 = _interopRequireDefault(_config);
 	
-	var _tbSerializer = __webpack_require__(22);
+	var _tbSerializer = __webpack_require__(27);
 	
 	var _tbSerializer2 = _interopRequireDefault(_tbSerializer);
 	
@@ -1146,7 +1369,7 @@
 	exports.default = ScenarioParser;
 
 /***/ },
-/* 18 */
+/* 22 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -1173,7 +1396,7 @@
 	exports.default = Message;
 
 /***/ },
-/* 19 */
+/* 23 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -1224,7 +1447,7 @@
 	exports.default = MessageBlock;
 
 /***/ },
-/* 20 */
+/* 24 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1243,9 +1466,13 @@
 	  };
 	}();
 	
-	var _jsYaml = __webpack_require__(21);
+	var _jsYaml = __webpack_require__(25);
 	
 	var _jsYaml2 = _interopRequireDefault(_jsYaml);
+	
+	var _const = __webpack_require__(26);
+	
+	var _const2 = _interopRequireDefault(_const);
 	
 	function _interopRequireDefault(obj) {
 	  return obj && obj.__esModule ? obj : { default: obj };
@@ -1280,7 +1507,28 @@
 	        return false;
 	      }
 	
-	      return this._config.face[faceKey] ? this._config.face[faceKey] : false;
+	      var re = new RegExp('^(.*)\\' + _const2.default.face_place.prefix + '(.*)\\' + _const2.default.face_place.suffix + '$');
+	      var found = faceKey.match(re);
+	      if (found !== null) {
+	        faceKey = found[1];
+	      }
+	      var ret = this._config.face[faceKey] ? Object.assign({}, this._config.face[faceKey]) : false;
+	
+	      if (found !== null) {
+	        var placeSettings = found[2].split(',');
+	        // 反転
+	        if (placeSettings.includes(_const2.default.face_place.mirror)) {
+	          ret.mirror = true;
+	        }
+	        // 表示位置
+	        if (placeSettings.includes(_const2.default.face_place.pos.left)) {
+	          ret.pos = false;
+	        } else if (placeSettings.includes(_const2.default.face_place.pos.right)) {
+	          ret.pos = true;
+	        }
+	      }
+	
+	      return ret;
 	    }
 	  }, {
 	    key: 'loadStyleYaml',
@@ -1364,13 +1612,36 @@
 	exports.default = Config;
 
 /***/ },
-/* 21 */
+/* 25 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = (__webpack_require__(2))(3);
 
 /***/ },
-/* 22 */
+/* 26 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	var Const = {
+	  face_place: {
+	    prefix: '(',
+	    suffix: ')',
+	    pos: {
+	      left: '左',
+	      right: '右'
+	    },
+	    mirror: '反転'
+	  }
+	};
+	
+	exports.default = Const;
+
+/***/ },
+/* 27 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -1400,6 +1671,7 @@
 	    _classCallCheck(this, TbSerializer);
 	
 	    this.config = config;
+	    this.colorStack = [];
 	  }
 	
 	  _createClass(TbSerializer, [{
@@ -1414,8 +1686,9 @@
 	        var faceMessage = false;
 	        if (messageBlock.face) {
 	          showFace = true;
-	          // TODO pos, mirror
-	          result.push('Faice("' + messageBlock.face.filename + '", ' + messageBlock.face.number + ', 0, 0)');
+	          var posCode = messageBlock.face.pos ? 1 : 0;
+	          var mirrorCode = messageBlock.face.mirror ? 1 : 0;
+	          result.push('Faice("' + messageBlock.face.filename + '", ' + messageBlock.face.number + ', ' + posCode + ', ' + mirrorCode + ')');
 	          faceMessage = _this._toTbScript(messageBlock.face.name);
 	        } else if (showFace) {
 	          showFace = false;
@@ -1428,6 +1701,7 @@
 	            result.push('Note("' + comment + '")');
 	          });
 	          // タグ置換
+	          _this.colorStack = []; // 色タグのスタックリセット
 	          var line = message.line.map(function (text) {
 	            return _this._toTbScript(text);
 	          });
@@ -1460,7 +1734,6 @@
 	      }
 	      // タグの変換
 	      var prevColor = 0;
-	      var colorStack = [];
 	      parts = parts.map(function (part) {
 	        if (/^<[a-z\-\_]+>$/.test(part)) {
 	          // 開始タグ
@@ -1468,7 +1741,7 @@
 	          var colorNumber = _this2.config.getColorNumber(tagName);
 	          if (colorNumber) {
 	            // 色タグ
-	            colorStack.push(prevColor);
+	            _this2.colorStack.push(prevColor);
 	            prevColor = colorNumber;
 	            return cChar.color + '[' + colorNumber + ']';
 	          }
@@ -1479,7 +1752,7 @@
 	          var _tagName = part.substr(2, part.length - 3);
 	          if (!_this2.config.getColorNumber(_tagName) === false) {
 	            // 色タグ
-	            prevColor = colorStack.pop();
+	            prevColor = _this2.colorStack.pop();
 	            return cChar.color + '[' + prevColor + ']';
 	          } else if (cNormalTags.includes(_tagName)) {
 	            // 閉じタグ有りの制御タグ
@@ -1529,7 +1802,7 @@
 	var cNormalTags = ['flash'];
 
 /***/ },
-/* 23 */
+/* 28 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -1563,7 +1836,7 @@
 	exports.default = StyleSheet;
 
 /***/ },
-/* 24 */
+/* 29 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1586,206 +1859,6 @@
 	
 	}
 	exports.default = Zoom;
-
-/***/ },
-/* 25 */
-/***/ function(module, exports) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	const Const = {
-	  face: {
-	    width: 48,
-	    height: 48
-	  },
-	  color: {
-	    max: 19
-	  },
-	  controlTags: {
-	    stop: 's',
-	    wait: 'w',
-	    q_wait: 'q',
-	    close: 'c'
-	  }
-	};
-	
-	exports.default = Const;
-
-/***/ },
-/* 26 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	
-	var _mithril = __webpack_require__(1);
-	
-	var _mithril2 = _interopRequireDefault(_mithril);
-	
-	var _domParser = __webpack_require__(27);
-	
-	var _domParser2 = _interopRequireDefault(_domParser);
-	
-	var _const = __webpack_require__(25);
-	
-	var _const2 = _interopRequireDefault(_const);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	class Line {
-	  constructor(data) {
-	    data = data || {};
-	    this.raw = _mithril2.default.prop(data.line || '');
-	    this._line = false;
-	    this._text = false;
-	  }
-	
-	  line(v) {
-	    // 変更は無視する
-	    if (v) {
-	      console.warn('lineを直接変更する事は出来ません。' + v);
-	    }
-	
-	    // 未変換であれば変換する
-	    if (this._line === false) {
-	      const raw = this.raw();
-	      const dom = _domParser2.default.parseFromString(raw, 'text/html');
-	      const tree = Line.domToTree(dom.body);
-	      this._line = tree;
-	    }
-	
-	    return this._line;
-	  }
-	
-	  text(v) {
-	    // 変更は無視する
-	    if (arguments.length > 0) {
-	      console.warn('textを直接変更する事は出来ません。' + v);
-	    }
-	
-	    // 未変換であれば変換する
-	    if (this._text === false) {
-	      const raw = this.raw();
-	      const dom = _domParser2.default.parseFromString(raw, 'text/html');
-	      this._text = dom.body.innerText;
-	    }
-	
-	    return this._text;
-	  }
-	  static domToTree(dom) {
-	    const ret = [];
-	    let controls = [];
-	    let isPreControl = false;
-	    for (let node = dom.firstChild; node; node = node.nextSibling) {
-	      const tag = node.nodeName.toLowerCase();
-	      if (Object.keys(_const2.default.controlTags).includes(tag)) {
-	        // 制御タグの場合、bodyは固定
-	        const body = _const2.default.controlTags[tag];
-	        // controlタグに包む
-	        controls.push({ tag, body });
-	        isPreControl = true;
-	        continue;
-	      }
-	      if (isPreControl) {
-	        ret.push({ tag: 'control', body: controls });
-	        controls = [];
-	        isPreControl = false;
-	      }
-	      if (node.nodeType == Node.TEXT_NODE) {
-	        ret.push(node.textContent);
-	      } else {
-	        let body;
-	        body = Line.domToTree(node);
-	        ret.push({ tag, body });
-	      }
-	    }
-	    if (isPreControl) {
-	      ret.push({ tag: 'control', body: controls });
-	    }
-	
-	    return ret;
-	  }
-	}
-	exports.default = Line;
-
-/***/ },
-/* 27 */
-/***/ function(module, exports) {
-
-	"use strict";
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	const domParser = new DOMParser();
-	exports.default = domParser;
-
-/***/ },
-/* 28 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	
-	var _mithril = __webpack_require__(1);
-	
-	var _mithril2 = _interopRequireDefault(_mithril);
-	
-	var _const = __webpack_require__(25);
-	
-	var _const2 = _interopRequireDefault(_const);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	const messageComponent = {
-	  controller: function (data) {
-	    this.vm = data.vm;
-	  },
-	  view: (ctrl, args) => {
-	    if (!args || !Array.isArray(args.line)) {
-	      return;
-	    }
-	    const colors = args.colors || {};
-	    const childViewList = args.line.map(line => {
-	      // タグ置換処理
-	      return (0, _mithril2.default)('li.line', [(0, _mithril2.default)('p.shadow', line.text()), (0, _mithril2.default)('p.text', buildHtml(line.line(), colors))]);
-	    });
-	    return (0, _mithril2.default)('ul.message', childViewList);
-	  }
-	};
-	
-	const buildHtml = (obj, colors) => {
-	  const ret = [];
-	  if (!Array.isArray(obj)) {
-	    obj = [obj];
-	  }
-	  obj.forEach(obj => {
-	    if (typeof obj === 'string') {
-	      ret.push(obj);
-	    } else if (Object.keys(colors).includes(obj.tag)) {
-	      // 色タグ
-	      ret.push((0, _mithril2.default)('span', { class: `color${ colors[obj.tag] }` }, buildHtml(obj.body, colors)));
-	    } else if (Object.keys(_const2.default.controlTags).includes(obj.tag)) {
-	      // 制御文字タグ
-	      ret.push((0, _mithril2.default)('i', { class: obj.tag }, buildHtml(obj.body, colors)));
-	    } else {
-	      // その他（瞬間表示タグなど）
-	      ret.push((0, _mithril2.default)('span', { class: obj.tag }, buildHtml(obj.body, colors)));
-	    }
-	  });
-	  return ret;
-	};
-	
-	exports.default = messageComponent;
 
 /***/ }
 /******/ ]);

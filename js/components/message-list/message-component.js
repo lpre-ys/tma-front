@@ -11,7 +11,6 @@ const messageComponent = {
     }
     const colors = args.colors || {};
     const childViewList = args.line.map((line) => {
-      // タグ置換処理
       return m('li.line', [
         m('p.shadow', line.text()),
         m('p.text', buildHtml(line.line(), colors))
