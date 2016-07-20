@@ -54,9 +54,16 @@
 	
 	var _tmaFrontComponent2 = _interopRequireDefault(_tmaFrontComponent);
 	
+	var _yamlGeneratorComponent = __webpack_require__(8);
+	
+	var _yamlGeneratorComponent2 = _interopRequireDefault(_yamlGeneratorComponent);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	_mithril2.default.mount(document.getElementById('appContainer'), _tmaFrontComponent2.default);
+	// TOOL
+	
+	_mithril2.default.mount(document.getElementById('tools'), _yamlGeneratorComponent2.default);
 
 /***/ },
 /* 1 */
@@ -92,11 +99,11 @@
 	
 	var _loadComponent2 = _interopRequireDefault(_loadComponent);
 	
-	var _messageListComponent = __webpack_require__(8);
+	var _messageListComponent = __webpack_require__(10);
 	
 	var _messageListComponent2 = _interopRequireDefault(_messageListComponent);
 	
-	var _tmaFrontVm = __webpack_require__(11);
+	var _tmaFrontVm = __webpack_require__(13);
 	
 	var _tmaFrontVm2 = _interopRequireDefault(_tmaFrontVm);
 	
@@ -298,7 +305,107 @@
 	
 	var _mithril2 = _interopRequireDefault(_mithril);
 	
-	var _messageComponent = __webpack_require__(9);
+	var _yamlGenerator = __webpack_require__(9);
+	
+	var _yamlGenerator2 = _interopRequireDefault(_yamlGenerator);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	const yamlGeneratorComponent = {
+	  controller: function () {
+	    return {
+	      generator: new _yamlGenerator2.default(),
+	      status: _mithril2.default.prop('disable'),
+	      selectText: e => {
+	        e.target.select();
+	      }
+	    };
+	  },
+	  view: ctrl => {
+	    return (0, _mithril2.default)('.modalOverlay', {
+	      class: ctrl.status()
+	    }, [(0, _mithril2.default)('.yamlGenerator.modalWrap', [(0, _mithril2.default)('h1', '顔グラ設定ファイルジェネレータ'), (0, _mithril2.default)('.inputs', [(0, _mithril2.default)('div', [(0, _mithril2.default)('label', { for: 'name' }, 'キャラ名'), (0, _mithril2.default)('input#name', {
+	      onchange: _mithril2.default.withAttr('value', ctrl.generator.name),
+	      value: ctrl.generator.name()
+	    })]), (0, _mithril2.default)('div', [(0, _mithril2.default)('label', { for: 'filename' }, 'ファイル名'), (0, _mithril2.default)('input#filename', {
+	      onchange: _mithril2.default.withAttr('value', ctrl.generator.filename),
+	      value: ctrl.generator.filename()
+	    })]), (0, _mithril2.default)('div', [(0, _mithril2.default)('label', { for: 'prefix' }, 'prefix'), (0, _mithril2.default)('input#prefix', {
+	      onchange: _mithril2.default.withAttr('value', ctrl.generator.prefix),
+	      value: ctrl.generator.prefix()
+	    })]), (0, _mithril2.default)('div', [(0, _mithril2.default)('label', { for: 'length' }, '個数'), (0, _mithril2.default)('input#length', {
+	      onchange: _mithril2.default.withAttr('value', ctrl.generator.length),
+	      value: ctrl.generator.length()
+	    })])]), (0, _mithril2.default)('.output', [(0, _mithril2.default)('h2', '設定ファイル'), (0, _mithril2.default)('textarea', {
+	      readonly: 'readonly',
+	      onfocus: ctrl.selectText
+	    }, ctrl.generator.yaml())]), (0, _mithril2.default)('.close', {
+	      onclick: () => {
+	        ctrl.status('disable');
+	      }
+	    }, '[x]close')])]);
+	  }
+	};
+	
+	exports.default = yamlGeneratorComponent;
+
+/***/ },
+/* 9 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _mithril = __webpack_require__(1);
+	
+	var _mithril2 = _interopRequireDefault(_mithril);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	class YamlGenerator {
+	  constructor(data) {
+	    data = data || {};
+	    this.name = _mithril2.default.prop(data.name || '');
+	    this.filename = _mithril2.default.prop(data.filename || '');
+	    this.prefix = _mithril2.default.prop(data.prefix || '');
+	    this.length = _mithril2.default.prop(data.length || 16);
+	
+	    this._yaml = '';
+	  }
+	
+	  yaml() {
+	    if (!this.name() || !this.filename() || !this.length()) {
+	      return '';
+	    }
+	    // yamlを組み立てる
+	    this._yaml = "person:\n  " + this.name() + ":\n    faces:\n";
+	    for (let i = 0; i < this.length(); i++) {
+	      this._yaml += "      " + this.prefix() + (i + 1) + ":\n" + "        filename:" + this.filename() + "\n" + "        number:" + i + "\n";
+	    }
+	
+	    return this._yaml;
+	  }
+	}
+	exports.default = YamlGenerator;
+
+/***/ },
+/* 10 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _mithril = __webpack_require__(1);
+	
+	var _mithril2 = _interopRequireDefault(_mithril);
+	
+	var _messageComponent = __webpack_require__(11);
 	
 	var _messageComponent2 = _interopRequireDefault(_messageComponent);
 	
@@ -353,7 +460,7 @@
 	exports.default = messageListComponent;
 
 /***/ },
-/* 9 */
+/* 11 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -366,7 +473,7 @@
 	
 	var _mithril2 = _interopRequireDefault(_mithril);
 	
-	var _const = __webpack_require__(10);
+	var _const = __webpack_require__(12);
 	
 	var _const2 = _interopRequireDefault(_const);
 	
@@ -413,7 +520,7 @@
 	exports.default = messageComponent;
 
 /***/ },
-/* 10 */
+/* 12 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -440,7 +547,7 @@
 	exports.default = Const;
 
 /***/ },
-/* 11 */
+/* 13 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -453,29 +560,29 @@
 	
 	var _mithril2 = _interopRequireDefault(_mithril);
 	
-	var _png = __webpack_require__(12);
+	var _png = __webpack_require__(14);
 	
 	var _png2 = _interopRequireDefault(_png);
 	
-	var _systemImg = __webpack_require__(14);
+	var _systemImg = __webpack_require__(16);
 	
 	var _systemImg2 = _interopRequireDefault(_systemImg);
 	
-	var _scenario = __webpack_require__(16);
+	var _scenario = __webpack_require__(18);
 	
 	var _scenario2 = _interopRequireDefault(_scenario);
 	
-	var _tk2kMessageAssist = __webpack_require__(20);
+	var _tk2kMessageAssist = __webpack_require__(22);
 	
-	var _styleSheet = __webpack_require__(28);
+	var _styleSheet = __webpack_require__(30);
 	
 	var _styleSheet2 = _interopRequireDefault(_styleSheet);
 	
-	var _zoom = __webpack_require__(29);
+	var _zoom = __webpack_require__(31);
 	
 	var _zoom2 = _interopRequireDefault(_zoom);
 	
-	var _const = __webpack_require__(10);
+	var _const = __webpack_require__(12);
 	
 	var _const2 = _interopRequireDefault(_const);
 	
@@ -643,7 +750,7 @@
 	};
 
 /***/ },
-/* 12 */
+/* 14 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -652,7 +759,7 @@
 	  value: true
 	});
 	
-	var _base64Arraybuffer = __webpack_require__(13);
+	var _base64Arraybuffer = __webpack_require__(15);
 	
 	var _base64Arraybuffer2 = _interopRequireDefault(_base64Arraybuffer);
 	
@@ -741,13 +848,13 @@
 	exports.default = Png;
 
 /***/ },
-/* 13 */
+/* 15 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = (__webpack_require__(2))(57);
 
 /***/ },
-/* 14 */
+/* 16 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -756,11 +863,11 @@
 	  value: true
 	});
 	
-	var _png = __webpack_require__(12);
+	var _png = __webpack_require__(14);
 	
 	var _png2 = _interopRequireDefault(_png);
 	
-	var _onecolor = __webpack_require__(15);
+	var _onecolor = __webpack_require__(17);
 	
 	var _onecolor2 = _interopRequireDefault(_onecolor);
 	
@@ -889,13 +996,13 @@
 	exports.default = SystemImg;
 
 /***/ },
-/* 15 */
+/* 17 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = (__webpack_require__(2))(38);
 
 /***/ },
-/* 16 */
+/* 18 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -908,7 +1015,7 @@
 	
 	var _mithril2 = _interopRequireDefault(_mithril);
 	
-	var _window = __webpack_require__(17);
+	var _window = __webpack_require__(19);
 	
 	var _window2 = _interopRequireDefault(_window);
 	
@@ -941,7 +1048,7 @@
 	exports.default = Scenario;
 
 /***/ },
-/* 17 */
+/* 19 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -950,11 +1057,11 @@
 	  value: true
 	});
 	
-	var _line = __webpack_require__(18);
+	var _line = __webpack_require__(20);
 	
 	var _line2 = _interopRequireDefault(_line);
 	
-	var _domParser = __webpack_require__(19);
+	var _domParser = __webpack_require__(21);
 	
 	var _domParser2 = _interopRequireDefault(_domParser);
 	
@@ -1012,7 +1119,7 @@
 	exports.default = Window;
 
 /***/ },
-/* 18 */
+/* 20 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1025,11 +1132,11 @@
 	
 	var _mithril2 = _interopRequireDefault(_mithril);
 	
-	var _domParser = __webpack_require__(19);
+	var _domParser = __webpack_require__(21);
 	
 	var _domParser2 = _interopRequireDefault(_domParser);
 	
-	var _const = __webpack_require__(10);
+	var _const = __webpack_require__(12);
 	
 	var _const2 = _interopRequireDefault(_const);
 	
@@ -1123,7 +1230,7 @@
 	exports.default = Line;
 
 /***/ },
-/* 19 */
+/* 21 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -1135,12 +1242,12 @@
 	exports.default = domParser;
 
 /***/ },
-/* 20 */
+/* 22 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
-	var _scenarioParser = __webpack_require__(21);
+	var _scenarioParser = __webpack_require__(23);
 	
 	var _scenarioParser2 = _interopRequireDefault(_scenarioParser);
 	
@@ -1153,7 +1260,7 @@
 	};
 
 /***/ },
-/* 21 */
+/* 23 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1172,19 +1279,19 @@
 	  };
 	}();
 	
-	var _message = __webpack_require__(22);
+	var _message = __webpack_require__(24);
 	
 	var _message2 = _interopRequireDefault(_message);
 	
-	var _messageBlock = __webpack_require__(23);
+	var _messageBlock = __webpack_require__(25);
 	
 	var _messageBlock2 = _interopRequireDefault(_messageBlock);
 	
-	var _config = __webpack_require__(24);
+	var _config = __webpack_require__(26);
 	
 	var _config2 = _interopRequireDefault(_config);
 	
-	var _tbSerializer = __webpack_require__(27);
+	var _tbSerializer = __webpack_require__(29);
 	
 	var _tbSerializer2 = _interopRequireDefault(_tbSerializer);
 	
@@ -1369,7 +1476,7 @@
 	exports.default = ScenarioParser;
 
 /***/ },
-/* 22 */
+/* 24 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -1396,7 +1503,7 @@
 	exports.default = Message;
 
 /***/ },
-/* 23 */
+/* 25 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -1447,7 +1554,7 @@
 	exports.default = MessageBlock;
 
 /***/ },
-/* 24 */
+/* 26 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1466,11 +1573,11 @@
 	  };
 	}();
 	
-	var _jsYaml = __webpack_require__(25);
+	var _jsYaml = __webpack_require__(27);
 	
 	var _jsYaml2 = _interopRequireDefault(_jsYaml);
 	
-	var _const = __webpack_require__(26);
+	var _const = __webpack_require__(28);
 	
 	var _const2 = _interopRequireDefault(_const);
 	
@@ -1612,13 +1719,13 @@
 	exports.default = Config;
 
 /***/ },
-/* 25 */
+/* 27 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = (__webpack_require__(2))(3);
 
 /***/ },
-/* 26 */
+/* 28 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -1641,7 +1748,7 @@
 	exports.default = Const;
 
 /***/ },
-/* 27 */
+/* 29 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -1802,24 +1909,30 @@
 	var cNormalTags = ['flash'];
 
 /***/ },
-/* 28 */
+/* 30 */
 /***/ function(module, exports) {
 
-	"use strict";
+	'use strict';
 	
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
 	class StyleSheet {
 	  constructor(name) {
-	    this.styleSheet = StyleSheet.getCSSStyleSheet(name);
+	    // this.styleSheet = StyleSheet.getCSSStyleSheet(name);
+	    const style = document.createElement('style');
+	    style.type = 'text/css';
+	    document.getElementsByTagName('head').item(0).appendChild(style);
+	
+	    this.styleSheet = style.sheet;
 	  }
 	
 	  editCss(selector, name, value) {
 	    if (!this.styleSheet) {
 	      return;
 	    }
-	    this.styleSheet.insertRule(`${ selector } { ${ name }: ${ value }}`, this.styleSheet.cssRules.length);
+	    const position = this.styleSheet.cssRules ? this.styleSheet.cssRules.length : 0;
+	    this.styleSheet.insertRule(`${ selector } { ${ name }: ${ value }}`, position);
 	  }
 	
 	  static getCSSStyleSheet(name) {
@@ -1836,7 +1949,7 @@
 	exports.default = StyleSheet;
 
 /***/ },
-/* 29 */
+/* 31 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
