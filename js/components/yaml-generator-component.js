@@ -2,10 +2,10 @@ import m from 'mithril';
 import YamlGenerator from '../model/yaml-generator';
 
 const yamlGeneratorComponent = {
-  controller: function () {
+  controller: function (data) {
     return {
       generator: new YamlGenerator(),
-      status: m.prop('disable'),
+      status: data.status,
       selectText: (e) => {
         e.target.select();
       }
@@ -13,9 +13,12 @@ const yamlGeneratorComponent = {
   },
   view: (ctrl) => {
     return m('.modalOverlay', {
-      class: ctrl.status()
+      class: ctrl.status(),
+      onclick: () => { ctrl.status('disable'); }
     }, [
-      m('.yamlGenerator.modalWrap', [
+      m('.yamlGenerator.modalWrap', {
+        onclick: (e) => { e.stopPropagation(); }
+      }, [
         m('h1', '顔グラ設定ファイルジェネレータ'),
         m('.inputs', [
           m('div', [

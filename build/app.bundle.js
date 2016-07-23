@@ -54,16 +54,9 @@
 	
 	var _tmaFrontComponent2 = _interopRequireDefault(_tmaFrontComponent);
 	
-	var _yamlGeneratorComponent = __webpack_require__(8);
-	
-	var _yamlGeneratorComponent2 = _interopRequireDefault(_yamlGeneratorComponent);
-	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
-	_mithril2.default.mount(document.getElementById('appContainer'), _tmaFrontComponent2.default);
-	// TOOL
-	
-	_mithril2.default.mount(document.getElementById('tools'), _yamlGeneratorComponent2.default);
+	_mithril2.default.mount(document.getElementById('root'), _tmaFrontComponent2.default);
 
 /***/ },
 /* 1 */
@@ -99,11 +92,15 @@
 	
 	var _loadComponent2 = _interopRequireDefault(_loadComponent);
 	
-	var _messageListComponent = __webpack_require__(10);
+	var _messageListComponent = __webpack_require__(8);
 	
 	var _messageListComponent2 = _interopRequireDefault(_messageListComponent);
 	
-	var _tmaFrontVm = __webpack_require__(13);
+	var _yamlGeneratorComponent = __webpack_require__(30);
+	
+	var _yamlGeneratorComponent2 = _interopRequireDefault(_yamlGeneratorComponent);
+	
+	var _tmaFrontVm = __webpack_require__(11);
 	
 	var _tmaFrontVm2 = _interopRequireDefault(_tmaFrontVm);
 	
@@ -115,13 +112,13 @@
 	  },
 	  view: ctrl => {
 	    const vm = ctrl.vm;
-	    return [(0, _mithril2.default)('.left', [_mithril2.default.component(_loadComponent2.default, { vm: vm }), (0, _mithril2.default)('h2', 'シナリオスクリプト'), (0, _mithril2.default)('textarea#input', {
+	    return [(0, _mithril2.default)('.frame', (0, _mithril2.default)('#appContainer', [(0, _mithril2.default)('.left', [_mithril2.default.component(_loadComponent2.default, { vm: vm }), (0, _mithril2.default)('h2', 'シナリオスクリプト'), (0, _mithril2.default)('textarea#input', {
 	      value: vm.scenario.scenarioText(),
 	      onkeyup: _mithril2.default.withAttr('value', vm.setScenarioText, vm)
 	    }), (0, _mithril2.default)('h2', 'TKcode'), (0, _mithril2.default)('textarea#tkScript', {
 	      readonly: 'readonly',
 	      onfocus: tmaFrontComponent.selectText
-	    }, [vm.scenario.tkScript])]), (0, _mithril2.default)('.right', [(0, _mithril2.default)('h2', 'プレビュー'), _mithril2.default.component(_zoomComponent2.default, { vm: vm }), _mithril2.default.component(_messageListComponent2.default, { vm: vm })])];
+	    }, [vm.scenario.tkScript])]), (0, _mithril2.default)('.right', [(0, _mithril2.default)('h2', 'プレビュー'), _mithril2.default.component(_zoomComponent2.default, { vm: vm }), _mithril2.default.component(_messageListComponent2.default, { vm: vm })])])), (0, _mithril2.default)('#tools', [_mithril2.default.component(_yamlGeneratorComponent2.default, { status: vm.yamlGeneratorStatus })])];
 	  },
 	  selectText: e => {
 	    e.target.select();
@@ -205,7 +202,11 @@
 	      // face graphics
 	      settingList.push(_mithril2.default.component(_faceImgComponent2.default, { vm: vm }));
 	    }
-	    return (0, _mithril2.default)('.loadComponent', [(0, _mithril2.default)('h2', '設定ファイル'), (0, _mithril2.default)('button.checkConfig', {
+	    return (0, _mithril2.default)('.loadComponent', [(0, _mithril2.default)('.header', [(0, _mithril2.default)('h2', '設定ファイル'), (0, _mithril2.default)('button.tool', {
+	      onclick: () => {
+	        ctrl.vm.yamlGeneratorStatus('enable');
+	      }
+	    }, 'ジェネレータ')]), (0, _mithril2.default)('button.checkConfig', {
 	      class: vm.loadStatus ? 'enable' : 'disable',
 	      'data-button-status': ctrl.buttonStatus() == 'on' ? 'off' : 'on',
 	      onclick: _mithril2.default.withAttr('data-button-status', ctrl.buttonStatus)
@@ -305,107 +306,7 @@
 	
 	var _mithril2 = _interopRequireDefault(_mithril);
 	
-	var _yamlGenerator = __webpack_require__(9);
-	
-	var _yamlGenerator2 = _interopRequireDefault(_yamlGenerator);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	const yamlGeneratorComponent = {
-	  controller: function () {
-	    return {
-	      generator: new _yamlGenerator2.default(),
-	      status: _mithril2.default.prop('disable'),
-	      selectText: e => {
-	        e.target.select();
-	      }
-	    };
-	  },
-	  view: ctrl => {
-	    return (0, _mithril2.default)('.modalOverlay', {
-	      class: ctrl.status()
-	    }, [(0, _mithril2.default)('.yamlGenerator.modalWrap', [(0, _mithril2.default)('h1', '顔グラ設定ファイルジェネレータ'), (0, _mithril2.default)('.inputs', [(0, _mithril2.default)('div', [(0, _mithril2.default)('label', { for: 'name' }, 'キャラ名'), (0, _mithril2.default)('input#name', {
-	      onchange: _mithril2.default.withAttr('value', ctrl.generator.name),
-	      value: ctrl.generator.name()
-	    })]), (0, _mithril2.default)('div', [(0, _mithril2.default)('label', { for: 'filename' }, 'ファイル名'), (0, _mithril2.default)('input#filename', {
-	      onchange: _mithril2.default.withAttr('value', ctrl.generator.filename),
-	      value: ctrl.generator.filename()
-	    })]), (0, _mithril2.default)('div', [(0, _mithril2.default)('label', { for: 'prefix' }, 'prefix'), (0, _mithril2.default)('input#prefix', {
-	      onchange: _mithril2.default.withAttr('value', ctrl.generator.prefix),
-	      value: ctrl.generator.prefix()
-	    })]), (0, _mithril2.default)('div', [(0, _mithril2.default)('label', { for: 'length' }, '個数'), (0, _mithril2.default)('input#length', {
-	      onchange: _mithril2.default.withAttr('value', ctrl.generator.length),
-	      value: ctrl.generator.length()
-	    })])]), (0, _mithril2.default)('.output', [(0, _mithril2.default)('h2', '設定ファイル'), (0, _mithril2.default)('textarea', {
-	      readonly: 'readonly',
-	      onfocus: ctrl.selectText
-	    }, ctrl.generator.yaml())]), (0, _mithril2.default)('.close', {
-	      onclick: () => {
-	        ctrl.status('disable');
-	      }
-	    }, '[x]close')])]);
-	  }
-	};
-	
-	exports.default = yamlGeneratorComponent;
-
-/***/ },
-/* 9 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	
-	var _mithril = __webpack_require__(1);
-	
-	var _mithril2 = _interopRequireDefault(_mithril);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	class YamlGenerator {
-	  constructor(data) {
-	    data = data || {};
-	    this.name = _mithril2.default.prop(data.name || '');
-	    this.filename = _mithril2.default.prop(data.filename || '');
-	    this.prefix = _mithril2.default.prop(data.prefix || '');
-	    this.length = _mithril2.default.prop(data.length || 16);
-	
-	    this._yaml = '';
-	  }
-	
-	  yaml() {
-	    if (!this.name() || !this.filename() || !this.length()) {
-	      return '';
-	    }
-	    // yamlを組み立てる
-	    this._yaml = "person:\n  " + this.name() + ":\n    faces:\n";
-	    for (let i = 0; i < this.length(); i++) {
-	      this._yaml += "      " + this.prefix() + (i + 1) + ":\n" + "        filename:" + this.filename() + "\n" + "        number:" + i + "\n";
-	    }
-	
-	    return this._yaml;
-	  }
-	}
-	exports.default = YamlGenerator;
-
-/***/ },
-/* 10 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	
-	var _mithril = __webpack_require__(1);
-	
-	var _mithril2 = _interopRequireDefault(_mithril);
-	
-	var _messageComponent = __webpack_require__(11);
+	var _messageComponent = __webpack_require__(9);
 	
 	var _messageComponent2 = _interopRequireDefault(_messageComponent);
 	
@@ -460,7 +361,7 @@
 	exports.default = messageListComponent;
 
 /***/ },
-/* 11 */
+/* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -473,7 +374,7 @@
 	
 	var _mithril2 = _interopRequireDefault(_mithril);
 	
-	var _const = __webpack_require__(12);
+	var _const = __webpack_require__(10);
 	
 	var _const2 = _interopRequireDefault(_const);
 	
@@ -520,7 +421,7 @@
 	exports.default = messageComponent;
 
 /***/ },
-/* 12 */
+/* 10 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -547,7 +448,7 @@
 	exports.default = Const;
 
 /***/ },
-/* 13 */
+/* 11 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -560,29 +461,29 @@
 	
 	var _mithril2 = _interopRequireDefault(_mithril);
 	
-	var _png = __webpack_require__(14);
+	var _png = __webpack_require__(12);
 	
 	var _png2 = _interopRequireDefault(_png);
 	
-	var _systemImg = __webpack_require__(16);
+	var _systemImg = __webpack_require__(14);
 	
 	var _systemImg2 = _interopRequireDefault(_systemImg);
 	
-	var _scenario = __webpack_require__(18);
+	var _scenario = __webpack_require__(16);
 	
 	var _scenario2 = _interopRequireDefault(_scenario);
 	
-	var _tk2kMessageAssist = __webpack_require__(22);
+	var _tk2kMessageAssist = __webpack_require__(20);
 	
-	var _styleSheet = __webpack_require__(30);
+	var _styleSheet = __webpack_require__(28);
 	
 	var _styleSheet2 = _interopRequireDefault(_styleSheet);
 	
-	var _zoom = __webpack_require__(31);
+	var _zoom = __webpack_require__(29);
 	
 	var _zoom2 = _interopRequireDefault(_zoom);
 	
-	var _const = __webpack_require__(12);
+	var _const = __webpack_require__(10);
 	
 	var _const2 = _interopRequireDefault(_const);
 	
@@ -594,6 +495,8 @@
 	    // init member
 	    this.scenario = new _scenario2.default(data.scenario);
 	    this.parser = false;
+	    // for yamlGenerator
+	    this.yamlGeneratorStatus = _mithril2.default.prop('disable');
 	    // for load setting
 	    this.loadStatus = false;
 	    this.systemImg = false;
@@ -750,7 +653,7 @@
 	};
 
 /***/ },
-/* 14 */
+/* 12 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -759,7 +662,7 @@
 	  value: true
 	});
 	
-	var _base64Arraybuffer = __webpack_require__(15);
+	var _base64Arraybuffer = __webpack_require__(13);
 	
 	var _base64Arraybuffer2 = _interopRequireDefault(_base64Arraybuffer);
 	
@@ -848,13 +751,13 @@
 	exports.default = Png;
 
 /***/ },
-/* 15 */
+/* 13 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = (__webpack_require__(2))(57);
 
 /***/ },
-/* 16 */
+/* 14 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -863,11 +766,11 @@
 	  value: true
 	});
 	
-	var _png = __webpack_require__(14);
+	var _png = __webpack_require__(12);
 	
 	var _png2 = _interopRequireDefault(_png);
 	
-	var _onecolor = __webpack_require__(17);
+	var _onecolor = __webpack_require__(15);
 	
 	var _onecolor2 = _interopRequireDefault(_onecolor);
 	
@@ -996,13 +899,13 @@
 	exports.default = SystemImg;
 
 /***/ },
-/* 17 */
+/* 15 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = (__webpack_require__(2))(38);
 
 /***/ },
-/* 18 */
+/* 16 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1015,7 +918,7 @@
 	
 	var _mithril2 = _interopRequireDefault(_mithril);
 	
-	var _window = __webpack_require__(19);
+	var _window = __webpack_require__(17);
 	
 	var _window2 = _interopRequireDefault(_window);
 	
@@ -1048,7 +951,7 @@
 	exports.default = Scenario;
 
 /***/ },
-/* 19 */
+/* 17 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1057,11 +960,11 @@
 	  value: true
 	});
 	
-	var _line = __webpack_require__(20);
+	var _line = __webpack_require__(18);
 	
 	var _line2 = _interopRequireDefault(_line);
 	
-	var _domParser = __webpack_require__(21);
+	var _domParser = __webpack_require__(19);
 	
 	var _domParser2 = _interopRequireDefault(_domParser);
 	
@@ -1119,7 +1022,7 @@
 	exports.default = Window;
 
 /***/ },
-/* 20 */
+/* 18 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1132,11 +1035,11 @@
 	
 	var _mithril2 = _interopRequireDefault(_mithril);
 	
-	var _domParser = __webpack_require__(21);
+	var _domParser = __webpack_require__(19);
 	
 	var _domParser2 = _interopRequireDefault(_domParser);
 	
-	var _const = __webpack_require__(12);
+	var _const = __webpack_require__(10);
 	
 	var _const2 = _interopRequireDefault(_const);
 	
@@ -1230,7 +1133,7 @@
 	exports.default = Line;
 
 /***/ },
-/* 21 */
+/* 19 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -1242,12 +1145,12 @@
 	exports.default = domParser;
 
 /***/ },
-/* 22 */
+/* 20 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
-	var _scenarioParser = __webpack_require__(23);
+	var _scenarioParser = __webpack_require__(21);
 	
 	var _scenarioParser2 = _interopRequireDefault(_scenarioParser);
 	
@@ -1260,7 +1163,7 @@
 	};
 
 /***/ },
-/* 23 */
+/* 21 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1279,19 +1182,19 @@
 	  };
 	}();
 	
-	var _message = __webpack_require__(24);
+	var _message = __webpack_require__(22);
 	
 	var _message2 = _interopRequireDefault(_message);
 	
-	var _messageBlock = __webpack_require__(25);
+	var _messageBlock = __webpack_require__(23);
 	
 	var _messageBlock2 = _interopRequireDefault(_messageBlock);
 	
-	var _config = __webpack_require__(26);
+	var _config = __webpack_require__(24);
 	
 	var _config2 = _interopRequireDefault(_config);
 	
-	var _tbSerializer = __webpack_require__(29);
+	var _tbSerializer = __webpack_require__(27);
 	
 	var _tbSerializer2 = _interopRequireDefault(_tbSerializer);
 	
@@ -1476,7 +1379,7 @@
 	exports.default = ScenarioParser;
 
 /***/ },
-/* 24 */
+/* 22 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -1503,7 +1406,7 @@
 	exports.default = Message;
 
 /***/ },
-/* 25 */
+/* 23 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -1554,7 +1457,7 @@
 	exports.default = MessageBlock;
 
 /***/ },
-/* 26 */
+/* 24 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1573,11 +1476,11 @@
 	  };
 	}();
 	
-	var _jsYaml = __webpack_require__(27);
+	var _jsYaml = __webpack_require__(25);
 	
 	var _jsYaml2 = _interopRequireDefault(_jsYaml);
 	
-	var _const = __webpack_require__(28);
+	var _const = __webpack_require__(26);
 	
 	var _const2 = _interopRequireDefault(_const);
 	
@@ -1719,13 +1622,13 @@
 	exports.default = Config;
 
 /***/ },
-/* 27 */
+/* 25 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = (__webpack_require__(2))(3);
 
 /***/ },
-/* 28 */
+/* 26 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -1748,7 +1651,7 @@
 	exports.default = Const;
 
 /***/ },
-/* 29 */
+/* 27 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -1909,7 +1812,7 @@
 	var cNormalTags = ['flash'];
 
 /***/ },
-/* 30 */
+/* 28 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -1949,7 +1852,7 @@
 	exports.default = StyleSheet;
 
 /***/ },
-/* 31 */
+/* 29 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1972,6 +1875,113 @@
 	
 	}
 	exports.default = Zoom;
+
+/***/ },
+/* 30 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _mithril = __webpack_require__(1);
+	
+	var _mithril2 = _interopRequireDefault(_mithril);
+	
+	var _yamlGenerator = __webpack_require__(31);
+	
+	var _yamlGenerator2 = _interopRequireDefault(_yamlGenerator);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	const yamlGeneratorComponent = {
+	  controller: function (data) {
+	    return {
+	      generator: new _yamlGenerator2.default(),
+	      status: data.status,
+	      selectText: e => {
+	        e.target.select();
+	      }
+	    };
+	  },
+	  view: ctrl => {
+	    return (0, _mithril2.default)('.modalOverlay', {
+	      class: ctrl.status(),
+	      onclick: () => {
+	        ctrl.status('disable');
+	      }
+	    }, [(0, _mithril2.default)('.yamlGenerator.modalWrap', {
+	      onclick: e => {
+	        e.stopPropagation();
+	      }
+	    }, [(0, _mithril2.default)('h1', '顔グラ設定ファイルジェネレータ'), (0, _mithril2.default)('.inputs', [(0, _mithril2.default)('div', [(0, _mithril2.default)('label', { for: 'name' }, 'キャラ名'), (0, _mithril2.default)('input#name', {
+	      onchange: _mithril2.default.withAttr('value', ctrl.generator.name),
+	      value: ctrl.generator.name()
+	    })]), (0, _mithril2.default)('div', [(0, _mithril2.default)('label', { for: 'filename' }, 'ファイル名'), (0, _mithril2.default)('input#filename', {
+	      onchange: _mithril2.default.withAttr('value', ctrl.generator.filename),
+	      value: ctrl.generator.filename()
+	    })]), (0, _mithril2.default)('div', [(0, _mithril2.default)('label', { for: 'prefix' }, 'prefix'), (0, _mithril2.default)('input#prefix', {
+	      onchange: _mithril2.default.withAttr('value', ctrl.generator.prefix),
+	      value: ctrl.generator.prefix()
+	    })]), (0, _mithril2.default)('div', [(0, _mithril2.default)('label', { for: 'length' }, '個数'), (0, _mithril2.default)('input#length', {
+	      onchange: _mithril2.default.withAttr('value', ctrl.generator.length),
+	      value: ctrl.generator.length()
+	    })])]), (0, _mithril2.default)('.output', [(0, _mithril2.default)('h2', '設定ファイル'), (0, _mithril2.default)('textarea', {
+	      readonly: 'readonly',
+	      onfocus: ctrl.selectText
+	    }, ctrl.generator.yaml())]), (0, _mithril2.default)('.close', {
+	      onclick: () => {
+	        ctrl.status('disable');
+	      }
+	    }, '[x]close')])]);
+	  }
+	};
+	
+	exports.default = yamlGeneratorComponent;
+
+/***/ },
+/* 31 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _mithril = __webpack_require__(1);
+	
+	var _mithril2 = _interopRequireDefault(_mithril);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	class YamlGenerator {
+	  constructor(data) {
+	    data = data || {};
+	    this.name = _mithril2.default.prop(data.name || '');
+	    this.filename = _mithril2.default.prop(data.filename || '');
+	    this.prefix = _mithril2.default.prop(data.prefix || '');
+	    this.length = _mithril2.default.prop(data.length || 16);
+	
+	    this._yaml = '';
+	  }
+	
+	  yaml() {
+	    if (!this.name() || !this.filename() || !this.length()) {
+	      return '';
+	    }
+	    // yamlを組み立てる
+	    this._yaml = "person:\n  " + this.name() + ":\n    faces:\n";
+	    for (let i = 0; i < this.length(); i++) {
+	      this._yaml += "      " + this.prefix() + (i + 1) + ":\n" + "        filename:" + this.filename() + "\n" + "        number:" + i + "\n";
+	    }
+	
+	    return this._yaml;
+	  }
+	}
+	exports.default = YamlGenerator;
 
 /***/ }
 /******/ ]);

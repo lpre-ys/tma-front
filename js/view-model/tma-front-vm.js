@@ -13,6 +13,8 @@ export default class TmaFrontVM {
     // init member
     this.scenario = new Scenario(data.scenario);
     this.parser = false;
+    // for yamlGenerator
+    this.yamlGeneratorStatus = m.prop('disable');
     // for load setting
     this.loadStatus = false;
     this.systemImg = false;

@@ -21,7 +21,12 @@ const loadComponent = {
       settingList.push(m.component(faceImgComponent, {vm: vm}));
     }
     return m('.loadComponent', [
-      m('h2', '設定ファイル'),
+      m('.header', [
+        m('h2', '設定ファイル'),
+        m('button.tool', {
+          onclick: () => { ctrl.vm.yamlGeneratorStatus('enable'); }
+        }, 'ジェネレータ')
+      ]),
       m('button.checkConfig', {
         class: vm.loadStatus ? 'enable' : 'disable',
         'data-button-status': ctrl.buttonStatus() == 'on' ? 'off' : 'on',

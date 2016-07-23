@@ -51,6 +51,19 @@ body {
   align-items: center;
 }
 
+.loadComponent .header {
+  display: flex;
+  align-items: center;
+}
+
+.loadComponent .header h2 {
+  flex: 1;
+}
+
+.loadComponent button.tool {
+  margin-right: 20px;
+}
+
 .systemItems {
   display: flex;
   align-items: flex-start;
