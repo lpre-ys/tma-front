@@ -1,5 +1,6 @@
 import Line from './line';
 import domParser from '../utils/dom-parser';
+import ent from 'ent';
 
 export default class Window {
   constructor(data) {
@@ -28,7 +29,7 @@ export default class Window {
       this._line = v.map((line) => {
         line = continueTags.join('') + line;
         const dom = domParser.parseFromString(line, 'text/html');
-        const parsedHtml = dom.body.innerHTML;
+        const parsedHtml = ent.decode(dom.body.innerHTML);
         if (line != parsedHtml) {
           const closeTags = parsedHtml.substr(line.length)
                                       .split(/(<[^>]+>)/)
