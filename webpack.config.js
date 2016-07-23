@@ -21,7 +21,8 @@ module.exports = {
         query: {
           plugins: ['transform-es2015-modules-commonjs']
         }
-      }
+      },
+      { test: /\.json$/, loader: "json-loader" }
     ]
   },
   plugins: [
