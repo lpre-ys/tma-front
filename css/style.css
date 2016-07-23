@@ -51,6 +51,19 @@ body {
   align-items: center;
 }
 
+.loadComponent .header {
+  display: flex;
+  align-items: center;
+}
+
+.loadComponent .header h2 {
+  flex: 1;
+}
+
+.loadComponent button.tool {
+  margin-right: 20px;
+}
+
 .systemItems {
   display: flex;
   align-items: flex-start;
@@ -342,6 +355,78 @@ textarea {
   background-image: url('data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==');
   background-size: contain;
   -webkit-background-clip: text;
+}
+
+/* for TOOL */
+.modalOverlay {
+  z-index: 9;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.yamlGenerator {
+  border: 1px solid #AAA;
+  background-color: white;
+  border-radius: 4px;
+  box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
+  padding: 20px;
+  margin: auto;
+  width: 400px;
+  z-index: 10;
+}
+
+.yamlGenerator h1 {
+  font-size: 1.4rem;
+  margin: 0 0 0.5em;
+}
+.yamlGenerator h2 {
+  font-size: 1.2rem;
+  margin: 0.5em 0;
+}
+.yamlGenerator .inputs {
+  display: flex;
+  flex-direction: column;
+}
+
+.yamlGenerator .inputs div {
+  display: flex;
+  margin-bottom: 0.5em;
+}
+
+.yamlGenerator .inputs label,
+.yamlGenerator .inputs input {
+  border: 1px solid #AAA;
+  padding: 0.5em 0.75em;
+}
+
+.yamlGenerator .inputs label {
+  width: 100px;
+  background-color: #EEE;
+  color: #666;
+  border-right: none;
+}
+.yamlGenerator .inputs input {
+  flex: 1;
+}
+.yamlGenerator .output textarea {
+  width: 358px;
+  margin: 0;
+}
+
+.yamlGenerator .close {
+  color: #333;
+  text-align: right;
+  text-decoration: underline;
+}
+
+.yamlGenerator .close:hover {
+  cursor: pointer;
 }
 
 /* UI settings */
