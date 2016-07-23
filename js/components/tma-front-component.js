@@ -8,6 +8,7 @@ import TmaFrontVM from '../view-model/tma-front-vm';
 const tmaFrontComponent = {
   controller: function () {
     this.vm = new TmaFrontVM();
+    window.onscroll = this.vm.onScrollSticky.bind(this.vm);
   },
   view: (ctrl) => {
     const vm = ctrl.vm;
@@ -15,16 +16,32 @@ const tmaFrontComponent = {
       m('.frame', m('#appContainer', [
         m('.left', [
           m.component(loadComponent, {vm: vm}),
-          m('h2', 'シナリオスクリプト'),
-          m('textarea#input', {
-            value: vm.scenario.scenarioText(),
-            onkeyup: m.withAttr('value', vm.setScenarioText, vm)
-          }),
-          m('h2', 'TKcode'),
-          m('textarea#tkScript', {
-            readonly: 'readonly',
-            onfocus: tmaFrontComponent.selectText
-          }, [vm.scenario.tkScript])
+          m('#stickyWrapper', {
+            class: vm.stickyCheck() ? vm.stickyStatus() : 'normal'
+          }, [
+            m('.header', [
+              m('h2', 'シナリオスクリプト'),
+              m('.toggle', [
+                m('input#stickyCheckbox', {
+                  type: 'checkbox',
+                  checked: vm.stickyCheck(),
+                  onclick: m.withAttr('checked', vm.stickyCheck)
+                }),
+                m('label', {
+                  for: 'stickyCheckbox'
+                }, 'sticky')
+              ])
+            ]),
+            m('textarea#input', {
+              value: vm.scenario.scenarioText(),
+              onkeyup: m.withAttr('value', vm.setScenarioText, vm)
+            }),
+            m('h2', 'TKcode'),
+            m('textarea#tkScript', {
+              readonly: 'readonly',
+              onfocus: tmaFrontComponent.selectText
+            }, [vm.scenario.tkScript])
+          ])
         ]),
         m('.right', [
           m('h2', 'プレビュー'),

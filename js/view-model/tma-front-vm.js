@@ -13,6 +13,9 @@ export default class TmaFrontVM {
     // init member
     this.scenario = new Scenario(data.scenario);
     this.parser = false;
+    this.stickyStatus = m.prop('normal');
+    this.stickyCheck = m.prop(data.stickyCheck || false);
+    this.stickyYOffset = 0;
     // for yamlGenerator
     this.yamlGeneratorStatus = m.prop('disable');
     // for load setting
@@ -104,6 +107,22 @@ export default class TmaFrontVM {
       backgroundImage: `url(${dataUrl})`,
       backgroundPosition: `-${posx}px -${posy}px`
     };
+  }
+
+  onScrollSticky() {
+    const element = document.getElementById('stickyWrapper');
+    const rect = element.getBoundingClientRect();
+    if (rect.top < 0 && this.stickyStatus() == 'normal') {
+      this.stickyStatus('sticky');
+      this.stickyYOffset = window.pageYOffset;
+      m.redraw();
+      return;
+    }
+    if (window.pageYOffset <= this.stickyYOffset && this.stickyStatus() == 'sticky') {
+      this.stickyStatus('normal');
+      m.redraw();
+      return;
+    }
   }
 
   _readStyleYaml(file) {
