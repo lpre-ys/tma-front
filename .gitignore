@@ -38,3 +38,6 @@ jspm_packages
 
 # samplefile
 sample/config/*.png
+
+# builded file
+build/*
