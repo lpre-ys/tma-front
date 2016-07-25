@@ -19,8 +19,8 @@ export default class YamlGenerator {
     this._yaml = "person:\n  " + this.name() + ":\n    faces:\n";
     for (let i = 0; i < this.length(); i++) {
       this._yaml += "      " + this.prefix() + (i+1) + ":\n"
-                 + "        filename:" + this.filename() + "\n"
-                 + "        number:" + i + "\n";
+                 + "        filename: " + this.filename() + "\n"
+                 + "        number: " + i + "\n";
     }
 
     return this._yaml;
