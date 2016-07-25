@@ -6,4 +6,9 @@ export default class Zoom {
     this.zoomLevel = m.prop(data.zoomLevel || 1);
   }
 
+  serialize() {
+    return {
+      zoomLevel: this.zoomLevel.toJSON()
+    };
+  }
 }
