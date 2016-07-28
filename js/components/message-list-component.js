@@ -9,45 +9,49 @@ const messageListComponent = {
     const vm = ctrl.vm;
     const windowList = vm.scenario.windowList;
     const colors = vm.config ? vm.config.colors : [];
-    return m('#messageList', {class: `zoom${vm.zoom.zoomLevel()}x`},
-      windowList.map((windowObj) => {
-        let messageView = [];
-        let commentsView = [];
+    const error = vm.scenario.parseError();
+    return m('.preview', [
+      error ? m('.error', error) : null,
+      m('#messageList', {class: `zoom${vm.zoom.zoomLevel()}x`},
+        windowList.map((windowObj) => {
+          let messageView = [];
+          let commentsView = [];
 
-        // コメント
-        windowObj.comments.forEach((comment) => {
-          commentsView.push(m('p.comment', comment));
-        });
+          // コメント
+          windowObj.comments.forEach((comment) => {
+            commentsView.push(m('p.comment', comment));
+          });
 
-        // 顔グラフィック
-        if (windowObj.face) {
-          const face = windowObj.face;
-          const classList = [];
-          if (face.mirror) {
-            classList.push('mirror');
+          // 顔グラフィック
+          if (windowObj.face) {
+            const face = windowObj.face;
+            const classList = [];
+            if (face.mirror) {
+              classList.push('mirror');
+            }
+            if (face.pos) {
+              classList.push('posRight');
+            }
+            messageView.push(m('.faceBox', {
+              class: classList.join(' ')
+            }, [
+              m('.faceImg', {
+                style: vm.getFaceStyle(face)
+              })
+            ]));
           }
-          if (face.pos) {
-            classList.push('posRight');
-          }
-          messageView.push(m('.faceBox', {
-            class: classList.join(' ')
-          }, [
-            m('.faceImg', {
-              style: vm.getFaceStyle(face)
-            })
-          ]));
-        }
-        // テキスト
-        messageView.push(m(messageComponent, {line: windowObj.line(), colors: colors}));
+          // テキスト
+          messageView.push(m(messageComponent, {line: windowObj.line(), colors: colors}));
 
-        // 全体を.messageWindowでラップして返す
-        const messageWindow = m('.messageWindow', {
-          class: windowObj.iconStatus ? 'showIcon' : '',
-          onclick: windowObj.toggleIcon.bind(windowObj)
-        }, messageView);
-        return commentsView.length > 0 ? [commentsView, messageWindow] : messageWindow;
-      })
-    );
+          // 全体を.messageWindowでラップして返す
+          const messageWindow = m('.messageWindow', {
+            class: windowObj.iconStatus ? 'showIcon' : '',
+            onclick: windowObj.toggleIcon.bind(windowObj)
+          }, messageView);
+          return commentsView.length > 0 ? [commentsView, messageWindow] : messageWindow;
+        })
+      )
+    ]);
   }
 };
 

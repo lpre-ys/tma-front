@@ -6,12 +6,19 @@ export default class Scenario {
     this.scenarioText = m.prop(data.scenarioText || '');
     this.tkScript = '';
     this.windowList = [];
+    this.parseError = m.prop('');
   }
 
   parse(parser) {
     if (parser) {
-      const messageList = parser.parse(this.scenarioText());
-      this.tkScript = parser.serialize();
+      let messageList = [];
+      try {
+        messageList = parser.parse(this.scenarioText());
+        this.tkScript = parser.serialize();
+        this.parseError('');
+      } catch (e) {
+        this.parseError(e.message);
+      }
 
       // ウィンドウに変換
       this.windowList = [];
