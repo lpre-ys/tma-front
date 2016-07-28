@@ -12,6 +12,9 @@ const tmaFrontComponent = {
   },
   view: (ctrl) => {
     const vm = ctrl.vm;
+    // save
+    vm.save();
+    // create veiew
     return [
       m('.frame', m('#appContainer', [
         m('.left', [
@@ -21,6 +24,16 @@ const tmaFrontComponent = {
           }, [
             m('.header', [
               m('h2', 'シナリオスクリプト'),
+              m('.toggle', [
+                m('input#autosave', {
+                  type: 'checkbox',
+                  checked: vm.autosave(),
+                  onclick: m.withAttr('checked', vm.autosave)
+                }),
+                m('label', {
+                  for: 'autosave'
+                }, 'AutoSave')
+              ]),
               m('.toggle', [
                 m('input#stickyCheckbox', {
                   type: 'checkbox',

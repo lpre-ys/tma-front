@@ -8,7 +8,14 @@ import Zoom from '../model/zoom';
 import Const from '../utils/const';
 
 export default class TmaFrontVM {
-  constructor(data = {}) {
+  constructor() {
+    let data = this.load() || {};
+    // autosave
+    this.autosave = m.prop(data.autosave || false);
+    if (!this.autosave()) {
+      this.reset();
+      data = {};
+    }
     data.scenario = data.scenario || {};
     // init member
     this.scenario = new Scenario(data.scenario);
@@ -25,7 +32,11 @@ export default class TmaFrontVM {
     this.config = false;
     // get styleSheet
     this.styleSheet = new StyleSheet('style.css');
-    this.zoom = new Zoom({zoomLevel: 1});
+    this.zoom = new Zoom(data.zoom || {zoomLevel: 1});
+  }
+
+  static get STORAGE_KEY() {
+    return 'TMA-FRONT-xK6fQPYW';
   }
 
   dropFiles(e) {
@@ -94,6 +105,36 @@ export default class TmaFrontVM {
 
   parse() {
     this.scenario.parse(this.parser);
+  }
+
+  save() {
+    if (this.autosave()) {
+      localStorage[TmaFrontVM.STORAGE_KEY] = this.toJSON();
+    } else if (localStorage[TmaFrontVM.STORAGE_KEY]) {
+      this.reset();
+    }
+  }
+
+  toJSON() {
+    return JSON.stringify({
+      zoom: this.zoom.serialize(),
+      stickyCheck: this.stickyCheck,
+      autosave: this.autosave,
+      scenario: {
+        scenarioText: this.scenario.scenarioText()
+      },
+    });
+  }
+
+  load() {
+    if (!localStorage[TmaFrontVM.STORAGE_KEY]) {
+      return {};
+    }
+    return JSON.parse(localStorage[TmaFrontVM.STORAGE_KEY]);
+  }
+
+  reset() {
+    localStorage[TmaFrontVM.STORAGE_KEY] = null;
   }
 
   getFaceStyle(face) {
