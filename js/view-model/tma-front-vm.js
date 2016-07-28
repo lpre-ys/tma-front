@@ -9,8 +9,13 @@ import Const from '../utils/const';
 
 export default class TmaFrontVM {
   constructor() {
-    const data = this.load();
-    console.log('load data: ', data);
+    let data = this.load() || {};
+    // autosave
+    this.autosave = m.prop(data.autosave || false);
+    if (!this.autosave()) {
+      this.reset();
+      data = {};
+    }
     data.scenario = data.scenario || {};
     // init member
     this.scenario = new Scenario(data.scenario);
@@ -100,27 +105,36 @@ export default class TmaFrontVM {
 
   parse() {
     this.scenario.parse(this.parser);
-    this.save();
   }
 
   save() {
-    localStorage[TmaFrontVM.STORAGE_KEY] = this.toJSON();
+    if (this.autosave()) {
+      localStorage[TmaFrontVM.STORAGE_KEY] = this.toJSON();
+    } else if (localStorage[TmaFrontVM.STORAGE_KEY]) {
+      this.reset();
+    }
   }
 
   toJSON() {
     return JSON.stringify({
       zoom: this.zoom.serialize(),
       stickyCheck: this.stickyCheck,
-      scenario: {},
-
+      autosave: this.autosave,
+      scenario: {
+        scenarioText: this.scenario.scenarioText()
+      },
     });
   }
 
   load() {
-    if (localStorage[TmaFrontVM.STORAGE_KEY] === undefined) {
+    if (!localStorage[TmaFrontVM.STORAGE_KEY]) {
       return {};
     }
     return JSON.parse(localStorage[TmaFrontVM.STORAGE_KEY]);
+  }
+
+  reset() {
+    localStorage[TmaFrontVM.STORAGE_KEY] = null;
   }
 
   getFaceStyle(face) {

@@ -5,12 +5,12 @@ import yamlGeneratorComponent from '../../js/components/yaml-generator-component
 describe('messageListComponent', () => {
   describe('controller', () => {
     it('generatorが作られる事', () => {
-      const ctrl = new yamlGeneratorComponent.controller();
+      const ctrl = new yamlGeneratorComponent.controller({status: 'test-status'});
       assert(ctrl.generator);
     });
   });
 
   describe('view', () => {
-    
+
   });
 });
