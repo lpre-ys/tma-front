@@ -24,28 +24,28 @@ const yamlGeneratorComponent = {
           m('div', [
             m('label', {for: 'name'}, 'キャラ名'),
             m('input#name', {
-              onchange: m.withAttr('value', ctrl.generator.name),
+              onkeyup: m.withAttr('value', ctrl.generator.name),
               value: ctrl.generator.name()
             })
           ]),
           m('div', [
             m('label', {for: 'filename'}, 'ファイル名'),
             m('input#filename', {
-              onchange: m.withAttr('value', ctrl.generator.filename),
+              onkeyup: m.withAttr('value', ctrl.generator.filename),
               value: ctrl.generator.filename()
             })
           ]),
           m('div', [
             m('label', {for: 'prefix'}, 'prefix'),
             m('input#prefix', {
-              onchange: m.withAttr('value', ctrl.generator.prefix),
+              onkeyup: m.withAttr('value', ctrl.generator.prefix),
               value: ctrl.generator.prefix()
             })
           ]),
           m('div', [
             m('label', {for: 'length'}, '個数'),
             m('input#length', {
-              onchange: m.withAttr('value', ctrl.generator.length),
+              onkeyup: m.withAttr('value', ctrl.generator.length),
               value: ctrl.generator.length()
             })
           ])
