@@ -40,4 +40,4 @@ jspm_packages
 sample/config/*.png
 
 # builded file
-build/*
+# build/*
