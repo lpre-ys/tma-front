@@ -1,4 +1,5 @@
 import m from 'mithril';
+import Encoding from 'encoding-japanese';
 import Png from '../model/png';
 import SystemImg from '../model/system-img';
 import Scenario from '../model/scenario';
@@ -168,13 +169,13 @@ export default class TmaFrontVM {
 
   _readStyleYaml(file) {
     const reader = new FileReader();
-    reader.readAsText(file);
+    reader.readAsArrayBuffer(file);
 
     const deferred = m.deferred();
     reader.onloadend = (e) => {
       deferred.resolve({
         type: 'styleYaml',
-        file: e.target.result
+        file: encodeString(e.target.result)
       });
     };
     reader.onerror = deferred.reject;
@@ -184,13 +185,13 @@ export default class TmaFrontVM {
 
   _readPeopleYaml(file) {
     const reader = new FileReader();
-    reader.readAsText(file);
+    reader.readAsArrayBuffer(file);
 
     const deferred = m.deferred();
     reader.onloadend = (e) => {
       deferred.resolve({
         type: 'peopleYaml',
-        file: e.target.result
+        file: encodeString(e.target.result)
       });
     };
     reader.onerror = deferred.reject;
@@ -228,4 +229,20 @@ const getFileExt = (filename) => {
     throw new Error('拡張子が有りません');
   }
   return filename.substr(dotIndex + 1);
+};
+
+const encodeString = (input) => {
+  let tArray = new Uint8Array(input);
+  switch (Encoding.detect(tArray)) {
+    case 'UTF16':
+      tArray = new Uint16Array(input);
+      break;
+    case 'UTF32':
+      tArray = new Uint32Array(input);
+      break;
+  }
+  // to Unicode
+  const unicodeArray = Encoding.convert(tArray, 'UNICODE');
+  // to string
+  return Encoding.codeToString(unicodeArray);
 };
