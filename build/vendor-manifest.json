@@ -57,6 +57,7 @@
     "./node_modules/onecolor/lib/plugins/rotate.js": 54,
     "./node_modules/onecolor/lib/plugins/saturate.js": 55,
     "./node_modules/onecolor/lib/plugins/toAlpha.js": 56,
-    "./node_modules/base64-arraybuffer/lib/base64-arraybuffer.js": 57
+    "./node_modules/base64-arraybuffer/lib/base64-arraybuffer.js": 57,
+    "./node_modules/encoding-japanese/encoding.js": 58
   }
 }

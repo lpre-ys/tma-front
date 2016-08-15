@@ -587,25 +587,29 @@
 	
 	var _mithril2 = _interopRequireDefault(_mithril);
 	
-	var _png = __webpack_require__(14);
+	var _encodingJapanese = __webpack_require__(14);
+	
+	var _encodingJapanese2 = _interopRequireDefault(_encodingJapanese);
+	
+	var _png = __webpack_require__(15);
 	
 	var _png2 = _interopRequireDefault(_png);
 	
-	var _systemImg = __webpack_require__(16);
+	var _systemImg = __webpack_require__(17);
 	
 	var _systemImg2 = _interopRequireDefault(_systemImg);
 	
-	var _scenario = __webpack_require__(18);
+	var _scenario = __webpack_require__(19);
 	
 	var _scenario2 = _interopRequireDefault(_scenario);
 	
-	var _tk2kMessageAssist = __webpack_require__(29);
+	var _tk2kMessageAssist = __webpack_require__(30);
 	
-	var _styleSheet = __webpack_require__(37);
+	var _styleSheet = __webpack_require__(38);
 	
 	var _styleSheet2 = _interopRequireDefault(_styleSheet);
 	
-	var _zoom = __webpack_require__(38);
+	var _zoom = __webpack_require__(39);
 	
 	var _zoom2 = _interopRequireDefault(_zoom);
 	
@@ -775,13 +779,13 @@
 	
 	  _readStyleYaml(file) {
 	    const reader = new FileReader();
-	    reader.readAsText(file);
+	    reader.readAsArrayBuffer(file);
 	
 	    const deferred = _mithril2.default.deferred();
 	    reader.onloadend = e => {
 	      deferred.resolve({
 	        type: 'styleYaml',
-	        file: e.target.result
+	        file: encodeString(e.target.result)
 	      });
 	    };
 	    reader.onerror = deferred.reject;
@@ -791,13 +795,13 @@
 	
 	  _readPeopleYaml(file) {
 	    const reader = new FileReader();
-	    reader.readAsText(file);
+	    reader.readAsArrayBuffer(file);
 	
 	    const deferred = _mithril2.default.deferred();
 	    reader.onloadend = e => {
 	      deferred.resolve({
 	        type: 'peopleYaml',
-	        file: e.target.result
+	        file: encodeString(e.target.result)
 	      });
 	    };
 	    reader.onerror = deferred.reject;
@@ -837,9 +841,31 @@
 	  }
 	  return filename.substr(dotIndex + 1);
 	};
+	
+	const encodeString = input => {
+	  let tArray = new Uint8Array(input);
+	  switch (_encodingJapanese2.default.detect(tArray)) {
+	    case 'UTF16':
+	      tArray = new Uint16Array(input);
+	      break;
+	    case 'UTF32':
+	      tArray = new Uint32Array(input);
+	      break;
+	  }
+	  // to Unicode
+	  const unicodeArray = _encodingJapanese2.default.convert(tArray, 'UNICODE');
+	  // to string
+	  return _encodingJapanese2.default.codeToString(unicodeArray);
+	};
 
 /***/ },
 /* 14 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = (__webpack_require__(2))(58);
+
+/***/ },
+/* 15 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -848,7 +874,7 @@
 	  value: true
 	});
 	
-	var _base64Arraybuffer = __webpack_require__(15);
+	var _base64Arraybuffer = __webpack_require__(16);
 	
 	var _base64Arraybuffer2 = _interopRequireDefault(_base64Arraybuffer);
 	
@@ -937,13 +963,13 @@
 	exports.default = Png;
 
 /***/ },
-/* 15 */
+/* 16 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = (__webpack_require__(2))(57);
 
 /***/ },
-/* 16 */
+/* 17 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -952,11 +978,11 @@
 	  value: true
 	});
 	
-	var _png = __webpack_require__(14);
+	var _png = __webpack_require__(15);
 	
 	var _png2 = _interopRequireDefault(_png);
 	
-	var _onecolor = __webpack_require__(17);
+	var _onecolor = __webpack_require__(18);
 	
 	var _onecolor2 = _interopRequireDefault(_onecolor);
 	
@@ -1085,13 +1111,13 @@
 	exports.default = SystemImg;
 
 /***/ },
-/* 17 */
+/* 18 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = (__webpack_require__(2))(38);
 
 /***/ },
-/* 18 */
+/* 19 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1104,7 +1130,7 @@
 	
 	var _mithril2 = _interopRequireDefault(_mithril);
 	
-	var _window = __webpack_require__(19);
+	var _window = __webpack_require__(20);
 	
 	var _window2 = _interopRequireDefault(_window);
 	
@@ -1144,7 +1170,7 @@
 	exports.default = Scenario;
 
 /***/ },
-/* 19 */
+/* 20 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1153,15 +1179,15 @@
 	  value: true
 	});
 	
-	var _line = __webpack_require__(20);
+	var _line = __webpack_require__(21);
 	
 	var _line2 = _interopRequireDefault(_line);
 	
-	var _domParser = __webpack_require__(21);
+	var _domParser = __webpack_require__(22);
 	
 	var _domParser2 = _interopRequireDefault(_domParser);
 	
-	var _ent = __webpack_require__(22);
+	var _ent = __webpack_require__(23);
 	
 	var _ent2 = _interopRequireDefault(_ent);
 	
@@ -1219,7 +1245,7 @@
 	exports.default = Window;
 
 /***/ },
-/* 20 */
+/* 21 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1232,7 +1258,7 @@
 	
 	var _mithril2 = _interopRequireDefault(_mithril);
 	
-	var _domParser = __webpack_require__(21);
+	var _domParser = __webpack_require__(22);
 	
 	var _domParser2 = _interopRequireDefault(_domParser);
 	
@@ -1330,7 +1356,7 @@
 	exports.default = Line;
 
 /***/ },
-/* 21 */
+/* 22 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -1342,22 +1368,22 @@
 	exports.default = domParser;
 
 /***/ },
-/* 22 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	exports.encode = __webpack_require__(23);
-	exports.decode = __webpack_require__(27);
-
-/***/ },
 /* 23 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
-	var punycode = __webpack_require__(24);
-	var revEntities = __webpack_require__(26);
+	exports.encode = __webpack_require__(24);
+	exports.decode = __webpack_require__(28);
+
+/***/ },
+/* 24 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	var punycode = __webpack_require__(25);
+	var revEntities = __webpack_require__(27);
 	
 	module.exports = encode;
 	
@@ -1395,7 +1421,7 @@
 	}
 
 /***/ },
-/* 24 */
+/* 25 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(module, global) {'use strict';
@@ -1925,16 +1951,16 @@
 			root.punycode = punycode;
 		}
 	})(undefined);
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(25)(module), (function() { return this; }())))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(26)(module), (function() { return this; }())))
 
 /***/ },
-/* 25 */
+/* 26 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = (__webpack_require__(2))(2);
 
 /***/ },
-/* 26 */
+/* 27 */
 /***/ function(module, exports) {
 
 	module.exports = {
@@ -3254,13 +3280,13 @@
 	};
 
 /***/ },
-/* 27 */
+/* 28 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
-	var punycode = __webpack_require__(24);
-	var entities = __webpack_require__(28);
+	var punycode = __webpack_require__(25);
+	var entities = __webpack_require__(29);
 	
 	module.exports = decode;
 	
@@ -3293,7 +3319,7 @@
 	}
 
 /***/ },
-/* 28 */
+/* 29 */
 /***/ function(module, exports) {
 
 	module.exports = {
@@ -5531,12 +5557,12 @@
 	};
 
 /***/ },
-/* 29 */
+/* 30 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 	
-	var _scenarioParser = __webpack_require__(30);
+	var _scenarioParser = __webpack_require__(31);
 	
 	var _scenarioParser2 = _interopRequireDefault(_scenarioParser);
 	
@@ -5549,7 +5575,7 @@
 	};
 
 /***/ },
-/* 30 */
+/* 31 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -5568,19 +5594,19 @@
 	  };
 	}();
 	
-	var _message = __webpack_require__(31);
+	var _message = __webpack_require__(32);
 	
 	var _message2 = _interopRequireDefault(_message);
 	
-	var _messageBlock = __webpack_require__(32);
+	var _messageBlock = __webpack_require__(33);
 	
 	var _messageBlock2 = _interopRequireDefault(_messageBlock);
 	
-	var _config = __webpack_require__(33);
+	var _config = __webpack_require__(34);
 	
 	var _config2 = _interopRequireDefault(_config);
 	
-	var _tbSerializer = __webpack_require__(36);
+	var _tbSerializer = __webpack_require__(37);
 	
 	var _tbSerializer2 = _interopRequireDefault(_tbSerializer);
 	
@@ -5765,7 +5791,7 @@
 	exports.default = ScenarioParser;
 
 /***/ },
-/* 31 */
+/* 32 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -5792,7 +5818,7 @@
 	exports.default = Message;
 
 /***/ },
-/* 32 */
+/* 33 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -5843,7 +5869,7 @@
 	exports.default = MessageBlock;
 
 /***/ },
-/* 33 */
+/* 34 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -5862,11 +5888,11 @@
 	  };
 	}();
 	
-	var _jsYaml = __webpack_require__(34);
+	var _jsYaml = __webpack_require__(35);
 	
 	var _jsYaml2 = _interopRequireDefault(_jsYaml);
 	
-	var _const = __webpack_require__(35);
+	var _const = __webpack_require__(36);
 	
 	var _const2 = _interopRequireDefault(_const);
 	
@@ -6008,13 +6034,13 @@
 	exports.default = Config;
 
 /***/ },
-/* 34 */
+/* 35 */
 /***/ function(module, exports, __webpack_require__) {
 
 	module.exports = (__webpack_require__(2))(3);
 
 /***/ },
-/* 35 */
+/* 36 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -6037,7 +6063,7 @@
 	exports.default = Const;
 
 /***/ },
-/* 36 */
+/* 37 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -6198,7 +6224,7 @@
 	var cNormalTags = ['flash'];
 
 /***/ },
-/* 37 */
+/* 38 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -6238,7 +6264,7 @@
 	exports.default = StyleSheet;
 
 /***/ },
-/* 38 */
+/* 39 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
