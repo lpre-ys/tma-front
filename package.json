@@ -1,11 +1,12 @@
 {
   "name": "tma-front",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "tk2k-message-assist for web",
   "main": "index.js",
   "scripts": {
     "watch": "webpack --watch",
     "dll-build": "webpack --config webpack.dll.config.js",
+    "doc-build": "markdown-html CHANGELOG.md -o changelog.html -s css/normalize.min.css",
     "server": "http-server",
     "test": "karma start"
   },
@@ -21,6 +22,7 @@
   "homepage": "https://github.com/lpre-ys/tma-front#readme",
   "dependencies": {
     "base64-arraybuffer": "^0.1.5",
+    "encoding-japanese": "^1.0.24",
     "ent": "^2.2.0",
     "js-yaml": "^3.6.1",
     "mithril": "^0.2.5",
@@ -39,6 +41,7 @@
     "karma-chrome-launcher": "^1.0.1",
     "karma-mocha": "^1.1.1",
     "karma-webpack": "^1.7.0",
+    "markdown-html": "0.0.8",
     "mithril-query": "^1.0.0",
     "mocha": "^2.5.3",
     "power-assert": "^1.4.1",
