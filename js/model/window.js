@@ -1,9 +1,11 @@
 import Line from './line';
 import domParser from '../utils/dom-parser';
+import Const from '../utils/const';
 import ent from 'ent';
 
 export default class Window {
   constructor(data) {
+    this.type = Const.type.window;
     data = data || {};
     data.message = data.message || {};
     this.comments = data.message.comments || [];
@@ -11,7 +13,6 @@ export default class Window {
     this.iconStatus = false;
     // Line objの組み立て
     this.line(data.message.line || []);
-
   }
 
   line(v) {

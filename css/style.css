@@ -138,6 +138,12 @@ textarea {
   font-weight: bold;
 }
 
+.block {
+  padding: 5px;
+  margin-bottom: 5px;
+  border: 1px solid #555;
+}
+
 .messageWindow {
   width: 320px;
   height: 80px;

@@ -19,7 +19,7 @@ describe('messageListComponent', () => {
       let ctrl, zoom;
       beforeEach(() => {
         const scenario = {
-          windowList: [],
+          list: [],
           parseError: () => {}
         };
         zoom = {zoomLevel: () => {}};
@@ -36,10 +36,10 @@ describe('messageListComponent', () => {
     describe('.messageWindow list', () => {
       const zoom = {zoomLevel: () => {}};
       const scenario = {
-        windowList: [],
+        list: [],
         parseError: () => {}
       };
-      it('windowListが空の場合、空配列であること', () => {
+      it('listが空の場合、空配列であること', () => {
         const vm = {scenario, zoom};
         const ctrl = {vm};
         const $ret = mq(messageListComponent.view(ctrl));
