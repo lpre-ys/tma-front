@@ -11,6 +11,10 @@ const Const = {
     wait: 'w',
     q_wait: 'q',
     close: 'c'
+  },
+  type: {
+    'window': 'window',
+    block: 'block'
   }
 };
 

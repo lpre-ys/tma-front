@@ -1,6 +1,6 @@
 {
   "name": "tma-front",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "tk2k-message-assist for web",
   "main": "index.js",
   "scripts": {
@@ -27,7 +27,7 @@
     "js-yaml": "^3.6.1",
     "mithril": "^0.2.5",
     "onecolor": "^3.0.4",
-    "tk2k-message-assist": "git+https://github.com/lpre-ys/tk2k-message-assist.git"
+    "tk2k-message-assist": "git+https://github.com/lpre-ys/tk2k-message-assist.git#feature/issue-1"
   },
   "devDependencies": {
     "babel-core": "^6.10.4",
