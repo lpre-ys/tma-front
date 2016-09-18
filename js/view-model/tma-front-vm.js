@@ -140,6 +140,9 @@ export default class TmaFrontVM {
 
   getFaceStyle(face) {
     const faceConfig = (typeof face == 'string') ? this.config.getFace(face) : face;
+    if (!faceConfig.filename) {
+      return;
+    }
     const filename = faceConfig.filename
                    + (!faceConfig.filename.endsWith('.png') ? '.png' : '');
     const dataUrl = this.faceImgs[filename].dataUrl;

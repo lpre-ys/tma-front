@@ -52,13 +52,15 @@ const buildWindowList = (list, vm) => {
       if (face.pos) {
         classList.push('posRight');
       }
-      messageView.push(m('.faceBox', {
-        class: classList.join(' ')
-      }, [
-        m('.faceImg', {
-          style: vm.getFaceStyle(face)
-        })
-      ]));
+      if (face.filename && face.number > -1) {
+        messageView.push(m('.faceBox', {
+          class: classList.join(' ')
+        }, [
+          m('.faceImg', {
+            style: vm.getFaceStyle(face)
+          })
+        ]));
+      }
     }
     // テキスト
     messageView.push(m(messageComponent, {line: windowObj.line(), colors: colors}));
