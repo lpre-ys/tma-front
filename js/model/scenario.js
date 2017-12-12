@@ -15,7 +15,9 @@ export default class Scenario {
       let root = [];
       try {
         root = parser.parse(this.scenarioText());
-        this.tkScript = parser.serialize();
+        // TODO 場当たり的な修正
+        this.tkScript = 'Note("dummy note")' + "\n";
+        this.tkScript += parser.serialize();
         this.parseError('');
       } catch (e) {
         this.parseError(e.message);

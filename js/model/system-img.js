@@ -35,33 +35,9 @@ export default class SystemImg extends Png {
     if (this._messageWindowDataUrl == false) {
       // make messageWindow
       const canvas = this._makeCanvas(32, 32);
-
-      // frame transparent set
       const ctx = canvas.getContext('2d');
-      ctx.drawImage(this.img, 32, 0, 32, 32, 0, 0, 32, 32);
-      const imageData = ctx.getImageData(0, 0, 32, 32);
-      const tColor = this.palette[0];
-      for (let y = 0; y < canvas.height; y++) {
-        for (let x = 0; x < canvas.width; x++) {
-          const offset = (y * canvas.width + x) * 4;
-          // 中央
-          if (x >= 8 && x <= 24 && y >= 8 && y <= 24) {
-            imageData.data[offset + 3] = 0;
-            continue;
-          }
-          const r = imageData.data[offset];
-          const g = imageData.data[offset + 1];
-          const b = imageData.data[offset + 2];
-          if (tColor.r == r && tColor.g == g && tColor.b == b) {
-            imageData.data[offset + 3] = 0;
-          }
-        }
-      }
 
-      // frame serialize
-      ctx.putImageData(imageData, 0, 0);
-      const frame = new Image();
-      frame.src = canvas.toDataURL();
+      const frame = this._makeFrame();
 
       // draw background
       ctx.drawImage(this.img, 0, 0, 32, 32, 0, 0, 32, 32);
@@ -115,6 +91,38 @@ export default class SystemImg extends Png {
     const canvas = document.createElement('canvas');
     canvas.width = w;
     canvas.height = h;
+
+    return canvas;
+  }
+
+  _makeFrame() {
+    // make FrameCanvas
+    const canvas = this._makeCanvas(32, 32);
+
+    // frame transparent set
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(this.img, 32, 0, 32, 32, 0, 0, 32, 32);
+    const imageData = ctx.getImageData(0, 0, 32, 32);
+    const tColor = this.palette[0];
+    for (let y = 0; y < canvas.height; y++) {
+      for (let x = 0; x < canvas.width; x++) {
+        const offset = (y * canvas.width + x) * 4;
+        // 中央
+        if (x >= 8 && x <= 24 && y >= 8 && y <= 24) {
+          imageData.data[offset + 3] = 0;
+          continue;
+        }
+        const r = imageData.data[offset];
+        const g = imageData.data[offset + 1];
+        const b = imageData.data[offset + 2];
+        if (tColor.r == r && tColor.g == g && tColor.b == b) {
+          imageData.data[offset + 3] = 0;
+        }
+      }
+    }
+
+    // frame serialize
+    ctx.putImageData(imageData, 0, 0);
 
     return canvas;
   }
