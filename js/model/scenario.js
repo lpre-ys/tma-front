@@ -6,6 +6,7 @@ export default class Scenario {
   constructor(data = {}) {
     this.scenarioText = m.prop(data.scenarioText || '');
     this.tkScript = '';
+    this.jsScript = '';
     this.list = [];
     this.parseError = m.prop('');
   }
@@ -18,6 +19,7 @@ export default class Scenario {
         // TODO 場当たり的な修正
         this.tkScript = 'Note("dummy note")' + "\n";
         this.tkScript += parser.serialize();
+        this.jsScript = parser.serialize(true);
         this.parseError('');
       } catch (e) {
         this.parseError(e.message);

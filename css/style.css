@@ -247,6 +247,10 @@ textarea {
   border-bottom: 1px solid var(--control-base-color);
 }
 
+.speed {
+  border-bottom: 1px dotted var(--control-base-color);
+}
+
 .text i {
   font-size: 8pt;
   font-style: normal;

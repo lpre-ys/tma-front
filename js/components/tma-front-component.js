@@ -53,7 +53,12 @@ const tmaFrontComponent = {
             m('textarea#tkScript', {
               readonly: 'readonly',
               onfocus: tmaFrontComponent.selectText
-            }, [vm.scenario.tkScript])
+            }, [vm.scenario.tkScript]),
+            m('h2', 'JS(js2tk)'),
+            m('textarea#jsScript', {
+              readonly: 'readonly',
+              onfocus: tmaFrontComponent.selectText
+            }, [vm.scenario.jsScript])
           ])
         ]),
         m('.right', [
