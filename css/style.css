@@ -251,6 +251,11 @@ textarea {
   border-bottom: 1px dotted var(--control-base-color);
 }
 
+.center {
+  display: block;
+  text-align: center;
+}
+
 .text i {
   font-size: 8pt;
   font-style: normal;
