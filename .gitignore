@@ -41,3 +41,6 @@ sample/config/*.png
 
 # builded file
 build/*
+
+CLAUDE.md
+.claude

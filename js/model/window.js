@@ -10,6 +10,7 @@ export default class Window {
     data.message = data.message || {};
     this.comments = data.message.comments || [];
     this.face = data.face || false;
+    this.se = data.se || null;
     this.iconStatus = false;
     // Line objの組み立て
     this.line(data.message.line || []);

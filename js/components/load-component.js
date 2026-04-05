@@ -1,6 +1,7 @@
 import m from 'mithril';
 import systemImgComponent from './load/system-img-component';
 import faceImgComponent from './load/face-img-component';
+import seAudioComponent from './load/se-audio-component';
 
 const loadComponent = {
   controller: function (data) {
@@ -17,6 +18,8 @@ const loadComponent = {
     if (vm.loadStatus) {
       // systemImg
       settingList.push(m.component(systemImgComponent, {vm: vm}));
+      // se audio
+      settingList.push(m.component(seAudioComponent, {vm: vm}));
       // face graphics
       settingList.push(m.component(faceImgComponent, {vm: vm}));
     }

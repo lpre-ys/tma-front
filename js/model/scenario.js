@@ -48,8 +48,9 @@ export default class Scenario {
 
   _buildlist(messageBox, parent) {
     const face = messageBox.face;
+    const se = messageBox.se;
     messageBox.messageList.map((message) => {
-      parent.push(new Window({message, face}));
+      parent.push(new Window({message, face, se}));
     });
   }
 

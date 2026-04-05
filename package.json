@@ -1,6 +1,6 @@
 {
   "name": "tma-front",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "tk2k-message-assist for web",
   "main": "index.js",
   "scripts": {

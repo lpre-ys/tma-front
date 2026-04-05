@@ -1,5 +1,5 @@
 import m from 'mithril';
-import Encoding from 'encoding-japanese';
+import Encoding from 'encoding-japanese/src/index.js';
 import Png from '../model/png';
 import SystemImg from '../model/system-img';
 import Scenario from '../model/scenario';
@@ -24,12 +24,15 @@ export default class TmaFrontVM {
     this.stickyStatus = m.prop('normal');
     this.stickyCheck = m.prop(data.stickyCheck || false);
     this.stickyYOffset = 0;
+    this.stickyHeight = 0;
     // for yamlGenerator
     this.yamlGeneratorStatus = m.prop('disable');
     // for load setting
     this.loadStatus = false;
     this.systemImg = false;
     this.faceImgs = {};
+    this.seAudios = {};
+    this.showSe = m.prop(data.showSe !== undefined ? data.showSe : true);
     this.config = false;
     // get styleSheet
     this.styleSheet = new StyleSheet('style.css');
@@ -57,6 +60,8 @@ export default class TmaFrontVM {
         promises.push(this._readPng(file, file.name));
       } else if (['yaml', 'yml'].includes(ext)) {
         promises.push(this._readPeopleYaml(file));
+      } else if (ext === 'wav') {
+        promises.push(this._readAudio(file, file.name));
       }
     }
     // 全てのファイルの読み込みが終わったら、設定の取り込みを行う
@@ -74,6 +79,8 @@ export default class TmaFrontVM {
           styleYaml = file;
         } else if (type == 'peopleYaml') {
           poepleYamls.push(file);
+        } else if (type == 'audio') {
+          this.seAudios[file.filename] = file.audio;
         }
       });
       this.parser = new ScenarioParser(styleYaml, poepleYamls);
@@ -121,6 +128,7 @@ export default class TmaFrontVM {
       zoom: this.zoom.serialize(),
       stickyCheck: this.stickyCheck,
       autosave: this.autosave,
+      showSe: this.showSe(),
       scenario: {
         scenarioText: this.scenario.scenarioText()
       },
@@ -158,6 +166,7 @@ export default class TmaFrontVM {
     const element = document.getElementById('stickyWrapper');
     const rect = element.getBoundingClientRect();
     if (rect.top < 0 && this.stickyStatus() == 'normal') {
+      this.stickyHeight = element.offsetHeight;
       this.stickyStatus('sticky');
       this.stickyYOffset = window.pageYOffset;
       m.redraw();
@@ -212,6 +221,27 @@ export default class TmaFrontVM {
     reader.onerror = deferred.reject;
 
     return deferred.promise;
+  }
+
+  _readAudio(file, filename) {
+    const deferred = m.deferred();
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onloadend = (e) => {
+      const audio = new Audio(e.target.result);
+      deferred.resolve({ type: 'audio', file: { filename, audio } });
+    };
+    reader.onerror = deferred.reject;
+    return deferred.promise;
+  }
+
+  playSeAudio(filename) {
+    const key = this.seAudios[filename] ? filename : `${filename}.wav`;
+    const audio = this.seAudios[key];
+    if (audio) {
+      audio.currentTime = 0;
+      audio.play();
+    }
   }
 
   _readPng(file, filename) {

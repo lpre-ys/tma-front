@@ -43,6 +43,16 @@ const tmaFrontComponent = {
                 m('label', {
                   for: 'stickyCheckbox'
                 }, 'sticky')
+              ]),
+              m('.toggle', [
+                m('input#showSe', {
+                  type: 'checkbox',
+                  checked: vm.showSe(),
+                  onclick: m.withAttr('checked', vm.showSe)
+                }),
+                m('label', {
+                  for: 'showSe'
+                }, 'SE表示')
               ])
             ]),
             m('textarea#input', {
@@ -59,7 +69,10 @@ const tmaFrontComponent = {
               readonly: 'readonly',
               onfocus: tmaFrontComponent.selectText
             }, [vm.scenario.jsScript])
-          ])
+          ]),
+          vm.stickyCheck() && vm.stickyStatus() === 'sticky'
+            ? m('#stickyPlaceholder', {style: {height: `${vm.stickyHeight}px`}})
+            : null
         ]),
         m('.right', [
           m('h2', 'プレビュー'),
