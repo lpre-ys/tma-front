@@ -1,28 +1,27 @@
-import m from 'mithril';
 import Window from './window';
 import Block from './block';
 
 export default class Scenario {
   constructor(data = {}) {
-    this.scenarioText = m.prop(data.scenarioText || '');
+    this.scenarioText = data.scenarioText || '';
     this.tkScript = '';
     this.jsScript = '';
     this.list = [];
-    this.parseError = m.prop('');
+    this.parseError = '';
   }
 
   parse(parser) {
     if (parser) {
       let root = { child: [] };
       try {
-        root = parser.parse(this.scenarioText());
+        root = parser.parse(this.scenarioText);
         // TODO 場当たり的な修正
         this.tkScript = 'Note("dummy note")' + "\n";
         this.tkScript += parser.serialize();
         this.jsScript = parser.serialize(true);
-        this.parseError('');
+        this.parseError = '';
       } catch (e) {
-        this.parseError(e.message);
+        this.parseError = e.message;
       }
 
       // ウィンドウに変換

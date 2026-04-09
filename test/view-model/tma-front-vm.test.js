@@ -9,22 +9,22 @@ describe('TmaFrontVM', () => {
   describe('constructor', () => {
     it('autosave が false で初期化', () => {
       const vm = new TmaFrontVM();
-      expect(vm.autosave()).toBe(false);
+      expect(vm.autosave).toBe(false);
     });
 
     it('stickyStatus が normal で初期化', () => {
       const vm = new TmaFrontVM();
-      expect(vm.stickyStatus()).toBe('normal');
+      expect(vm.stickyStatus).toBe('normal');
     });
 
     it('stickyCheck が false で初期化', () => {
       const vm = new TmaFrontVM();
-      expect(vm.stickyCheck()).toBe(false);
+      expect(vm.stickyCheck).toBe(false);
     });
 
     it('showSe が true で初期化', () => {
       const vm = new TmaFrontVM();
-      expect(vm.showSe()).toBe(true);
+      expect(vm.showSe).toBe(true);
     });
 
     it('loadStatus が false で初期化', () => {
@@ -52,14 +52,9 @@ describe('TmaFrontVM', () => {
       expect(vm.seAudios).toEqual({});
     });
 
-    it('zoom が初期化される', () => {
-      const vm = new TmaFrontVM();
-      expect(vm.zoom.zoomLevel()).toBe(1);
-    });
-
     it('scenario が初期化される', () => {
       const vm = new TmaFrontVM();
-      expect(vm.scenario.scenarioText()).toBe('');
+      expect(vm.scenario.scenarioText).toBe('');
     });
   });
 
@@ -67,14 +62,14 @@ describe('TmaFrontVM', () => {
     it('テキストが更新される', () => {
       const vm = new TmaFrontVM();
       vm.setScenarioText('new text');
-      expect(vm.scenario.scenarioText()).toBe('new text');
+      expect(vm.scenario.scenarioText).toBe('new text');
     });
 
     it('同じテキストを設定しても変化なし', () => {
       const vm = new TmaFrontVM();
       vm.setScenarioText('text');
       vm.setScenarioText('text');
-      expect(vm.scenario.scenarioText()).toBe('text');
+      expect(vm.scenario.scenarioText).toBe('text');
     });
 
     it('テキスト変更後に parse が呼ばれる', () => {
@@ -115,7 +110,6 @@ describe('TmaFrontVM', () => {
     it('必要なキーが含まれる', () => {
       const vm = new TmaFrontVM();
       const json = JSON.parse(vm.toJSON());
-      expect(json).toHaveProperty('zoom');
       expect(json).toHaveProperty('stickyCheck');
       expect(json).toHaveProperty('autosave');
       expect(json).toHaveProperty('showSe');
@@ -123,15 +117,9 @@ describe('TmaFrontVM', () => {
       expect(json.scenario).toHaveProperty('scenarioText');
     });
 
-    it('zoom の zoomLevel が含まれる', () => {
-      const vm = new TmaFrontVM();
-      const json = JSON.parse(vm.toJSON());
-      expect(json.zoom.zoomLevel).toBe(1);
-    });
-
     it('scenarioText が含まれる', () => {
       const vm = new TmaFrontVM();
-      vm.scenario.scenarioText('my text');
+      vm.scenario.scenarioText = 'my text';
       const json = JSON.parse(vm.toJSON());
       expect(json.scenario.scenarioText).toBe('my text');
     });
@@ -140,7 +128,7 @@ describe('TmaFrontVM', () => {
   describe('save', () => {
     it('autosave が false の場合は有効なデータを保存しない', () => {
       const vm = new TmaFrontVM();
-      vm.autosave(false);
+      vm.autosave = false;
       vm.save();
       // reset() により 'null' 文字列が入るが、JSON.parse すると null になる
       expect(JSON.parse(localStorage[TmaFrontVM.STORAGE_KEY])).toBeNull();
@@ -148,7 +136,7 @@ describe('TmaFrontVM', () => {
 
     it('autosave が true の場合は localStorage に保存される', () => {
       const vm = new TmaFrontVM();
-      vm.autosave(true);
+      vm.autosave = true;
       vm.save();
       const stored = localStorage[TmaFrontVM.STORAGE_KEY];
       expect(stored).toBeTruthy();
@@ -167,21 +155,19 @@ describe('TmaFrontVM', () => {
 
     it('save したデータが次のインスタンスで復元される', () => {
       const vm1 = new TmaFrontVM();
-      vm1.autosave(true);
-      vm1.scenario.scenarioText('saved text');
-      vm1.zoom.zoomLevel(2);
+      vm1.autosave = true;
+      vm1.scenario.scenarioText = 'saved text';
       vm1.save();
 
       const vm2 = new TmaFrontVM();
-      expect(vm2.scenario.scenarioText()).toBe('saved text');
-      expect(vm2.zoom.zoomLevel()).toBe(2);
+      expect(vm2.scenario.scenarioText).toBe('saved text');
     });
   });
 
   describe('reset', () => {
     it('reset 後は localStorage[key] が null 文字列になる', () => {
       const vm = new TmaFrontVM();
-      vm.autosave(true);
+      vm.autosave = true;
       vm.save();
       vm.reset();
       // reset() は localStorage[key] = null（文字列 'null'）を保存する
@@ -190,7 +176,7 @@ describe('TmaFrontVM', () => {
 
     it('reset 後は load が null を返す', () => {
       const vm = new TmaFrontVM();
-      vm.autosave(true);
+      vm.autosave = true;
       vm.save();
       vm.reset();
       expect(vm.load()).toBeNull();

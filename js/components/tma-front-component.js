@@ -1,34 +1,35 @@
 import m from 'mithril';
-import zoomComponent from './zoom-component';
 import loadComponent from './load-component';
 import messageListComponent from './message-list-component';
 import yamlGeneratorComponent from 'components/yaml-generator-component';
 import TmaFrontVM from '../view-model/tma-front-vm';
 
+const selectText = (e) => { e.target.select(); };
+
 const tmaFrontComponent = {
-  controller: function () {
+  oninit(vnode) {
     this.vm = new TmaFrontVM();
     window.onscroll = this.vm.onScrollSticky.bind(this.vm);
   },
-  view: (ctrl) => {
-    const vm = ctrl.vm;
+  view(vnode) {
+    const vm = this.vm;
     // save
     vm.save();
-    // create veiew
+    // create view
     return [
       m('.frame', m('#appContainer', [
         m('.panel-left', [
-          m.component(loadComponent, {vm: vm}),
+          m(loadComponent, {vm: vm}),
           m('#stickyWrapper', {
-            class: vm.stickyCheck() ? vm.stickyStatus() : 'normal'
+            class: vm.stickyCheck ? vm.stickyStatus : 'normal'
           }, [
             m('.header', [
               m('h2', 'シナリオスクリプト'),
               m('.toggle', [
                 m('input#autosave', {
                   type: 'checkbox',
-                  checked: vm.autosave(),
-                  onclick: m.withAttr('checked', vm.autosave)
+                  checked: vm.autosave,
+                  onclick: (e) => { vm.autosave = e.target.checked; }
                 }),
                 m('label', {
                   for: 'autosave'
@@ -37,8 +38,8 @@ const tmaFrontComponent = {
               m('.toggle', [
                 m('input#stickyCheckbox', {
                   type: 'checkbox',
-                  checked: vm.stickyCheck(),
-                  onclick: m.withAttr('checked', vm.stickyCheck)
+                  checked: vm.stickyCheck,
+                  onclick: (e) => { vm.stickyCheck = e.target.checked; }
                 }),
                 m('label', {
                   for: 'stickyCheckbox'
@@ -47,8 +48,8 @@ const tmaFrontComponent = {
               m('.toggle', [
                 m('input#showSe', {
                   type: 'checkbox',
-                  checked: vm.showSe(),
-                  onclick: m.withAttr('checked', vm.showSe)
+                  checked: vm.showSe,
+                  onclick: (e) => { vm.showSe = e.target.checked; }
                 }),
                 m('label', {
                   for: 'showSe'
@@ -56,37 +57,33 @@ const tmaFrontComponent = {
               ])
             ]),
             m('textarea#input', {
-              value: vm.scenario.scenarioText(),
-              onkeyup: m.withAttr('value', vm.setScenarioText, vm)
+              value: vm.scenario.scenarioText,
+              onkeyup: (e) => vm.setScenarioText(e.target.value)
             }),
             m('h2', 'TKcode'),
             m('textarea#tkScript', {
               readonly: 'readonly',
-              onfocus: tmaFrontComponent.selectText
+              onfocus: selectText
             }, [vm.scenario.tkScript]),
             m('h2', 'JS(js2tk)'),
             m('textarea#jsScript', {
               readonly: 'readonly',
-              onfocus: tmaFrontComponent.selectText
+              onfocus: selectText
             }, [vm.scenario.jsScript])
           ]),
-          vm.stickyCheck() && vm.stickyStatus() === 'sticky'
+          vm.stickyCheck && vm.stickyStatus === 'sticky'
             ? m('#stickyPlaceholder', {style: {height: `${vm.stickyHeight}px`}})
             : null
         ]),
         m('.panel-right', [
           m('h2', 'プレビュー'),
-          m.component(zoomComponent, {vm: vm}),
-          m.component(messageListComponent, {vm: vm})
+          m(messageListComponent, {vm: vm})
         ])
       ])),
       m('#tools', [
-        m.component(yamlGeneratorComponent, {status: vm.yamlGeneratorStatus})
+        m(yamlGeneratorComponent, {vm: vm})
       ])
     ];
-  },
-  selectText: (e) => {
-    e.target.select();
   }
 };
 

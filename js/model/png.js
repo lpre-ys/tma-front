@@ -10,13 +10,13 @@ const pngInfo = {
 };
 
 export default class Png {
-  constructor(deferred, filename) {
+  constructor(resolve, filename) {
     // private init
     this.file = false;
     this.filename = filename;
     this.dataUrl = false;
     this.palette = [];
-    this.deferred = deferred;
+    this._resolve = resolve;
     this.img = false;
   }
 
@@ -37,7 +37,7 @@ export default class Png {
       // パレット読み込み
       this.palette = this.readPlte(pngInfo.signature);
       // resolve
-      this.deferred.resolve({
+      this._resolve({
         type: 'png',
         file: this
       });

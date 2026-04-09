@@ -1,11 +1,10 @@
-import m from 'mithril';
 import domParser from '../utils/dom-parser';
 import Const from '../utils/const';
 
 export default class Line {
   constructor(data) {
     data = data || {};
-    this.raw = m.prop(data.line || '');
+    this.raw = data.line || '';
     this._line = false;
     this._text = false;
   }
@@ -18,7 +17,7 @@ export default class Line {
 
     // 未変換であれば変換する
     if (this._line === false) {
-      const raw = Line.preEscape(this.raw());
+      const raw = Line.preEscape(this.raw);
       const dom = domParser.parseFromString(raw, 'text/html');
       const tree = Line.domToTree(dom.body);
       this._line = tree;
@@ -35,7 +34,7 @@ export default class Line {
 
     // 未変換であれば変換する
     if (this._text === false) {
-      const raw = Line.preEscape(this.raw());
+      const raw = Line.preEscape(this.raw);
       const dom = domParser.parseFromString(raw, 'text/html');
       this._text = Line.postEscape(dom.body.textContent);
     }

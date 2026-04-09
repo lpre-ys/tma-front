@@ -5,17 +5,17 @@ describe('Line model', () => {
   describe('constructor', () => {
     it('data.line で raw が初期化', () => {
       const line = new Line({ line: 'test line' });
-      expect(line.raw()).toBe('test line');
+      expect(line.raw).toBe('test line');
     });
 
     it('引数なしで raw が空文字', () => {
       const line = new Line();
-      expect(line.raw()).toBe('');
+      expect(line.raw).toBe('');
     });
 
     it('data なしでも動作する', () => {
       const line = new Line({});
-      expect(line.raw()).toBe('');
+      expect(line.raw).toBe('');
     });
   });
 

@@ -1,11 +1,8 @@
 import m from 'mithril';
 
 const faceImgComponent = {
-  controller: function (data) {
-    this.vm = data.vm;
-  },
-  view: (ctrl) => {
-    const vm = ctrl.vm;
+  view(vnode) {
+    const vm = vnode.attrs.vm;
     const faceListView = vm.config.faceKeyList.map((faceKey) => {
       return m('li', [
         m('p', faceKey),

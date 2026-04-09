@@ -4,43 +4,42 @@ import faceImgComponent from './load/face-img-component';
 import seAudioComponent from './load/se-audio-component';
 
 const loadComponent = {
-  controller: function (data) {
-    this.vm = data.vm;
-    this.buttonStatus = m.prop(false);
-    this.tColor = false;
+  oninit(vnode) {
+    this.vm = vnode.attrs.vm;
+    this.buttonStatus = false;
     this.noop = (e) => {
       e.preventDefault();
     };
   },
-  view: (ctrl) => {
+  view(vnode) {
+    const vm = this.vm;
     const settingList = [];
-    const vm = ctrl.vm;
     if (vm.loadStatus) {
       // systemImg
-      settingList.push(m.component(systemImgComponent, {vm: vm}));
+      settingList.push(m(systemImgComponent, {vm: vm}));
       // se audio
-      settingList.push(m.component(seAudioComponent, {vm: vm}));
+      settingList.push(m(seAudioComponent, {vm: vm}));
       // face graphics
-      settingList.push(m.component(faceImgComponent, {vm: vm}));
+      settingList.push(m(faceImgComponent, {vm: vm}));
     }
     return m('.loadComponent', [
       m('.header', [
         m('h2', '設定ファイル'),
         m('button.tool', {
-          onclick: () => { ctrl.vm.yamlGeneratorStatus('enable'); }
+          onclick: () => { vm.yamlGeneratorStatus = 'enable'; }
         }, 'ジェネレータ')
       ]),
       m('button.checkConfig', {
         class: vm.loadStatus ? 'enable' : 'disable',
-        'data-button-status': ctrl.buttonStatus() == 'on' ? 'off' : 'on',
-        onclick: m.withAttr('data-button-status', ctrl.buttonStatus)
-      }, '設定の' + (ctrl.buttonStatus() == 'on' ? '非表示' : '表示')),
+        'data-button-status': this.buttonStatus == 'on' ? 'off' : 'on',
+        onclick: (e) => { this.buttonStatus = e.target.dataset.buttonStatus; }
+      }, '設定の' + (this.buttonStatus == 'on' ? '非表示' : '表示')),
       m('.settingList', {
-        class: ctrl.buttonStatus() == 'on' ? 'enable' : 'disable'
+        class: this.buttonStatus == 'on' ? 'enable' : 'disable'
       }, settingList),
       m('.loadConfig', {
         class: vm.loadStatus ? 'disable' : 'enable',
-        ondragover: ctrl.noop,
+        ondragover: this.noop,
         ondrop: vm.dropFiles.bind(vm)
       }, 'ここに設定ファイルをまとめてドロップしてください。')
     ]);

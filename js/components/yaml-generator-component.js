@@ -1,20 +1,17 @@
 import m from 'mithril';
 import YamlGenerator from '../model/yaml-generator';
 
+const selectText = (e) => { e.target.select(); };
+
 const yamlGeneratorComponent = {
-  controller: function (data) {
-    return {
-      generator: new YamlGenerator(),
-      status: data.status,
-      selectText: (e) => {
-        e.target.select();
-      }
-    };
+  oninit(vnode) {
+    this.generator = new YamlGenerator();
   },
-  view: (ctrl) => {
+  view(vnode) {
+    const vm = vnode.attrs.vm;
     return m('.modalOverlay', {
-      class: ctrl.status(),
-      onclick: () => { ctrl.status('disable'); }
+      class: vm.yamlGeneratorStatus,
+      onclick: () => { vm.yamlGeneratorStatus = 'disable'; }
     }, [
       m('.yamlGenerator.modalWrap', {
         onclick: (e) => { e.stopPropagation(); }
@@ -24,29 +21,29 @@ const yamlGeneratorComponent = {
           m('div', [
             m('label', {for: 'name'}, 'キャラ名'),
             m('input#name', {
-              onkeyup: m.withAttr('value', ctrl.generator.name),
-              value: ctrl.generator.name()
+              onkeyup: (e) => { this.generator.name = e.target.value; },
+              value: this.generator.name
             })
           ]),
           m('div', [
             m('label', {for: 'filename'}, 'ファイル名'),
             m('input#filename', {
-              onkeyup: m.withAttr('value', ctrl.generator.filename),
-              value: ctrl.generator.filename()
+              onkeyup: (e) => { this.generator.filename = e.target.value; },
+              value: this.generator.filename
             })
           ]),
           m('div', [
             m('label', {for: 'prefix'}, 'prefix'),
             m('input#prefix', {
-              onkeyup: m.withAttr('value', ctrl.generator.prefix),
-              value: ctrl.generator.prefix()
+              onkeyup: (e) => { this.generator.prefix = e.target.value; },
+              value: this.generator.prefix
             })
           ]),
           m('div', [
             m('label', {for: 'length'}, '個数'),
             m('input#length', {
-              onkeyup: m.withAttr('value', ctrl.generator.length),
-              value: ctrl.generator.length()
+              onkeyup: (e) => { this.generator.length = e.target.value; },
+              value: this.generator.length
             })
           ])
         ]),
@@ -54,11 +51,11 @@ const yamlGeneratorComponent = {
           m('h2', '設定ファイル'),
           m('textarea', {
             readonly: 'readonly',
-            onfocus: ctrl.selectText
-          }, ctrl.generator.yaml())
+            onfocus: selectText
+          }, this.generator.yaml())
         ]),
         m('.close', {
-          onclick: () => { ctrl.status('disable'); }
+          onclick: () => { vm.yamlGeneratorStatus = 'disable'; }
         }, '[x]close')
       ])
     ]);

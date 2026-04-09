@@ -1,11 +1,8 @@
 import m from 'mithril';
 
 const systemImgComponent = {
-  controller: function (data) {
-    this.vm = data.vm;
-  },
-  view: (ctrl) => {
-    const vm = ctrl.vm;
+  view(vnode) {
+    const vm = vnode.attrs.vm;
     const systemImg = vm.systemImg;
     const colors = vm.config ? vm.config.colors : [];
     return m('.systemImg', [

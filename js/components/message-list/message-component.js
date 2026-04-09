@@ -2,10 +2,8 @@ import m from 'mithril';
 import Const from '../../utils/const';
 
 const messageComponent = {
-  controller: function (data) {
-    this.vm = data.vm;
-  },
-  view: (ctrl, args) => {
+  view(vnode) {
+    const args = vnode.attrs;
     if (!args || !Array.isArray(args.line)) {
       return;
     }

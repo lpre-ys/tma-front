@@ -2,8 +2,8 @@ import Png from './png';
 import oneColor from 'onecolor';
 
 export default class SystemImg extends Png {
-  constructor(deferred) {
-    super(deferred);
+  constructor(resolve) {
+    super(resolve);
     this._messageWindowDataUrl = false;
     this._messageWindowMainColor;
   }

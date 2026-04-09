@@ -5,15 +5,14 @@ import SystemImg from '../model/system-img';
 import Scenario from '../model/scenario';
 import {ScenarioParser} from 'tk2k-message-assist';
 import StyleSheet from '../model/style-sheet';
-import Zoom from '../model/zoom';
 import Const from '../utils/const';
 
 export default class TmaFrontVM {
   constructor() {
     let data = this.load() || {};
     // autosave
-    this.autosave = m.prop(data.autosave || false);
-    if (!this.autosave()) {
+    this.autosave = data.autosave || false;
+    if (!this.autosave) {
       this.reset();
       data = {};
     }
@@ -21,22 +20,21 @@ export default class TmaFrontVM {
     // init member
     this.scenario = new Scenario(data.scenario);
     this.parser = false;
-    this.stickyStatus = m.prop('normal');
-    this.stickyCheck = m.prop(data.stickyCheck || false);
+    this.stickyStatus = 'normal';
+    this.stickyCheck = data.stickyCheck || false;
     this.stickyYOffset = 0;
     this.stickyHeight = 0;
     // for yamlGenerator
-    this.yamlGeneratorStatus = m.prop('disable');
+    this.yamlGeneratorStatus = 'disable';
     // for load setting
     this.loadStatus = false;
     this.systemImg = false;
     this.faceImgs = {};
     this.seAudios = {};
-    this.showSe = m.prop(data.showSe !== undefined ? data.showSe : true);
+    this.showSe = data.showSe !== undefined ? data.showSe : true;
     this.config = false;
     // get styleSheet
     this.styleSheet = new StyleSheet('style.css');
-    this.zoom = new Zoom(data.zoom || {zoomLevel: 1});
   }
 
   static get STORAGE_KEY() {
@@ -65,7 +63,7 @@ export default class TmaFrontVM {
       }
     }
     // 全てのファイルの読み込みが終わったら、設定の取り込みを行う
-    m.sync(promises).then((args) => {
+    Promise.all(promises).then((args) => {
       let styleYaml = false;
       const poepleYamls = [];
       args.forEach(({type, file}) => {
@@ -103,11 +101,11 @@ export default class TmaFrontVM {
   }
 
   setScenarioText(v) {
-    if (v == this.scenario.scenarioText()) {
+    if (v == this.scenario.scenarioText) {
       // 変更が無い場合何もしない
       return;
     }
-    this.scenario.scenarioText(v);
+    this.scenario.scenarioText = v;
     this.parse();
   }
 
@@ -116,7 +114,7 @@ export default class TmaFrontVM {
   }
 
   save() {
-    if (this.autosave()) {
+    if (this.autosave) {
       localStorage[TmaFrontVM.STORAGE_KEY] = this.toJSON();
     } else if (localStorage[TmaFrontVM.STORAGE_KEY]) {
       this.reset();
@@ -125,12 +123,11 @@ export default class TmaFrontVM {
 
   toJSON() {
     return JSON.stringify({
-      zoom: this.zoom.serialize(),
       stickyCheck: this.stickyCheck,
       autosave: this.autosave,
-      showSe: this.showSe(),
+      showSe: this.showSe,
       scenario: {
-        scenarioText: this.scenario.scenarioText()
+        scenarioText: this.scenario.scenarioText
       },
     });
   }
@@ -165,15 +162,15 @@ export default class TmaFrontVM {
   onScrollSticky() {
     const element = document.getElementById('stickyWrapper');
     const rect = element.getBoundingClientRect();
-    if (rect.top < 0 && this.stickyStatus() == 'normal') {
+    if (rect.top < 0 && this.stickyStatus == 'normal') {
       this.stickyHeight = element.offsetHeight;
-      this.stickyStatus('sticky');
+      this.stickyStatus = 'sticky';
       this.stickyYOffset = window.pageYOffset;
       m.redraw();
       return;
     }
-    if (window.pageYOffset <= this.stickyYOffset && this.stickyStatus() == 'sticky') {
-      this.stickyStatus('normal');
+    if (window.pageYOffset <= this.stickyYOffset && this.stickyStatus == 'sticky') {
+      this.stickyStatus = 'normal';
       m.redraw();
       return;
     }
@@ -183,56 +180,52 @@ export default class TmaFrontVM {
     const reader = new FileReader();
     reader.readAsArrayBuffer(file);
 
-    const deferred = m.deferred();
-    reader.onloadend = (e) => {
-      deferred.resolve({
-        type: 'styleYaml',
-        file: encodeString(e.target.result)
-      });
-    };
-    reader.onerror = deferred.reject;
-
-    return deferred.promise;
+    return new Promise((resolve, reject) => {
+      reader.onloadend = (e) => {
+        resolve({
+          type: 'styleYaml',
+          file: encodeString(e.target.result)
+        });
+      };
+      reader.onerror = reject;
+    });
   }
 
   _readPeopleYaml(file) {
     const reader = new FileReader();
     reader.readAsArrayBuffer(file);
 
-    const deferred = m.deferred();
-    reader.onloadend = (e) => {
-      deferred.resolve({
-        type: 'peopleYaml',
-        file: encodeString(e.target.result)
-      });
-    };
-    reader.onerror = deferred.reject;
-
-    return deferred.promise;
+    return new Promise((resolve, reject) => {
+      reader.onloadend = (e) => {
+        resolve({
+          type: 'peopleYaml',
+          file: encodeString(e.target.result)
+        });
+      };
+      reader.onerror = reject;
+    });
   }
 
   _readSystemImg(file) {
-    const deferred = m.deferred();
-    const reader = new FileReader();
-    const systemImg = new SystemImg(deferred, 'system.png');
-    reader.readAsArrayBuffer(file);
-
-    reader.onloadend = systemImg.loadEnd.bind(systemImg);
-    reader.onerror = deferred.reject;
-
-    return deferred.promise;
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      const systemImg = new SystemImg(resolve, 'system.png');
+      reader.readAsArrayBuffer(file);
+      reader.onloadend = systemImg.loadEnd.bind(systemImg);
+      reader.onerror = reject;
+    });
   }
 
   _readAudio(file, filename) {
-    const deferred = m.deferred();
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onloadend = (e) => {
-      const audio = new Audio(e.target.result);
-      deferred.resolve({ type: 'audio', file: { filename, audio } });
-    };
-    reader.onerror = deferred.reject;
-    return deferred.promise;
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onloadend = (e) => {
+        const audio = new Audio(e.target.result);
+        resolve({ type: 'audio', file: { filename, audio } });
+      };
+      reader.onerror = reject;
+    });
   }
 
   playSeAudio(filename) {
@@ -245,15 +238,13 @@ export default class TmaFrontVM {
   }
 
   _readPng(file, filename) {
-    const deferred = m.deferred();
-    const reader = new FileReader();
-    const png = new Png(deferred, filename);
-    reader.readAsArrayBuffer(file);
-
-    reader.onloadend = png.loadEnd.bind(png);
-    reader.onerror = deferred.reject;
-
-    return deferred.promise;
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      const png = new Png(resolve, filename);
+      reader.readAsArrayBuffer(file);
+      reader.onloadend = png.loadEnd.bind(png);
+      reader.onerror = reject;
+    });
   }
 }
 const getFileExt = (filename) => {

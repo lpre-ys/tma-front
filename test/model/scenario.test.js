@@ -7,16 +7,16 @@ describe('Scenario model', () => {
   describe('constructor', () => {
     it('引数なしで初期化', () => {
       const s = new Scenario();
-      expect(s.scenarioText()).toBe('');
+      expect(s.scenarioText).toBe('');
       expect(s.tkScript).toBe('');
       expect(s.jsScript).toBe('');
       expect(s.list).toEqual([]);
-      expect(s.parseError()).toBe('');
+      expect(s.parseError).toBe('');
     });
 
     it('scenarioText を初期値で設定', () => {
       const s = new Scenario({ scenarioText: 'test text' });
-      expect(s.scenarioText()).toBe('test text');
+      expect(s.scenarioText).toBe('test text');
     });
   });
 
@@ -66,7 +66,7 @@ describe('Scenario model', () => {
         serialize: vi.fn().mockReturnValue('')
       };
       scenario.parse(parser);
-      expect(scenario.parseError()).toBe('');
+      expect(scenario.parseError).toBe('');
     });
 
     it('パース失敗時は parseError にエラーメッセージが入る', () => {
@@ -77,7 +77,7 @@ describe('Scenario model', () => {
         serialize: vi.fn()
       };
       scenario.parse(parser);
-      expect(scenario.parseError()).toBe('パースエラー');
+      expect(scenario.parseError).toBe('パースエラー');
     });
 
     it('パース失敗時は list が空になる', () => {
@@ -124,8 +124,8 @@ describe('Scenario model', () => {
         };
         scenario.parse(parser);
         expect(scenario.list.length).toBe(2);
-        expect(scenario.list[0].line()[0].raw()).toBe('1st message');
-        expect(scenario.list[1].line()[0].raw()).toBe('2nd message');
+        expect(scenario.list[0].line()[0].raw).toBe('1st message');
+        expect(scenario.list[1].line()[0].raw).toBe('2nd message');
       });
     });
 
@@ -208,7 +208,7 @@ describe('Scenario model', () => {
         serialize: vi.fn().mockReturnValue('')
       };
       scenario.parse(parser);
-      expect(scenario.scenarioText()).toBe('test message');
+      expect(scenario.scenarioText).toBe('test message');
     });
   });
 });
