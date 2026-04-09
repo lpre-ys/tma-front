@@ -147,7 +147,7 @@ export default class TmaFrontVM {
   }
 
   getFaceStyle(face) {
-    const faceConfig = (typeof face == 'string') ? this.config.getFace(face) : face;
+    const faceConfig = (typeof face == 'string' && this.config) ? this.config.getFace(face) : face;
     if (!faceConfig.filename) {
       return;
     }

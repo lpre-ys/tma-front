@@ -37,7 +37,7 @@ export default class Line {
     if (this._text === false) {
       const raw = Line.preEscape(this.raw());
       const dom = domParser.parseFromString(raw, 'text/html');
-      this._text = Line.postEscape(dom.body.innerText);
+      this._text = Line.postEscape(dom.body.textContent);
     }
 
     return this._text;

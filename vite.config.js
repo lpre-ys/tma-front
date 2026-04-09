@@ -38,5 +38,8 @@ export default defineConfig({
       'utils':      path.resolve(__dirname, 'js/utils'),
       'view-model': path.resolve(__dirname, 'js/view-model'),
     }
+  },
+  test: {
+    environment: 'jsdom',
   }
 });

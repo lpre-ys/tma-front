@@ -13,7 +13,7 @@ export default class Scenario {
 
   parse(parser) {
     if (parser) {
-      let root = [];
+      let root = { child: [] };
       try {
         root = parser.parse(this.scenarioText());
         // TODO 場当たり的な修正
