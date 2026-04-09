@@ -8,7 +8,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "deploy": "vite build --mode ghpages && gh-pages -d build"
   },
   "repository": {
     "type": "git",
@@ -30,6 +31,8 @@
     "tk2k-message-assist": "github:lpre-ys/tk2k-message-assist"
   },
   "devDependencies": {
+    "archiver": "^7.0.1",
+    "gh-pages": "^6.3.0",
     "jsdom": "^29.0.2",
     "vite": "^8.0.7",
     "vitest": "^4.1.3"

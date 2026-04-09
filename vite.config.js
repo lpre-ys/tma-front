@@ -1,8 +1,42 @@
 import { defineConfig } from 'vite';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import fs from 'fs';
+import archiver from 'archiver';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+// ローカルビルド時に静的HTMLをコピーするプラグイン
+function copyStaticHtmlPlugin(outDir, files) {
+  return {
+    name: 'copy-static-html',
+    apply: 'build',
+    closeBundle() {
+      for (const file of files) {
+        fs.copyFileSync(file, path.join(outDir, file));
+      }
+    }
+  };
+}
+
+// sampleフォルダをzipにまとめるプラグイン
+function zipSamplePlugin(outDir) {
+  return {
+    name: 'zip-sample',
+    apply: 'build',
+    closeBundle() {
+      return new Promise((resolve, reject) => {
+        const output = fs.createWriteStream(path.join(outDir, 'sample.zip'));
+        const archive = archiver('zip');
+        output.on('close', resolve);
+        archive.on('error', reject);
+        archive.pipe(output);
+        archive.directory('sample/', 'sample');
+        archive.finalize();
+      });
+    }
+  };
+}
 
 // file:// で直接開けるようにするプラグイン
 function localFileCompatPlugin() {
@@ -20,15 +54,20 @@ function localFileCompatPlugin() {
   };
 }
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   root: '.',
-  base: './',
-  plugins: [localFileCompatPlugin()],
+  base: mode === 'ghpages' ? '/tma-front/' : './',
+  plugins: mode === 'ghpages'
+    ? [copyStaticHtmlPlugin('build', ['sample-config.png']), zipSamplePlugin('build')]
+    : [localFileCompatPlugin(), copyStaticHtmlPlugin('build', ['changelog.html', 'doc.html', 'sample-config.png']), zipSamplePlugin('build')],
   build: {
     outDir: 'build',
     emptyOutDir: true,
     rollupOptions: {
-      output: { format: 'iife' }
+      input: mode === 'ghpages'
+        ? { main: 'index.html', changelog: 'changelog.html', doc: 'doc.html' }
+        : 'index.html',
+      output: { format: mode === 'ghpages' ? 'es' : 'iife' }
     }
   },
   resolve: {
@@ -42,4 +81,4 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
   }
-});
+}));
