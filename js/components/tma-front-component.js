@@ -17,7 +17,7 @@ const tmaFrontComponent = {
     // create veiew
     return [
       m('.frame', m('#appContainer', [
-        m('.left', [
+        m('.panel-left', [
           m.component(loadComponent, {vm: vm}),
           m('#stickyWrapper', {
             class: vm.stickyCheck() ? vm.stickyStatus() : 'normal'
@@ -74,7 +74,7 @@ const tmaFrontComponent = {
             ? m('#stickyPlaceholder', {style: {height: `${vm.stickyHeight}px`}})
             : null
         ]),
-        m('.right', [
+        m('.panel-right', [
           m('h2', 'プレビュー'),
           m.component(zoomComponent, {vm: vm}),
           m.component(messageListComponent, {vm: vm})
