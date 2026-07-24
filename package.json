@@ -27,7 +27,7 @@
     "ent": "^2.2.2",
     "js-yaml": "^3.15.0",
     "mithril": "^2.3.8",
-    "onecolor": "^3.0.5",
+    "onecolor": "^4.1.0",
     "tk2k-message-assist": "github:lpre-ys/tk2k-message-assist"
   },
   "devDependencies": {
