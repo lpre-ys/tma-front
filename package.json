@@ -25,7 +25,7 @@
     "base64-arraybuffer": "^0.1.5",
     "encoding-japanese": "^1.0.28",
     "ent": "^2.2.0",
-    "js-yaml": "^3.11.0",
+    "js-yaml": "^3.15.0",
     "mithril": "^2.3.8",
     "onecolor": "^3.0.5",
     "tk2k-message-assist": "github:lpre-ys/tk2k-message-assist"
