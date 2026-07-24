@@ -24,7 +24,7 @@
   "dependencies": {
     "base64-arraybuffer": "^0.1.5",
     "encoding-japanese": "^1.0.28",
-    "ent": "^2.2.0",
+    "ent": "^2.2.2",
     "js-yaml": "^3.15.0",
     "mithril": "^2.3.8",
     "onecolor": "^3.0.5",
@@ -33,8 +33,8 @@
   "devDependencies": {
     "archiver": "^7.0.1",
     "gh-pages": "^6.3.0",
-    "jsdom": "^29.0.2",
+    "jsdom": "^29.1.1",
     "vite": "^8.1.5",
-    "vitest": "^4.1.3"
+    "vitest": "^4.1.10"
   }
 }
