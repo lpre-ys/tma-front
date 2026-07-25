@@ -23,7 +23,7 @@
   "homepage": "https://github.com/lpre-ys/tma-front#readme",
   "dependencies": {
     "base64-arraybuffer": "^1.0.2",
-    "encoding-japanese": "^1.0.28",
+    "encoding-japanese": "^2.2.0",
     "ent": "^2.2.2",
     "js-yaml": "^5.2.2",
     "mithril": "^2.3.8",
