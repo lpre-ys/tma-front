@@ -1,4 +1,4 @@
-import base64_arraybuffer from 'base64-arraybuffer';
+import * as base64_arraybuffer from 'base64-arraybuffer';
 
 const pngInfo = {
   signature: 8,

@@ -2,7 +2,7 @@ import { defineConfig } from 'vite';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
-import archiver from 'archiver';
+import { ZipArchive } from 'archiver';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -11,7 +11,8 @@ function copyStaticHtmlPlugin(outDir, files) {
   return {
     name: 'copy-static-html',
     apply: 'build',
-    closeBundle() {
+    // closeBundle は出力ディレクトリの書き出し前に呼ばれるため writeBundle を使う
+    writeBundle() {
       for (const file of files) {
         fs.copyFileSync(file, path.join(outDir, file));
       }
@@ -24,10 +25,11 @@ function zipSamplePlugin(outDir) {
   return {
     name: 'zip-sample',
     apply: 'build',
-    closeBundle() {
+    // closeBundle は出力ディレクトリの書き出し前に呼ばれるため writeBundle を使う
+    writeBundle() {
       return new Promise((resolve, reject) => {
         const output = fs.createWriteStream(path.join(outDir, 'sample.zip'));
-        const archive = archiver('zip');
+        const archive = new ZipArchive();
         output.on('close', resolve);
         archive.on('error', reject);
         archive.pipe(output);
