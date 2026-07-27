@@ -27,3 +27,6 @@ jobs:
 
       - run: npm ci
       - run: npm test
+      # vite.config.js のビルド時プラグイン（sample.zip生成など）は
+      # vitest では実行されないため、build まで通してゲートにする
+      - run: npm run build
