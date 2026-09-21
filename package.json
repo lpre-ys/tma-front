@@ -23,7 +23,7 @@
   "homepage": "https://github.com/lpre-ys/tma-front#readme",
   "dependencies": {
     "base64-arraybuffer": "^1.0.2",
-    "encoding-japanese": "^2.3.0",
+    "encoding-japanese": "^2.4.0",
     "ent": "^2.2.2",
     "mithril": "^2.3.8",
     "onecolor": "^4.1.0",
@@ -32,8 +32,8 @@
   "devDependencies": {
     "archiver": "^8.0.0",
     "gh-pages": "^6.3.0",
-    "jsdom": "^30.0.1",
+    "jsdom": "^30.1.0",
     "vite": "^8.3.0",
-    "vitest": "^5.0.0"
+    "vitest": "^5.0.1"
   }
 }
